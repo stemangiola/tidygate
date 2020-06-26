@@ -38,12 +38,11 @@ get_specific_annotation_columns = function(.data, .col){
     map(
       ~
         .x %>%
-        ifelse_pipe(
+        when(
           .data %>%
             distinct_at(vars(!!.col, .x)) %>%
             nrow %>%
-            equals(n_x),
-          ~ .x,
+            equals(n_x) ~ .x,
           ~ NULL
         )
     ) %>%
@@ -78,14 +77,14 @@ get_specific_annotation_columns = function(.data, .col){
       do_check &&
         (.) %>%
         # If rownames defined eliminate it from the data frame
-        when((.) %>% ifelse_pipe(!quo_is_null(rownames) ~ (.) %>% select(-!!rownames), ~ (.))) %>%
+        when(!quo_is_null(rownames) ~ (.) %>% select(-!!rownames), ~ (.)) %>%
         dplyr::summarise_all(class) %>%
         tidyr::gather(variable, class) %>%
         pull(class) %>%
         unique() %>%
         `%in%`(c("numeric", "integer")) %>% `!`() %>% any() ~ {
           warning("tidygate says: there are NON-numerical columns, the matrix will NOT be numerical")
-          .x
+          (.)
         },
       ~ (.)
     ) %>%
@@ -97,8 +96,8 @@ get_specific_annotation_columns = function(.data, .col){
     
     # Deal with rownames column if present
     when(
-      !quo_is_null(rownames) ~ .x %>%
-        set_rownames(.x %>% pull(rn)) %>%
+      !quo_is_null(rownames) ~ (.) %>%
+        set_rownames((.) %>% pull(rn)) %>%
         select(-rn), 
       ~ (.)
     ) %>%

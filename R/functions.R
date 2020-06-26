@@ -245,7 +245,8 @@ gate_dimensions_ <-
 		# Return
 		my_df = 
 			.data %>%
-			subset(!!.element) %>%
+		  select(!!.element, get_specific_annotation_columns(.data, !!.element)) %>%
+		  distinct %>%
 
 			# Check if dimensions are NA
 			when(
