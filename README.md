@@ -1,7 +1,5 @@
-tidygate: high-level data analysis and manipulation in tidyverse style.
+tidygate: add gate information to your tibble
 ================
-
-**It tidies up your playground\!**
 
 <!---
 
