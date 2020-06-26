@@ -1,6 +1,6 @@
 Package: tidygate
 Type: Package
-Title: High-Level Data Analysis and Manipulation in 'tidyverse' Style
+Title: Add Gate Information to Your Tibble
 Version: 0.1.0
 Authors@R: 
     person(given = "Stefano",
@@ -9,9 +9,7 @@ Authors@R:
            email = "mangiolastefano@gmail.com")
 Maintainer: Stefano Mangiola <mangiolastefano@gmail.com>
 Description: 
-    Includes wrapper functions for the main high-level data analysis and manipulations, 
-    such as cluster, dimensionality reduction, redundancy elimination, identify variable elements. 
-    It operates on tidy data frames with element, feature and value column.
+    Interactively draw gates on your dimensions and add gate annotation to your tibble.
 License: GPL-3
 Depends:
     R (>= 3.6.0)
