@@ -19,17 +19,21 @@ output: github_document
 
 
 
-## Minimal input data frame
+**Input (tibble)**
 
-element | feature | value
------------- | ------------- | -------------
-`chr` or `fctr` | `chr` or `fctr` | `numeric`
-
-## Output data frame
-
-element | feature | value | gate
+element | dimension1 | dimension2 | annotations |
 ------------ | ------------- | ------------- | -------------
 `chr` or `fctr` | `chr` or `fctr` | `numeric` | ...
+
+**Command** `input %>% gate_dimentions(element, dimension1, dimension2)`
+
+![](inst/tidygate.gif)
+
+**Output (tibble)**
+
+element |  dimension1 | dimension2 | annotations | Gate |
+------------ | ------------- | ------------- | ------------- | -------------
+`chr` or `fctr` | `chr` or `fctr` | `numeric` | ... | ...
 
 
 ```{r, echo=FALSE, include=FALSE, }
@@ -51,65 +55,3 @@ devtools::install_github("stemangiola/tidygate")
 
 ```
 
-## Introduction
-
-tidygate is a collection of wrapper functions for high level data analysis and manipulation following the tidy paradigm.
-
-## Tidy data
-
-```{r}
-mtcars_tidy = 
-	mtcars %>% 
-	as_tibble(rownames="car_model") %>% 
-	mutate_at(vars(-car_model,- hp, -vs), scale) %>%
-	gather(feature, value, -car_model, -hp, -vs)
-
-mtcars_tidy
-```
-
-## `ADD` versus `GET` versus `ONLY` modes
-
-Every function takes a tidyfeatureomics structured data as input, and (i) with action="add" outputs the new information joint to the original input data frame (default), (ii) with action="get" the new information with the element or feature relative informatin depending on what the analysis is about, or (iii) with action="only" just the new information. For example, from this data set
-
-```{r, cache=TRUE}
-  mtcars_tidy
-```
-
-**action="add"** (Default)
-We can add the MDS dimensions to the original data set
-
-```{r, cache=TRUE, eval=FALSE}
-  mtcars_tidy %>%
-    reduce_dimensions(
-    	car_model, feature, value, 
-    	method="MDS" ,
-    	.dims = 3,
-    	action="add"
-    )
-```
-
-**action="get"** 
-We can add the MDS dimensions to the original data set selecting just the element-wise column
-
-```{r, cache=TRUE, eval=FALSE}
-  mtcars_tidy %>%
-    reduce_dimensions(
-    	car_model, feature, value, 
-    	method="MDS" ,
-    	.dims = 3,
-    	action="get"
-    )
-```
-
-**action="only"**
-We can get just the MDS dimensions relative to each element
-
-```{r, cache=TRUE, eval=FALSE}
-  mtcars_tidy %>%
-    reduce_dimensions(
-    	car_model, feature, value, 
-    	method="MDS" ,
-    	.dims = 3,
-    	action="only"
-    )
-```
