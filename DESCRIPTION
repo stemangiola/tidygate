@@ -1,0 +1,47 @@
+Package: tidygate
+Type: Package
+Title: High-Level Data Analysis and Manipulation in 'tidyverse' Style
+Version: 0.1.0
+Authors@R: 
+    person(given = "Stefano",
+           family = "Mangiola",
+           role = c("aut", "cre"),
+           email = "mangiolastefano@gmail.com")
+Maintainer: Stefano Mangiola <mangiolastefano@gmail.com>
+Description: 
+    Includes wrapper functions for the main high-level data analysis and manipulations, 
+    such as cluster, dimensionality reduction, redundancy elimination, identify variable elements. 
+    It operates on tidy data frames with element, feature and value column.
+License: GPL-3
+Depends:
+    R (>= 3.6.0)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.0
+Imports: 
+    lifecycle,
+    magrittr,
+    tibble,
+    dplyr,
+    tidyselect,
+    purrr,
+    rlang,
+    tidyr,
+    methods,
+    lme4,
+    stats,
+    utils,
+    knitr,
+    graphics,
+    viridis,
+    grDevices,
+    RColorBrewer,
+    scales
+RdMacros: lifecycle
+Suggests: 
+    testthat,
+    gatepoints
+VignetteBuilder: 
+    knitr
+Biarch: true
+biocViews: AssayDomain, Infrastructure

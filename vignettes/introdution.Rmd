@@ -1,0 +1,141 @@
+---
+title: "tidygate: high-level data analysis and manipulation in tidyverse style"
+output: github_documentdate: "`r Sys.Date()`"
+package: tidygate
+output:
+  BiocStyle::html_document:
+    toc_float: true
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{Overview of the tidybulk package}
+  %\usepackage[UTF-8]{inputenc}
+---
+
+<!-- badges: start -->
+  [![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+ <!-- badges: end -->
+
+<!---
+
+[![Build Status](https://travis-ci.org/stemangiola/tidygate.svg?branch=master)](https://travis-ci.org/stemangiola/tidygate) [![Coverage Status](https://coveralls.io/repos/github/stemangiola/tidygate/badge.svg?branch=master)](https://coveralls.io/github/stemangiola/tidygate?branch=master)
+
+-->
+
+
+#  <img src="inst/logo.png" height="139px" width="120px" />
+
+## Functions/utilities available
+
+Function | Description
+------------ | -------------
+`reduce_dimensions` | Perform dimensionality reduction (PCA, MDS, tSNE)
+`rotate_dimensions` | Rotate two dimensions of a degree
+`cluster_elements` | Labels elements with cluster identity
+`remove_redundancy` | Filter out elements with highly correlated features
+`fill_missing` | Fill values of missing element/feature pairs 
+`impute_missing` | Impute values of missing element/feature pairs 
+`permute_nest` | From one column build a two permuted columns with nested information
+`combine_nest` | From one column build a two combination columns with nested information
+`keep_variable` | Keep top variable features
+`lower_triangular` | keep rows corresponding to a lower triangular matrix
+
+Utilities | Description
+------------ | -------------
+`as_matrix` | Robustly convert a tibble to matrix 
+`subset`| Select columns with information relative to a column of interest
+
+## Minimal input data frame
+
+element | feature | value
+------------ | ------------- | -------------
+`chr` or `fctr` | `chr` or `fctr` | `numeric`
+
+## Output data frame
+
+element | feature | value | new information
+------------ | ------------- | ------------- | -------------
+`chr` or `fctr` | `chr` or `fctr` | `numeric` | ...
+
+
+```{r, echo=FALSE, include=FALSE, }
+library(knitr)
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE,
+                      message = FALSE, cache.lazy = FALSE)
+
+library(dplyr)
+library(tidyr)
+library(magrittr)
+library(tidygate)
+
+```
+
+## Installation
+
+```{r, eval=FALSE}
+
+devtools::install_github("stemangiola/tidygate")
+
+```
+
+## Introduction
+
+tidygate is a collection of wrapper functions for high level data analysis and manipulation following the tidy paradigm.
+
+## Tidy data
+
+```{r}
+mtcars_tidy = 
+	mtcars %>% 
+	as_tibble(rownames="car_model") %>% 
+	mutate_at(vars(-car_model,- hp, -vs), scale) %>%
+	gather(feature, value, -car_model, -hp, -vs)
+
+mtcars_tidy
+```
+
+## `ADD` versus `GET` versus `ONLY` modes
+
+Every function takes a tidyfeatureomics structured data as input, and (i) with action="add" outputs the new information joint to the original input data frame (default), (ii) with action="get" the new information with the element or feature relative informatin depending on what the analysis is about, or (iii) with action="only" just the new information. For example, from this data set
+
+```{r, cache=TRUE}
+  mtcars_tidy
+```
+
+**action="add"** (Default)
+We can add the MDS dimensions to the original data set
+
+```{r, cache=TRUE, eval=FALSE}
+  mtcars_tidy %>%
+    reduce_dimensions(
+    	car_model, feature, value, 
+    	method="MDS" ,
+    	.dims = 3,
+    	action="add"
+    )
+```
+
+**action="get"** 
+We can add the MDS dimensions to the original data set selecting just the element-wise column
+
+```{r, cache=TRUE, eval=FALSE}
+  mtcars_tidy %>%
+    reduce_dimensions(
+    	car_model, feature, value, 
+    	method="MDS" ,
+    	.dims = 3,
+    	action="get"
+    )
+```
+
+**action="only"**
+We can get just the MDS dimensions relative to each element
+
+```{r, cache=TRUE, eval=FALSE}
+  mtcars_tidy %>%
+    reduce_dimensions(
+    	car_model, feature, value, 
+    	method="MDS" ,
+    	.dims = 3,
+    	action="only"
+    )
+```
