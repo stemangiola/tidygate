@@ -18,7 +18,7 @@ tidygate: add gate information to your tibble
 | --------------- | --------------- | ---------- | ----------- |
 | `chr` or `fctr` | `chr` or `fctr` | `numeric`  | …           |
 
-**Command** `input %>% gate_dimentions(element, dimension1, dimension2)`
+**Command** `input %>% gate_dimensions(element, dimension1, dimension2)`
 
 ![](inst/tidygate.gif)
 
