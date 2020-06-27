@@ -12,6 +12,7 @@ gate_dimensions_(
   .color = NULL,
   .shape = NULL,
   .size = NULL,
+  how_many_gates = 1,
   name = "inside_gate",
   ...
 )
@@ -25,7 +26,17 @@ gate_dimensions_(
 
 \item{.dim2}{A column symbol. The y dimension}
 
-\item{...}{Further parameters passed to the function kmeans}
+\item{.color}{A column symbol. Color of points}
+
+\item{.shape}{A column symbol. Shape of points}
+
+\item{.size}{A column symbol. Size of points}
+
+\item{how_many_gates}{An integer. The number of gates to label}
+
+\item{name}{A character string. The name of the new column}
+
+\item{...}{Further parameters passed to the function gatepoints::fhs}
 }
 \value{
 A tibble with additional columns

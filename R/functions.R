@@ -1,4 +1,20 @@
 
+format_gatepoints = function(.data, .element, name, .idx){
+   
+  # Column name
+  .element = enquo(.element)
+  
+  .data %>%
+    as.character %>%
+    as_tibble() %>%
+    
+    # Reconstitute columns
+    separate(value, quo_names(.element), sep="___") %>%
+    
+    mutate(!!as.symbol(sprintf("%s%s", name, .idx)) := .idx) 
+}
+
+
 #' @importFrom rlang quo_is_symbol
 #' @importFrom grDevices colorRampPalette
 #' @importFrom RColorBrewer brewer.pal
@@ -191,7 +207,12 @@ pretty_plot = function(.data,
 #' @param .element A column symbol. The column that is used to calculate distance (i.e., normally genes)
 #' @param .dim1 A column symbol. The x dimension
 #' @param .dim2 A column symbol. The y dimension
-#' @param ... Further parameters passed to the function kmeans
+#' @param .color A column symbol. Color of points
+#' @param .shape A column symbol. Shape of points
+#' @param .size A column symbol. Size of points
+#' @param  how_many_gates An integer. The number of gates to label
+#' @param name A character string. The name of the new column
+#' @param ... Further parameters passed to the function gatepoints::fhs
 #'
 #' @return A tibble with additional columns
 #'
@@ -203,6 +224,7 @@ gate_dimensions_ <-
 					 .color = NULL,
 					 .shape = NULL,
 					 .size = NULL,
+					 how_many_gates = 1,
 					 name = "inside_gate", ...) {
 		
 		
@@ -276,43 +298,50 @@ gate_dimensions_ <-
 			select(!!.element, !!.dim1, !!.dim2) %>%
 		  .as_matrix(rownames = !!.element) 
 		
+		# Plot
 		my_df %>% pretty_plot(
 			!!.dim1, 
 			!!.dim2,
 			.color = !!.color,
 			.shape = !!.shape,
 			.size = !!.size)
-		
-		my_df %>%
-			select(-c(!!.dim1, !!.dim2)) %>%
-			left_join(
-				
-				# Return clustering
-				my_matrix %>% 
-					gatepoints::fhs(mark = TRUE, ...) %>%
-					as.character %>%
-					as_tibble() %>%
-					
-					# Reconstitute columns
-					separate(value, quo_names(.element), sep="___") %>%
-					
-					mutate(!!as.symbol(name) := T) %>%
-					
-					# Keep classes for compatibility
-					imap(
-						~.x %>%
-							when(
-								.y %in% colnames(my_df) && class(my_df %>% select(.y) %>% pull(1)) == "numeric" ~ as.numeric(.),
-								.y %in% colnames(my_df) && class(my_df %>% select(.y) %>% pull(1)) == "integer" ~ as.integer(.),
-								.y %in% colnames(my_df) && class(my_df %>% select(.y) %>% pull(1)) == "logical" ~ as.logical(.),
-								.y %in% colnames(my_df) && class(my_df %>% select(.y) %>% pull(1)) == "factor" ~ as.factor(.),
-								~ (.)
-							)
-					) %>%
-					do.call(bind_cols, .),
-				by = quo_names(.element)
-			) %>%
-			
-			mutate(!!as.symbol(name) := if_else(!!as.symbol(name) %>% is.na, F, !!as.symbol(name)))
-		
+	
+		1:how_many_gates %>%
+		  
+		  # Loop over gates
+		  map( ~ my_matrix %>% gatepoints::fhs(mark = TRUE, ...)) %>%
+		  
+		  # Format
+		  imap( ~ .x %>% format_gatepoints(!!.element, name, .y)) %>%
+		  purrr::reduce(full_join, by = quo_names(.element)) %>%
+		  unite(col = !!name,
+		        contains(name),
+		        sep = ",",
+		        na.rm = TRUE) %>%
+		  
+		  # Correct column types
+		  # Keep classes for compatibility
+		  imap(
+		    ~ .x %>%
+		      when(
+		        .y %in% colnames(my_df) &&
+		          class(my_df %>% select(.y) %>% pull(1)) == "numeric" ~ as.numeric(.),
+		        .y %in% colnames(my_df) &&
+		          class(my_df %>% select(.y) %>% pull(1)) == "integer" ~ as.integer(.),
+		        .y %in% colnames(my_df) &&
+		          class(my_df %>% select(.y) %>% pull(1)) == "logical" ~ as.logical(.),
+		        .y %in% colnames(my_df) &&
+		          class(my_df %>% select(.y) %>% pull(1)) == "factor" ~ as.factor(.),
+		        ~ (.)
+		      )
+		  ) %>%
+		  do.call(bind_cols, .) %>%
+		  
+		  # Join with the dataset
+		  right_join(my_df %>% select(!!.element),
+		             by = quo_names(.element)) %>%
+		  
+		  # Replace NAs
+		  mutate(!!name := replace_na(!!as.symbol(name), 0))
+
 	}

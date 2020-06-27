@@ -105,3 +105,21 @@ get_specific_annotation_columns = function(.data, .col){
     # Convert to matrix
     as.matrix()
 }
+
+#' Convert array of quosure (e.g. c(col_a, col_b)) into character vector
+#' 
+#' @keywords internal
+#'
+#' @importFrom rlang quo_name
+#' @importFrom rlang quo_squash
+#'
+#' @param v A array of quosures (e.g. c(col_a, col_b))
+#'
+#' @return A character vector
+quo_names <- function(v) {
+  
+  v = quo_name(quo_squash(v))
+  gsub('^c\\(|`|\\)$', '', v) %>% 
+    strsplit(', ') %>% 
+    unlist 
+}

@@ -5,14 +5,20 @@
 \title{Convert array of quosure (e.g. c(col_a, col_b)) into character vector}
 \usage{
 quo_names(v)
+
+quo_names(v)
 }
 \arguments{
 \item{v}{A array of quosures (e.g. c(col_a, col_b))}
 }
 \value{
 A character vector
+
+A character vector
 }
 \description{
+Convert array of quosure (e.g. c(col_a, col_b)) into character vector
+
 Convert array of quosure (e.g. c(col_a, col_b)) into character vector
 }
 \keyword{internal}

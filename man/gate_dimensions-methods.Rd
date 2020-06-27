@@ -15,6 +15,7 @@ gate_dimensions(
   .color = NULL,
   .shape = NULL,
   .size = NULL,
+  how_many_gates = 1,
   name = "inside_gate",
   action = "add",
   ...
@@ -28,6 +29,7 @@ gate_dimensions(
   .color = NULL,
   .shape = NULL,
   .size = NULL,
+  how_many_gates = 1,
   name = "inside_gate",
   action = "add",
   ...
@@ -41,6 +43,7 @@ gate_dimensions(
   .color = NULL,
   .shape = NULL,
   .size = NULL,
+  how_many_gates = 1,
   name = "inside_gate",
   action = "add",
   ...
@@ -61,11 +64,13 @@ gate_dimensions(
 
 \item{.size}{A column symbol. Size of points}
 
+\item{how_many_gates}{An integer. The number of gates to label}
+
 \item{name}{A character string. The name of the new column}
 
 \item{action}{A character string. Whether to join the new information to the input tbl (add), or just get the non-redundant tbl with the new information (get).}
 
-\item{...}{Further parameters passed to the function kmeans}
+\item{...}{Further parameters passed to the function gatepoints::fhs}
 }
 \value{
 A tbl object with additional columns for the inside gate information. additional columns for the rotated dimensions. The rotated dimensions will be added to the original data set as `<NAME OF DIMENSION> rotated <ANGLE>` by default, or as specified in the input arguments.

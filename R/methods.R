@@ -17,9 +17,10 @@
 #' @param .color A column symbol. Color of points
 #' @param .shape A column symbol. Shape of points
 #' @param .size A column symbol. Size of points
+#' @param  how_many_gates An integer. The number of gates to label
 #' @param name A character string. The name of the new column
 #' @param action A character string. Whether to join the new information to the input tbl (add), or just get the non-redundant tbl with the new information (get).
-#' @param ... Further parameters passed to the function kmeans
+#' @param ... Further parameters passed to the function gatepoints::fhs
 #'
 #' @details This function allow the user to label data points in inside a 2D gate.
 #'
@@ -47,17 +48,22 @@ setGeneric("gate_dimensions", function(.data,
 																			 .color = NULL,
 																			 .shape = NULL,
 																			 .size = NULL,
+																			 how_many_gates = 1,
 																			 name = "inside_gate",
 																			 action =	"add", ...)
 	standardGeneric("gate_dimensions"))
 
 # Set internal
 .gate_dimensions = 		function(.data,
-															.element,
-															.dim1,
-															.dim2, 
-															name = "inside_gate",
-																action =	"add", ...)
+                              .element,
+                              .dim1,
+                              .dim2, 
+                              .color = NULL,
+                              .shape = NULL,
+                              .size = NULL,
+                              how_many_gates = 1,
+                              name = "inside_gate",
+                              action =	"add", ...)
 {
 	
 	# Get column names
@@ -80,6 +86,7 @@ setGeneric("gate_dimensions", function(.data,
 			.color = !!.color,
 			.shape = !!.shape,
 			.size = !!.size,
+			how_many_gates = how_many_gates,
 			name = name,
 			...
 		)
