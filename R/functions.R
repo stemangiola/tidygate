@@ -57,7 +57,7 @@ pretty_plot = function(.data,
       xpd=TRUE,
       tck = -.01 # Reduce tick length
     )
-  
+   
   .data_formatted = 
     .data %>%
     
@@ -146,10 +146,17 @@ pretty_plot = function(.data,
   
   axis(1, tck=1,  col.ticks="light gray")
   axis(1, tck=-0.015, col.ticks="black", labels = F)
-  
   axis(2, tck=1,  col.ticks="light gray", lwd.ticks="1", las=1)
   axis(2, tck=-0.015, col.ticks="black", las=1, labels = F)
   
+  # Max length of the legends titles
+  color_title = quo_name(.color)
+  shape_title = quo_name(.shape)
+  size_title = quo_name(.size)
+  max_length_titles = max(nchar(color_title), nchar(shape_title), nchar(size_title))
+  color_title = stringr::str_pad(color_title, width = max_length_titles, side = "both")
+  shape_title = stringr::str_pad(shape_title, width = max_length_titles, side = "both")
+  size_title = stringr::str_pad(size_title, width = max_length_titles, side = "both")
   
   # Add legend to top right, outside plot region
   inset_y = 0
@@ -160,7 +167,7 @@ pretty_plot = function(.data,
       legend=distinct(.data_formatted, !!.color) %>% pull(!!.color),
       pch=19, 
       col = distinct(.data_formatted, !!.color, .color) %>% pull(.color),
-      title=quo_name(.color), 
+      title=color_title, 
       box.col="white",
       xjust = 0
     )
@@ -174,7 +181,7 @@ pretty_plot = function(.data,
       pch=19,
       col = "black",
       pt.cex = my_size_range,
-      title=quo_name(.size),
+      title=size_title,
       box.col="white",
       xjust = 0
     )
@@ -187,7 +194,7 @@ pretty_plot = function(.data,
       legend=distinct(.data_formatted, !!.shape) %>% pull(!!.shape),
       pch=distinct(.data_formatted, !!.shape, .shape) %>% pull(.shape), 
       col = "black",
-      title=quo_name(.shape), 
+      title=shape_title, 
       box.col="white",
       yjust = 0
     )
