@@ -1,6 +1,9 @@
 
 format_gatepoints = function(.data, .element, name, .idx){
    
+  # Comply CRAN check
+  value = NULL
+  
   # Column name
   .element = enquo(.element)
   
@@ -202,6 +205,7 @@ pretty_plot = function(.data,
 #' @import tibble
 #' @importFrom graphics plot
 #' @importFrom purrr imap
+#' @importFrom purrr map
 #'
 #' @param .data A tibble
 #' @param .element A column symbol. The column that is used to calculate distance (i.e., normally genes)
