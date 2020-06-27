@@ -30,6 +30,7 @@ format_gatepoints = function(.data, .element, name, .idx){
 #' @importFrom graphics legend
 #' @importFrom graphics par
 #' @importFrom utils head
+#' @importFrom stringr str_pad
 
 pretty_plot = function(.data,
                        .dim1,

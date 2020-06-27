@@ -34,7 +34,8 @@ Imports:
     viridis,
     grDevices,
     RColorBrewer,
-    scales
+    scales,
+    stringr
 RdMacros: lifecycle
 Suggests: 
     testthat,
