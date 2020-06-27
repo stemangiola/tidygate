@@ -228,7 +228,7 @@ pretty_plot = function(.data,
 #'
 #' @return A tibble with additional columns
 #'
-gate_dimensions_ <-
+gate_ <-
 	function(.data,
 					 .element,
 					 .dim1,

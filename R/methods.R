@@ -2,12 +2,12 @@
 #'
 #' \lifecycle{maturing}
 #'
-#' @description gate_dimensions() takes as input a `tbl` formatted as | <DIMENSION 1> | <DIMENSION 2> | <...> | and calculates the rotated dimensional space of the feature value.
+#' @description gate() takes as input a `tbl` formatted as | <DIMENSION 1> | <DIMENSION 2> | <...> | and calculates the rotated dimensional space of the feature value.
 #'
 #' @importFrom rlang enquo
 #' @importFrom magrittr "%>%"
 #'
-#' @name gate_dimensions
+#' @name gate
 #'
 #'
 #' @param .data A tibble
@@ -22,7 +22,7 @@
 #' @param action A character string. Whether to join the new information to the input tbl (add), or just get the non-redundant tbl with the new information (get).
 #' @param ... Further parameters passed to the function gatepoints::fhs
 #'
-#' @details This function allow the user to label data points in inside a 2D gate.
+#' @details This function allow the user to label data points in inside one or more 2D gates. This package is based on on the package gatepoints.
 #'
 #' @return A tbl object with additional columns for the inside gate information. additional columns for the rotated dimensions. The rotated dimensions will be added to the original data set as `<NAME OF DIMENSION> rotated <ANGLE>` by default, or as specified in the input arguments.
 #'
@@ -33,15 +33,15 @@
 #' 
 #'  mtcars_tidy_MDS = reduce_dimensions(mtcars_tidy, car_model, feature, value, method="MDS")
 #'  
-#'  gate_dimensions(mtcars_tidy_MDS, car_model, `Dim1`, `Dim2`)
+#'  gate(mtcars_tidy_MDS, car_model, `Dim1`, `Dim2`)
 #'  
 #' }
 #'
 #' @docType methods
-#' @rdname gate_dimensions-methods
+#' @rdname gate-methods
 #' @export
 #'
-setGeneric("gate_dimensions", function(.data,
+setGeneric("gate", function(.data,
 																			 .element,
 																			 .dim1,
 																			 .dim2, 
@@ -51,10 +51,10 @@ setGeneric("gate_dimensions", function(.data,
 																			 how_many_gates = 1,
 																			 name = "inside_gate",
 																			 action =	"add", ...)
-	standardGeneric("gate_dimensions"))
+	standardGeneric("gate"))
 
 # Set internal
-.gate_dimensions = 		function(.data,
+.gate = 		function(.data,
                               .element,
                               .dim1,
                               .dim2, 
@@ -79,7 +79,7 @@ setGeneric("gate_dimensions", function(.data,
 		.data %>% 
 
 		# Run calculation
-		gate_dimensions_(
+		gate_(
 			.element = !!.element,
 			.dim1 = !!.dim1,
 			.dim2 = !!.dim2,
@@ -118,15 +118,15 @@ setGeneric("gate_dimensions", function(.data,
 		)
 }
 
-#' gate_dimensions
+#' gate
 #' @docType methods
-#' @rdname gate_dimensions-methods
+#' @rdname gate-methods
 #' @return A tbl object with additional columns for the reduced dimensions. additional columns for the rotated dimensions. The rotated dimensions will be added to the original data set as `<NAME OF DIMENSION> rotated <ANGLE>` by default, or as specified in the input arguments.
-setMethod("gate_dimensions", "spec_tbl_df", .gate_dimensions)
+setMethod("gate", "spec_tbl_df", .gate)
 
-#' gate_dimensions
+#' gate
 #' @docType methods
-#' @rdname gate_dimensions-methods
+#' @rdname gate-methods
 #' @return A tbl object with additional columns for the reduced dimensions. additional columns for the rotated dimensions. The rotated dimensions will be added to the original data set as `<NAME OF DIMENSION> rotated <ANGLE>` by default, or as specified in the input arguments.
-setMethod("gate_dimensions", "tbl_df", .gate_dimensions)
+setMethod("gate", "tbl_df", .gate)
 
