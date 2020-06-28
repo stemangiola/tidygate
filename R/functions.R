@@ -1,4 +1,32 @@
 
+check_dimensions = function(.data, .dim1, .dim2){
+  .dim1 = enquo(.dim1)
+  .dim2 = enquo(.dim2)
+  
+  .data %>%
+    when(
+      
+      # If NAs in dimensions
+      (.) %>%
+        filter(!!.dim1 %>% is.na | !!.dim2 %>% is.na) %>%
+        nrow() %>%
+        `>` (0) ~ {
+          warning("tidygate says: you have some elements with non-valid dimensions. Those elements points will be filtered out")
+          (.) %>%
+            filter(!!.dim1 %>% is.na | !!.dim2 %>% is.na) %>% 
+            capture.output() %>% 
+            paste0(collapse = "\n") %>% 
+            message()
+          
+          # Return
+          (.) %>%	filter(!(!!.dim1 %>% is.na | !!.dim2 %>% is.na)) 
+        },
+      
+      # Otherwise
+      ~ (.) 
+    ) 
+}
+
 format_gatepoints = function(.data, .element, name, .idx){
    
   # Comply CRAN check
@@ -276,6 +304,8 @@ gate_ <-
 			quo_names(.element)
 		))
 		
+
+		
 		# Return
 		my_df = 
 			.data %>%
@@ -283,27 +313,7 @@ gate_ <-
 		  distinct %>%
 
 			# Check if dimensions are NA
-			when(
-				
-				# If NAs in dimensions
-				(.) %>%
-					filter(!!.dim1 %>% is.na | !!.dim2 %>% is.na) %>%
-					nrow() %>%
-					`>` (0) ~ {
-						warning("tidygate says: you have some elements with non-valid dimensions. Those elements points will be filtered out")
-						(.) %>%
-							filter(!!.dim1 %>% is.na | !!.dim2 %>% is.na) %>% 
-							capture.output() %>% 
-							paste0(collapse = "\n") %>% 
-							message()
-						
-						# Return
-						(.) %>%	filter(!(!!.dim1 %>% is.na | !!.dim2 %>% is.na)) 
-					},
-				
-				# Otherwise
-				~ (.) 
-			) 
+		  check_dimensions(!!.dim1, !!.dim2) 
 		
 		my_matrix	=
 			my_df %>%
