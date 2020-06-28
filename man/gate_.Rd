@@ -13,7 +13,7 @@ gate_(
   .shape = NULL,
   .size = NULL,
   how_many_gates = 1,
-  name = "inside_gate",
+  name = "gate",
   ...
 )
 }

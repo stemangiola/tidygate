@@ -1,3 +1,24 @@
+reattach_internals = function(.data, .data_internals_from = NULL, .name = "gate"){
+  if(.data_internals_from %>% is.null)
+    .data_internals_from = .data
+  
+  .data %>% add_attr(.data_internals_from %>% attr(.name), .name)
+}
+
+#' Add attribute to abject
+#' 
+#' @keywords internal
+#'
+#'
+#' @param var A tibble
+#' @param attribute An object
+#' @param name A character name of the attribute
+#'
+#' @return A tibble with an additional attribute
+add_attr = function(var, attribute, name) {
+  attr(var, name) <- attribute
+  var
+}
 
 check_dimensions = function(.data, .dim1, .dim2){
   .dim1 = enquo(.dim1)
@@ -265,10 +286,8 @@ gate_ <-
 					 .shape = NULL,
 					 .size = NULL,
 					 how_many_gates = 1,
-					 name = "inside_gate", ...) {
+					 name = "gate", ...) {
 		
-		
-	
 		# Comply with CRAN NOTES
 		. = NULL
 		value = NULL
@@ -304,9 +323,7 @@ gate_ <-
 			quo_names(.element)
 		))
 		
-
-		
-		# Return
+		# my df
 		my_df = 
 			.data %>%
 		  select(!!.element, get_specific_annotation_columns(.data, !!.element)) %>%
@@ -328,10 +345,11 @@ gate_ <-
 			.shape = !!.shape,
 			.size = !!.size)
 	
-		1:how_many_gates %>%
-		  
-		  # Loop over gates
-		  map( ~ my_matrix %>% gatepoints::fhs(mark = TRUE, ...)) %>%
+		# Loop over gates # Variable needed for recalling the attributes lates
+		gate_list = map(1:how_many_gates,  ~ my_matrix %>% gatepoints::fhs(mark = TRUE, ...))
+		
+		# Return
+		gate_list %>%
 		  
 		  # Format
 		  imap( ~ .x %>% format_gatepoints(!!.element, name, .y)) %>%
@@ -364,6 +382,9 @@ gate_ <-
 		             by = quo_names(.element)) %>%
 		  
 		  # Replace NAs
-		  mutate(!!name := replace_na(!!as.symbol(name), 0))
+		  mutate(!!name := replace_na(!!as.symbol(name), 0)) %>%
+		  
+		  # Add internals the list of gates
+		  add_attr(map(gate_list, ~ attr(.x, "gate")), "gate") 
 
 	}

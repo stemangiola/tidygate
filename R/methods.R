@@ -49,7 +49,7 @@ setGeneric("gate", function(.data,
 																			 .shape = NULL,
 																			 .size = NULL,
 																			 how_many_gates = 1,
-																			 name = "inside_gate",
+																			 name = "gate",
 																			 action =	"add", ...)
 	standardGeneric("gate"))
 
@@ -62,7 +62,7 @@ setGeneric("gate", function(.data,
                               .shape = NULL,
                               .size = NULL,
                               how_many_gates = 1,
-                              name = "inside_gate",
+                              name = "gate",
                               action =	"add", ...)
 {
 	
@@ -94,7 +94,10 @@ setGeneric("gate", function(.data,
 	if (action == "add"){
 		
 		.data %>%
-			dplyr::left_join(	.data_processed,	by = quo_names(.element)	) 
+			dplyr::left_join(	.data_processed,	by = quo_names(.element)	) %>%
+	    
+	    # Reattach internals
+	    reattach_internals(.data_processed)
 		
 	}
 	else if (action == "get"){
@@ -108,7 +111,10 @@ setGeneric("gate", function(.data,
 			) %>%
 			distinct() %>%
 			
-			dplyr::left_join(	.data_processed,	by = quo_names(.element)	) 
+			dplyr::left_join(	.data_processed,	by = quo_names(.element)	) %>%
+	    
+	    # Reattach internals
+	    reattach_internals(.data_processed)
 		
 	}
 	else if (action == "only") .data_processed

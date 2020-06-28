@@ -16,7 +16,7 @@ gate(
   .shape = NULL,
   .size = NULL,
   how_many_gates = 1,
-  name = "inside_gate",
+  name = "gate",
   action = "add",
   ...
 )
@@ -30,7 +30,7 @@ gate(
   .shape = NULL,
   .size = NULL,
   how_many_gates = 1,
-  name = "inside_gate",
+  name = "gate",
   action = "add",
   ...
 )
@@ -44,7 +44,7 @@ gate(
   .shape = NULL,
   .size = NULL,
   how_many_gates = 1,
-  name = "inside_gate",
+  name = "gate",
   action = "add",
   ...
 )
