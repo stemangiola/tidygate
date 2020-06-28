@@ -1,15 +1,17 @@
 Package: tidygate
 Type: Package
 Title: Add Gate Information to Your Tibble
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: 
     person(given = "Stefano",
            family = "Mangiola",
            role = c("aut", "cre"),
            email = "mangiolastefano@gmail.com")
 Maintainer: Stefano Mangiola <mangiolastefano@gmail.com>
-Description: 
-    Interactively draw gates on your dimensions and add gate annotation to your tibble.
+Description: It interactively or programmately label points within custom gates on two dimensions. 
+    The information is added to your tibble. It is based on the package gatepoints from Wajid Jawaid. 
+    The benefits are (i) in interactive mode you can draw your gates on extensive ggplot-like scatter plots; 
+    (ii) you can draw multiple gates; and (iii) you can save your gates and apply the programmatically.
 License: GPL-3
 Depends:
     R (>= 3.6.0)

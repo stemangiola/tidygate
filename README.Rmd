@@ -13,6 +13,20 @@ output: github_document
   [![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
  <!-- badges: end -->
 
+```{r, echo=FALSE, include=FALSE, }
+library(knitr)
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE,
+                      message = FALSE, cache.lazy = FALSE)
+
+```
+
+It interactively or programmately labels points within custom gates on two dimensions, according to tidyverse principles. The information is added to your tibble. It is based on the package `gatepoints` from Wajid Jawaid. 
+
+The main benefits are 
+
+- in interactive mode you can draw your gates on extensive ggplot-like scatter plots
+- you can draw multiple gates
+- you can save your gates and apply the programmatically.
 
 
 
@@ -33,17 +47,6 @@ element |  dimension1 | dimension2 | annotations | Gate |
 ------------ | ------------- | ------------- | ------------- | -------------
 `chr` or `fctr` | `chr` or `fctr` | `numeric` | ... | ...
 
-
-```{r, echo=FALSE, include=FALSE, }
-library(knitr)
-knitr::opts_chunk$set(cache = TRUE, warning = FALSE,
-                      message = FALSE, cache.lazy = FALSE)
-
-library(tidyverse)
-library(magrittr)
-library(tidygate)
-
-```
 
 ## Installation
 

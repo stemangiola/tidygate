@@ -12,6 +12,18 @@ tidygate: add gate information to your tibble
 [![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 <!-- badges: end -->
 
+It interactively or programmately labels points within custom gates on
+two dimensions, according to tidyverse principles. The information is
+added to your tibble. It is based on the package `gatepoints` from Wajid
+Jawaid.
+
+The main benefits are
+
+  - in interactive mode you can draw your gates on extensive ggplot-like
+    scatter plots
+  - you can draw multiple gates
+  - you can save your gates and apply the programmatically.
+
 **Input (tibble)**
 
 | element         | dimension1      | dimension2 | annotations |
