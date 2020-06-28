@@ -18,6 +18,7 @@
 #' @param .shape A column symbol. Shape of points
 #' @param .size A column symbol. Size of points
 #' @param  how_many_gates An integer. The number of gates to label
+#' @param gate_list A list of gates. It is returned by gate function as attribute \"gate\". If you want to create this list yourself, each element of the list is a data frame with x and y columns. Each row is a coordinate. The order matter.
 #' @param name A character string. The name of the new column
 #' @param action A character string. Whether to join the new information to the input tbl (add), or just get the non-redundant tbl with the new information (get).
 #' @param ... Further parameters passed to the function gatepoints::fhs
@@ -49,6 +50,7 @@ setGeneric("gate", function(.data,
 																			 .shape = NULL,
 																			 .size = NULL,
 																			 how_many_gates = 1,
+																			 gate_list = NULL,
 																			 name = "gate",
 																			 action =	"add", ...)
 	standardGeneric("gate"))
@@ -61,7 +63,8 @@ setGeneric("gate", function(.data,
                               .color = NULL,
                               .shape = NULL,
                               .size = NULL,
-                              how_many_gates = 1,
+                              how_many_gates = 1,				
+                              gate_list = NULL,
                               name = "gate",
                               action =	"add", ...)
 {
@@ -77,19 +80,36 @@ setGeneric("gate", function(.data,
 	.data_processed =
 		
 		.data %>% 
+    when(
+      
+      # Interactive
+      is.null(gate_list) ~ (.) %>% 
+        gate_interactive(
+          .element = !!.element,
+          .dim1 = !!.dim1,
+          .dim2 = !!.dim2,
+          .color = !!.color,
+          .shape = !!.shape,
+          .size = !!.size,
+          how_many_gates = how_many_gates,
+          name = name,
+          ...
+        ),
+      
+      # Programmatic
+      is.list(gate_list) ~ (.) %>% 
+        gate_programmatic(
+          .element = !!.element,
+          .dim1 = !!.dim1,
+          .dim2 = !!.dim2,
+          gate_list = gate_list,
+          name = name
+         ),
+      
+      # Else error
+      ~ stop("tidygate says: the parameter gate_list has to be NULL or a list of data frames")
+    )
 
-		# Run calculation
-		gate_(
-			.element = !!.element,
-			.dim1 = !!.dim1,
-			.dim2 = !!.dim2,
-			.color = !!.color,
-			.shape = !!.shape,
-			.size = !!.size,
-			how_many_gates = how_many_gates,
-			name = name,
-			...
-		)
 	
 	if (action == "add"){
 		

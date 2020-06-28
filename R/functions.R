@@ -1,3 +1,33 @@
+check_data_unique = function(.data,
+                             .element,
+                             .dim1,
+                             .dim2){
+  
+  # Get column names
+  .element = enquo(.element)
+  .dim1 = enquo(.dim1)
+  .dim2 = enquo(.dim2)
+  
+  if (.data %>%
+      select(!!.element, !!.dim1, !!.dim2) %>%
+      distinct %>%
+      
+      # Count
+      group_by_at(vars(!!.element, !!.dim1, !!.dim2)) %>%
+      tally() %>%
+      ungroup() %>%
+      
+      # Check
+      pull(n) %>%
+      max %>%
+      `>` (1))
+  stop(sprintf(
+    "tidygate says: %s must be unique for each row for the calculation",
+    quo_names(.element)
+  ))
+}
+
+
 reattach_internals = function(.data, .data_internals_from = NULL, .name = "gate"){
   if(.data_internals_from %>% is.null)
     .data_internals_from = .data
@@ -277,7 +307,7 @@ pretty_plot = function(.data,
 #'
 #' @return A tibble with additional columns
 #'
-gate_ <-
+gate_interactive <-
 	function(.data,
 					 .element,
 					 .dim1,
@@ -300,28 +330,8 @@ gate_ <-
 		.shape = enquo(.shape)
 		.size = enquo(.size)
 		
-		# Check if package is installed, otherwise install
-		if (find.package("gatepoints", quiet = T) %>% length %>% equals(0)) {
-			stop("tidygate says: gatepoints is necessary for this operation. Please install it with 	install.packages(\"gatepoints\", repos = \"https://cloud.r-project.org\")")
-		}
-		
-		if (.data %>%
-				select(!!.element, !!.dim1, !!.dim2) %>%
-				distinct %>%
-				
-				# Count
-				group_by_at(vars(!!.element, !!.dim1, !!.dim2)) %>%
-				tally() %>%
-				ungroup() %>%
-				
-				# Check
-				pull(n) %>%
-				max %>%
-				`>` (1))
-		stop(sprintf(
-			"tidygate says: %s must be unique for each row for the calculation",
-			quo_names(.element)
-		))
+		# Error if elements with coordinates are not unique
+		.data %>% check_data_unique(!!.element,  !!.dim1, !!.dim2)
 		
 		# my df
 		my_df = 
@@ -388,3 +398,107 @@ gate_ <-
 		  add_attr(map(gate_list, ~ attr(.x, "gate")), "gate") 
 
 	}
+
+#' Get points within a user drawn gate
+#' 
+#' @keywords internal
+#'
+#' @import dplyr
+#' @import tidyr
+#' @import tibble
+#' @importFrom graphics plot
+#' @importFrom purrr imap
+#' @importFrom purrr map
+#'
+#' @param .data A tibble
+#' @param .element A column symbol. The column that is used to calculate distance (i.e., normally genes)
+#' @param .dim1 A column symbol. The x dimension
+#' @param .dim2 A column symbol. The y dimension
+#' @param gate_list A list of gates. Each element of the list is a data frame with x and y columns. Each row is a coordinate. The order matter.
+#' @param name A character string. The name of the new column
+#' @param ... Further parameters passed to the function gatepoints::fhs
+#'
+#' @return A tibble with additional columns
+#'
+gate_programmatic <- 
+  function(.data,
+           .element,
+           .dim1,
+           .dim2, 
+           gate_list,
+           name = "gate") {
+    
+    # Comply with CRAN NOTES
+    . = NULL
+    value = NULL
+    
+    # Get column names
+    .element = enquo(.element)
+    .dim1 = enquo(.dim1)
+    .dim2 = enquo(.dim2)
+  
+    # Error if elements with coordinates are not unique
+    .data %>% check_data_unique(!!.element,  !!.dim1, !!.dim2)
+    
+    # my df
+    my_df = 
+      .data %>%
+      select(!!.element, get_specific_annotation_columns(.data, !!.element)) %>%
+      distinct %>%
+      
+      # Check if dimensions are NA
+      check_dimensions(!!.dim1, !!.dim2) 
+    
+    my_matrix	=
+      my_df %>%
+      select(!!.element, !!.dim1, !!.dim2) %>%
+      .as_matrix(rownames = !!.element) 
+    
+    # Loop over gates # Variable needed for recalling the attributes lates
+    gate_list = map(
+      gate_list,  
+      ~ my_matrix[applyGate(my_matrix,.x),] %>%
+        rownames() %>% 
+        add_attr(.x, "gate") 
+    )
+    
+    # Return
+    gate_list %>%
+      
+      # Format
+      imap( ~ .x %>% format_gatepoints(!!.element, name, .y)) %>%
+      purrr::reduce(full_join, by = quo_names(.element)) %>%
+      unite(col = !!name,
+            contains(name),
+            sep = ",",
+            na.rm = TRUE) %>%
+      
+      # Correct column types
+      # Keep classes for compatibility
+      imap(
+        ~ .x %>%
+          when(
+            .y %in% colnames(my_df) &&
+              class(my_df %>% select(.y) %>% pull(1)) == "numeric" ~ as.numeric(.),
+            .y %in% colnames(my_df) &&
+              class(my_df %>% select(.y) %>% pull(1)) == "integer" ~ as.integer(.),
+            .y %in% colnames(my_df) &&
+              class(my_df %>% select(.y) %>% pull(1)) == "logical" ~ as.logical(.),
+            .y %in% colnames(my_df) &&
+              class(my_df %>% select(.y) %>% pull(1)) == "factor" ~ as.factor(.),
+            ~ (.)
+          )
+      ) %>%
+      do.call(bind_cols, .) %>%
+      
+      # Join with the dataset
+      right_join(my_df %>% select(!!.element),
+                 by = quo_names(.element)) %>%
+      
+      # Replace NAs
+      mutate(!!name := replace_na(!!as.symbol(name), 0)) %>%
+      
+      # Add internals the list of gates
+      add_attr(map(gate_list, ~ attr(.x, "gate")), "gate") 
+    
+  }

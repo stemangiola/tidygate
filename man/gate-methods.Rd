@@ -16,6 +16,7 @@ gate(
   .shape = NULL,
   .size = NULL,
   how_many_gates = 1,
+  gate_list = NULL,
   name = "gate",
   action = "add",
   ...
@@ -30,6 +31,7 @@ gate(
   .shape = NULL,
   .size = NULL,
   how_many_gates = 1,
+  gate_list = NULL,
   name = "gate",
   action = "add",
   ...
@@ -44,6 +46,7 @@ gate(
   .shape = NULL,
   .size = NULL,
   how_many_gates = 1,
+  gate_list = NULL,
   name = "gate",
   action = "add",
   ...
@@ -65,6 +68,8 @@ gate(
 \item{.size}{A column symbol. Size of points}
 
 \item{how_many_gates}{An integer. The number of gates to label}
+
+\item{gate_list}{A list of gates. It is returned by gate function as attribute \"gate\". If you want to create this list yourself, each element of the list is a data frame with x and y columns. Each row is a coordinate. The order matter.}
 
 \item{name}{A character string. The name of the new column}
 

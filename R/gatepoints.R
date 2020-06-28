@@ -2,15 +2,6 @@
 # This has been copied from https://github.com/wjawaid/gatepoints
 # For allowing programmatically application of defined gates, since these functions are hidden from the package
 
-selectGate <- function() {
-  sel <- locator(type = "l")
-  if (length(sel$x) < 3) stop("Please select at least 3 points to define a shape.")
-  numPoints <- length(sel$x)
-  lines(x = sel$x[c(1, numPoints)], y = sel$y[c(1, numPoints)])
-  sel <- as.data.frame(sel)
-  return(sel)
-}
-
 applyGate <- function(data, v) {
   np <- nrow(data)
   nl <- nrow(v)

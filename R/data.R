@@ -3,19 +3,11 @@
 #' @keywords internal
 #'
 #'
-"test_data"
+"tidygate_data"
 
-#' Example data set reduced
+#' Example gate_list
 #' 
 #' @keywords internal
 #'
 #'
-"test_data2"
-
-#' Cibersort reference
-#' 
-#' @keywords internal
-#'
-#'
-"mtcars_tidy"
-
+"gate_list"
