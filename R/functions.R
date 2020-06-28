@@ -223,11 +223,10 @@ pretty_plot = function(.data,
       )
     }
   
-  
   axis(1, tck=1,  col.ticks="light gray")
-  axis(1, tck=-0.015, col.ticks="black", labels = F)
+  axis(1, tck=-0.015, col.ticks="black", labels = FALSE)
   axis(2, tck=1,  col.ticks="light gray", lwd.ticks="1", las=1)
-  axis(2, tck=-0.015, col.ticks="black", las=1, labels = F)
+  axis(2, tck=-0.015, col.ticks="black", las=1, labels = FALSE)
   
   # Max length of the legends titles
   color_title = quo_name(.color)

@@ -32,11 +32,19 @@
 #'
 #' \dontrun{
 #' 
-#'  mtcars_tidy_MDS = reduce_dimensions(mtcars_tidy, car_model, feature, value, method="MDS")
-#'  
-#'  gate(mtcars_tidy_MDS, car_model, `Dim1`, `Dim2`)
+#' tidygate::tidygate_data %>%
+#'   gate( .element = c(`ct 1`, `ct 2`), Dim1, Dim2 )
 #'  
 #' }
+#' 
+#' library(magrittr)
+#' 
+#' tidygate::tidygate_data  %>%
+#'  gate(
+#'    .element = c(`ct 1`, `ct 2`),
+#'    Dim1, Dim2,
+#'    gate_list = tidygate::gate_list
+#'  )
 #'
 #' @docType methods
 #' @rdname gate-methods
