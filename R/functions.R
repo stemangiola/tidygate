@@ -130,6 +130,10 @@ pretty_plot = function(.data,
   
   my_size_range = c(1,3)
   
+  # Reset par on exit
+  opar <- par(no.readonly =TRUE)  
+  on.exit(par(opar))  
+  
   # Add extra space to right of plot area; change clipping to figure
   if(quo_is_symbol(.color) | quo_is_symbol(.shape) | quo_is_symbol(.size))
     par(
@@ -280,7 +284,11 @@ pretty_plot = function(.data,
     inset_y = inset_y + distinct(.data_formatted, !!.shape, .shape) %>% nrow %>% magrittr::multiply_by(.1)
   }
   
+                
+  
 }
+
+
 
 #' Get points within a user drawn gate
 #' 

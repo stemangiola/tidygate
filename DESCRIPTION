@@ -3,13 +3,17 @@ Type: Package
 Title: Add Gate Information to Your Tibble
 Version: 0.2.3
 Authors@R: 
-    person(given = "Stefano",
+Authors@R: 
+    c(person(given = "Stefano",
            family = "Mangiola",
            role = c("aut", "cre"),
-           email = "mangiolastefano@gmail.com")
+           email = "mangiolastefano@gmail.com"),
+      person(given = "Wajid",
+             family = "Jawaid",
+             role = "ctb"))
 Maintainer: Stefano Mangiola <mangiolastefano@gmail.com>
 Description: It interactively or programmatically label points within custom gates on two dimensions. 
-    The information is added to your tibble. It is based on the package gatepoints from Wajid Jawaid. 
+    The information is added to your tibble. It is based on the package 'gatepoints' from Wajid Jawaid. 
     The benefits are (i) in interactive mode you can draw your gates on extensive 'ggplot'-like scatter plots; 
     (ii) you can draw multiple gates; and (iii) you can save your gates and apply the programmatically.
 License: GPL-3
