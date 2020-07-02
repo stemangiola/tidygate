@@ -144,7 +144,7 @@ pretty_plot = function(.data,
     # Define COLOR
     when(
       
-      # If color is continuous
+      # If continuous
       quo_is_symbol(.color) & 
         (.) %>% 
         select(!!.color) %>% 
@@ -153,7 +153,7 @@ pretty_plot = function(.data,
           (.) %>% mutate(.color = grDevices::colorRampPalette(	viridis(n = 5) )(n())[order_] )
         },
       
-      # If color is discrete
+      # If discrete
       quo_is_symbol(.color) ~ {
         how_many_colors = .data %>% distinct(!!.color) %>% nrow
         (.) %>%
@@ -162,33 +162,33 @@ pretty_plot = function(.data,
           )
       },
       
-      # If color is not defined
+      # If not defined
       ~ (.) %>% mutate(.color = "grey25")
     ) %>%
     
     # Define SIZE
     when(
       
-      # If color is continuous
+      # If continuous
       quo_is_symbol(.size) & 
         (.) %>% 
         select(!!.size) %>% 
         sapply(class) %in% c("numeric", "integer", "double") ~ 	(.) %>%	mutate(.size := !!.size %>% rescale( to = my_size_range) ),
       
-      # If color is discrete
+      # If discrete
       quo_is_symbol(.size) ~ {
         warning("tidygate says: .size has to be a continuous variable. .size has been ignored")
         (.) %>% mutate(.size = 2 )
       },
       
-      # If color is not defined
+      # If not defined
       ~ (.)  %>% mutate(.size = 2 )
     ) %>%
     
     # Define SHAPE
     when(
       
-      # If color is continuous
+      # If continuous
       quo_is_symbol(.shape) & 
         (.) %>% 
         select(!!.shape) %>% 
@@ -197,10 +197,10 @@ pretty_plot = function(.data,
           (.) %>% mutate(.shape = 19 )
         }	,
       
-      # If color is discrete
+      # If discrete
       quo_is_symbol(.shape) ~ (.) %>%	mutate(.shape := c(19, 17, 15, 18, 3, 4, 8, 10, 5)[factor(!!.shape)] 	),
       
-      # If color is not defined
+      # If not defined
       ~ (.)  %>% mutate(.shape = 19 )
     ) 
   
