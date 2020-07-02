@@ -461,16 +461,18 @@ gate_programmatic <-
       select(!!.element, !!.dim1, !!.dim2) %>%
       .as_matrix(rownames = !!.element) 
     
-    # Loop over gates # Variable needed for recalling the attributes lates
-    gate_list = map(
+    # Loop over gates # Variable needed for recalling the attributes later
+    gate_list_result = map(
       gate_list,  
       ~ my_matrix[applyGate(my_matrix,.x),] %>%
         rownames() %>% 
-        add_attr(.x, "gate") 
+        
+        # Avoid error for empty gates
+        when(!is.null(.) ~ (.) %>% add_attr(.x, "gate") )
     )
-    
+     
     # Return
-    gate_list %>%
+    gate_list_result %>%
       
       # Format
       imap( ~ .x %>% format_gatepoints(!!.element, name, .y)) %>%
@@ -506,6 +508,6 @@ gate_programmatic <-
       mutate(!!name := replace_na(!!as.symbol(name), 0)) %>%
       
       # Add internals the list of gates
-      add_attr(map(gate_list, ~ attr(.x, "gate")), "gate") 
+      add_attr(gate_list, "gate") 
     
   }
