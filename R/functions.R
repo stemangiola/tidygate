@@ -152,18 +152,18 @@ pretty_plot = function(.data,
       quo_is_symbol(.color) & 
         (.) %>% 
         select(!!.color) %>% 
-        sapply(class) %in% c("numeric", "integer", "double") ~ {
-          how_many_colors = .data %>% distinct(!!.color) %>% nrow
-          (.) %>%
-            mutate(.color = 
-                     grDevices::colorRampPalette(RColorBrewer::brewer.pal(min(9, how_many_colors), "Set1"))(how_many_colors)[factor(!!.color)]
-            )
+        sapply(class) %in% c("numeric", "integer", "double") ~{
+          order_ = findInterval( pull(.,!!.color), sort(pull(.,!!.color)))
+          (.) %>% mutate(.color = grDevices::colorRampPalette(	viridis(n = 5) )(n())[order_] )
         },
       
       # If color is discrete
       quo_is_symbol(.color) ~ {
-        order_ = findInterval(df$Temp, sort(df$Temp))
-        (.) %>% mutate(.color = grDevices::colorRampPalette(	viridis(n = 5) )(n())[order_] )
+        how_many_colors = .data %>% distinct(!!.color) %>% nrow
+        (.) %>%
+          mutate(.color = 
+                   grDevices::colorRampPalette(RColorBrewer::brewer.pal(min(9, how_many_colors), "Set1"))(how_many_colors)[factor(!!.color)]
+          )
       },
       
       # If color is not defined
