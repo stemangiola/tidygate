@@ -252,7 +252,7 @@ pretty_plot = function(.data,
     )
     inset_y = inset_y + distinct(.data_formatted, !!.color, .color) %>% nrow %>% magrittr::multiply_by(.1)
   }
-  if(	quo_is_symbol(.size)){
+  if(	quo_is_symbol(.size) & (.data %>% select(!!.size) %>% sapply(class) %in% c("numeric", "integer", "double") )){
     legend(
       "topleft",
       inset=c(1.05,inset_y),
