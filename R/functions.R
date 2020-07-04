@@ -130,13 +130,7 @@ pretty_plot = function(.data,
   
   my_size_range = c(1,3)
   
-  # Add extra space to right of plot area; change clipping to figure
-  if(quo_is_symbol(.color) | quo_is_symbol(.shape) | quo_is_symbol(.size))
-    par(
-      mar=c(5.1, 4.1, 4.1, 8.1),
-      xpd=TRUE,
-      tck = -.01 # Reduce tick length
-    )
+
    
   .data_formatted = 
     .data %>%
@@ -349,6 +343,18 @@ gate_interactive <-
 			my_df %>%
 			select(!!.element, !!.dim1, !!.dim2) %>%
 		  .as_matrix(rownames = !!.element) 
+		
+		# Add extra space to right of plot area; change clipping to figure
+		if(
+		  quo_is_symbol(.color) | 
+		  quo_is_symbol(.shape) | 
+		  quo_is_symbol(.size)  & (.data %>% select(!!.size) %>% sapply(class) %in% c("numeric", "integer", "double"))
+		)
+		  par(
+		    mar=c(5.1, 4.1, 4.1, 8.1),
+		    xpd=TRUE,
+		    tck = -.01 # Reduce tick length
+		  )
 		
 		# Plot
 		my_df %>% pretty_plot(
