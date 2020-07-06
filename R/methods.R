@@ -30,11 +30,15 @@
 #'
 #' @examples
 #'
-#' \dontrun{
+#' \donttest{
 #' 
-#' tidygate::tidygate_data %>%
-#'   gate( .element = c(`ct 1`, `ct 2`), Dim1, Dim2 )
-#'  
+#'   if(interactive()){
+#' 
+#'     tidygate::tidygate_data %>%
+#'     gate( .element = c(`ct 1`, `ct 2`), Dim1, Dim2 )
+#'
+#'   }
+#' 
 #' }
 #' 
 #' library(magrittr)

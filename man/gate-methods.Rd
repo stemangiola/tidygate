@@ -94,11 +94,15 @@ This function allow the user to label data points in inside one or more 2D gates
 }
 \examples{
 
-\dontrun{
+\donttest{
 
-tidygate::tidygate_data \%>\%
-  gate( .element = c(`ct 1`, `ct 2`), Dim1, Dim2 )
- 
+  if(interactive()){
+
+    tidygate::tidygate_data \%>\%
+    gate( .element = c(`ct 1`, `ct 2`), Dim1, Dim2 )
+
+  }
+
 }
 
 library(magrittr)

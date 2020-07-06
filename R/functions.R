@@ -349,12 +349,19 @@ gate_interactive <-
 		  quo_is_symbol(.color) | 
 		  quo_is_symbol(.shape) | 
 		  quo_is_symbol(.size)  & (.data %>% select(!!.size) %>% sapply(class) %in% c("numeric", "integer", "double"))
-		)
+		){
+		  # Reset par on exit
+		  opar <- par(no.readonly =TRUE)  
+		  on.exit(par(opar)) 
+		  
+		  # Set the new par
 		  par(
 		    mar=c(5.1, 4.1, 4.1, 8.1),
 		    xpd=TRUE,
 		    tck = -.01 # Reduce tick length
 		  )
+		}
+
 		
 		# Plot
 		my_df %>% pretty_plot(
@@ -367,9 +374,7 @@ gate_interactive <-
 		# Loop over gates # Variable needed for recalling the attributes lates
 		gate_list = map(1:how_many_gates,  ~ my_matrix %>% gatepoints::fhs(mark = TRUE, ...))
 		
-		# Reset par on exit
-		opar <- par(no.readonly =TRUE)  
-		on.exit(par(opar)) 
+
 		
 		# Return
 		gate_list %>%
