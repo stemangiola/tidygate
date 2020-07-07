@@ -12,7 +12,7 @@ output: github_document
 
 Please have a look also to
 - [nanny](https://github.com/stemangiola/nanny) for tidy high-level data analysis and manipulation
-- [tidygate](https://github.com/stemangiola/tidygate) for adding custom gate information to your tibble
+- [tidyHeatmap](https://github.com/stemangiola/tidyHeatmap) for producing heatmaps following tidy principles
 - [tidybulk](https://github.com/stemangiola/tidybulk) for tidy and modular transcriptomics analyses
 
 ```{r, echo=FALSE, include=FALSE, }
