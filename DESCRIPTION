@@ -20,7 +20,7 @@ Depends:
     R (>= 3.6.0)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Imports: 
     methods,
     lme4,

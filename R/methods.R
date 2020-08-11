@@ -17,7 +17,8 @@
 #' @param .color A column symbol. Color of points
 #' @param .shape A column symbol. Shape of points
 #' @param .size A column symbol. Size of points
-#' @param  how_many_gates An integer. The number of gates to label
+#' @param opacity A number between 0 and 1. The opacity level of the data points
+#' @param how_many_gates An integer. The number of gates to label
 #' @param gate_list A list of gates. It is returned by gate function as attribute \"gate\". If you want to create this list yourself, each element of the list is a data frame with x and y columns. Each row is a coordinate. The order matter.
 #' @param name A character string. The name of the new column
 #' @param action A character string. Whether to join the new information to the input tbl (add), or just get the non-redundant tbl with the new information (get).
@@ -61,6 +62,7 @@ setGeneric("gate", function(.data,
 																			 .color = NULL,
 																			 .shape = NULL,
 																			 .size = NULL,
+																			 opacity = 1,
 																			 how_many_gates = 1,
 																			 gate_list = NULL,
 																			 name = "gate",
@@ -75,6 +77,7 @@ setGeneric("gate", function(.data,
                               .color = NULL,
                               .shape = NULL,
                               .size = NULL,
+                              opacity = 1,
                               how_many_gates = 1,				
                               gate_list = NULL,
                               name = "gate",
@@ -87,7 +90,6 @@ setGeneric("gate", function(.data,
 	.dim2 = enquo(.dim2)
 	.color = enquo(.color)
 	.shape = enquo(.shape)
-	.size = enquo(.size)
 	
 	.data_processed =
 		
@@ -102,7 +104,11 @@ setGeneric("gate", function(.data,
           .dim2 = !!.dim2,
           .color = !!.color,
           .shape = !!.shape,
-          .size = !!.size,
+          
+          # size can be number of column
+          .size = .size %>% when(class(.) == "numeric" ~ (.), TRUE ~ !!enquo(.)),
+          
+          opacity = opacity,
           how_many_gates = how_many_gates,
           name = name,
           ...

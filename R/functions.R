@@ -116,7 +116,8 @@ pretty_plot = function(.data,
                        .dim2,
                        .color=NULL,
                        .shape=NULL,
-                       .size=NULL){
+                       .size=NULL,
+                       opacity = 1){
   
   # Comply with CRAN NOTES
   . = NULL
@@ -126,7 +127,6 @@ pretty_plot = function(.data,
   .dim2 = enquo(.dim2)
   .color = enquo(.color)
   .shape = enquo(.shape)
-  .size = enquo(.size)
   
   my_size_range = c(1,3)
   
@@ -163,14 +163,17 @@ pretty_plot = function(.data,
     # Define SIZE
     when(
       
+      # If it is a number and not a column name
+      class(.size) == "numeric" ~ (.)  %>% mutate(.size := !!.size ),
+      
       # If continuous
-      quo_is_symbol(.size) & 
+      quo_is_symbol(enquo(.size)) & 
         (.) %>% 
-        select(!!.size) %>% 
-        sapply(class) %in% c("numeric", "integer", "double") ~ 	(.) %>%	mutate(.size := !!.size %>% rescale( to = my_size_range) ),
+        select(!!enquo(.size)) %>% 
+        sapply(class) %in% c("numeric", "integer", "double") ~ 	(.) %>%	mutate(.size := !!enquo(.size) %>% rescale( to = my_size_range) ),
       
       # If discrete
-      quo_is_symbol(.size) ~ {
+      quo_is_symbol(enquo(.size)) ~ {
         warning("tidygate says: .size has to be a continuous variable. .size has been ignored")
         (.) %>% mutate(.size = 2 )
       },
@@ -197,7 +200,7 @@ pretty_plot = function(.data,
       # If not defined
       ~ (.)  %>% mutate(.shape = 19 )
     ) 
-  
+   
   # Plot
   .data_formatted %>%
     {
@@ -209,7 +212,7 @@ pretty_plot = function(.data,
         bty='l',
         pch=(.) %>% pull(.shape),
         cex = (.) %>% pull(.size),
-        col=(.) %>% pull(.color),
+        col=(.) %>% pull(.color) %>% alpha(opacity),
         xlab = quo_names(.dim1) %>% paste(collapse= " "),
         ylab = quo_names(.dim2) %>% paste(collapse= " "),
         xaxt='n',
@@ -246,11 +249,11 @@ pretty_plot = function(.data,
     )
     inset_y = inset_y + distinct(.data_formatted, !!.color, .color) %>% nrow %>% magrittr::multiply_by(.1)
   }
-  if(	quo_is_symbol(.size) & (.data %>% select(!!.size) %>% sapply(class) %in% c("numeric", "integer", "double") )){
+  if(	quo_is_symbol(enquo(.size)) && (.data %>% select(!!enquo(.size)) %>% sapply(class) %in% c("numeric", "integer", "double") )){
     legend(
       "topleft",
       inset=c(1.05,inset_y),
-      legend=distinct(.data_formatted, !!.size) %>% pull(!!.size) %>% range,
+      legend=distinct(.data_formatted, !!enquo(.size)) %>% pull(!!enquo(.size)) %>% range,
       pch=19,
       col = "black",
       pt.cex = my_size_range,
@@ -298,6 +301,7 @@ pretty_plot = function(.data,
 #' @param .color A column symbol. Color of points
 #' @param .shape A column symbol. Shape of points
 #' @param .size A column symbol. Size of points
+#' @param opacity A number between 0 and 1. The opacity level of the data points
 #' @param  how_many_gates An integer. The number of gates to label
 #' @param name A character string. The name of the new column
 #' @param ... Further parameters passed to the function gatepoints::fhs
@@ -312,6 +316,7 @@ gate_interactive <-
 					 .color = NULL,
 					 .shape = NULL,
 					 .size = NULL,
+					 opacity = 1,
 					 how_many_gates = 1,
 					 name = "gate", ...) {
 		
@@ -325,7 +330,7 @@ gate_interactive <-
 		.dim2 = enquo(.dim2)
 		.color = enquo(.color)
 		.shape = enquo(.shape)
-		.size = enquo(.size)
+		
 		
 		# Error if elements with coordinates are not unique
 		.data %>% check_data_unique(!!.element,  !!.dim1, !!.dim2)
@@ -348,7 +353,7 @@ gate_interactive <-
 		if(
 		  quo_is_symbol(.color) | 
 		  quo_is_symbol(.shape) | 
-		  quo_is_symbol(.size)  & (.data %>% select(!!.size) %>% sapply(class) %in% c("numeric", "integer", "double"))
+		  (quo_is_symbol(enquo(.size))  && (.data %>% select(!!enquo(.size)) %>% sapply(class) %in% c("numeric", "integer", "double")))
 		){
 		  # Reset par on exit
 		  opar <- par(no.readonly =TRUE)  
@@ -369,9 +374,14 @@ gate_interactive <-
 			!!.dim2,
 			.color = !!.color,
 			.shape = !!.shape,
-			.size = !!.size)
+			
+			# size can be number of column
+			.size = .size %>% when(class(.) == "numeric" ~ (.), TRUE ~ !!enquo(.)),
+			
+			opacity = opacity
+		)
 	
-		# Loop over gates # Variable needed for recalling the attributes lates
+		# Loop over gates # Variable needed for recalling the attributes later
 		gate_list = map(1:how_many_gates,  ~ my_matrix %>% gatepoints::fhs(mark = TRUE, ...))
 		
 
