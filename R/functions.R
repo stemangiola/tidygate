@@ -110,6 +110,7 @@ format_gatepoints = function(.data, .element, name, .idx){
 #' @importFrom graphics par
 #' @importFrom utils head
 #' @importFrom stringr str_pad
+#' @importFrom scales alpha
 
 pretty_plot = function(.data,
                        .dim1,
