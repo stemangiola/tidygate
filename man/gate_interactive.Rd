@@ -12,6 +12,7 @@ gate_interactive(
   .color = NULL,
   .shape = NULL,
   .size = NULL,
+  opacity = 1,
   how_many_gates = 1,
   name = "gate",
   ...
@@ -31,6 +32,8 @@ gate_interactive(
 \item{.shape}{A column symbol. Shape of points}
 
 \item{.size}{A column symbol. Size of points}
+
+\item{opacity}{A number between 0 and 1. The opacity level of the data points}
 
 \item{how_many_gates}{An integer. The number of gates to label}
 
