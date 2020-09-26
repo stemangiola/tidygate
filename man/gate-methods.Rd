@@ -3,8 +3,8 @@
 \docType{methods}
 \name{gate}
 \alias{gate}
-\alias{gate,spec_tbl_df-method}
-\alias{gate,tbl_df-method}
+\alias{gate.spec_tbl_df}
+\alias{gate.tbl_df}
 \title{Label points within a scatter plot drawing a gate}
 \usage{
 gate(
@@ -23,7 +23,7 @@ gate(
   ...
 )
 
-\S4method{gate}{spec_tbl_df}(
+\method{gate}{spec_tbl_df}(
   .data,
   .element,
   .dim1,
@@ -39,7 +39,7 @@ gate(
   ...
 )
 
-\S4method{gate}{tbl_df}(
+\method{gate}{tbl_df}(
   .data,
   .element,
   .dim1,

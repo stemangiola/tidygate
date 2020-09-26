@@ -140,7 +140,7 @@ pretty_plot = function(.data,
     when(
       
       # If continuous
-      quo_is_symbol(.color) & 
+      quo_is_symbol(.color) && 
         (.) %>% 
         select(!!.color) %>% 
         sapply(class) %in% c("numeric", "integer", "double") ~{
@@ -164,11 +164,14 @@ pretty_plot = function(.data,
     # Define SIZE
     when(
       
+      # If not defined
+      is.null(.size) ~ (.)  %>% mutate(.size = 2 ),
+      
       # If it is a number and not a column name
       class(.size) == "numeric" ~ (.)  %>% mutate(.size := !!.size ),
       
       # If continuous
-      quo_is_symbol(enquo(.size)) & 
+      quo_is_symbol(enquo(.size)) && 
         (.) %>% 
         select(!!enquo(.size)) %>% 
         sapply(class) %in% c("numeric", "integer", "double") ~ 	(.) %>%	mutate(.size := !!enquo(.size) %>% rescale( to = my_size_range) ),
@@ -179,8 +182,7 @@ pretty_plot = function(.data,
         (.) %>% mutate(.size = 2 )
       },
       
-      # If not defined
-      ~ (.)  %>% mutate(.size = 2 )
+      ~ stop("tidygate says: the parameter .size must be NULL, numeric or a symbolic column name")
     ) %>%
     
     # Define SHAPE
@@ -376,8 +378,8 @@ gate_interactive <-
 			.color = !!.color,
 			.shape = !!.shape,
 			
-			# size can be number of column
-			.size = .size %>% when(class(.) == "numeric" ~ (.), TRUE ~ !!enquo(.)),
+			# size can be number or column
+			.size = .size %>% when(is.null(.size) | class(.) == "numeric" ~ (.), ~ !!enquo(.)),
 			
 			opacity = opacity
 		)

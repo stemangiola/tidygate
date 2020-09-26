@@ -55,19 +55,25 @@
 #' @rdname gate-methods
 #' @export
 #'
-setGeneric("gate", function(.data,
-																			 .element,
-																			 .dim1,
-																			 .dim2, 
-																			 .color = NULL,
-																			 .shape = NULL,
-																			 .size = NULL,
-																			 opacity = 1,
-																			 how_many_gates = 1,
-																			 gate_list = NULL,
-																			 name = "gate",
-																			 action =	"add", ...)
-	standardGeneric("gate"))
+#'
+#'
+#'
+gate <- function(.data,
+                 .element,
+                 .dim1,
+                 .dim2, 
+                 .color = NULL,
+                 .shape = NULL,
+                 .size = NULL,
+                 opacity = 1,
+                 how_many_gates = 1,
+                 gate_list = NULL,
+                 name = "gate",
+                 action =	"add", ...) {
+  UseMethod("gate")
+}
+
+
 
 # Set internal
 .gate = 		function(.data,
@@ -90,7 +96,7 @@ setGeneric("gate", function(.data,
 	.dim2 = enquo(.dim2)
 	.color = enquo(.color)
 	.shape = enquo(.shape)
-	
+
 	.data_processed =
 		
 		.data %>% 
@@ -106,7 +112,7 @@ setGeneric("gate", function(.data,
           .shape = !!.shape,
           
           # size can be number of column
-          .size = .size %>% when(class(.) == "numeric" ~ (.), TRUE ~ !!enquo(.)),
+          .size =  .size %>% when(is.null(.size) | class(.) == "numeric" ~ (.), ~ !!enquo(.)),
           
           opacity = opacity,
           how_many_gates = how_many_gates,
@@ -165,12 +171,13 @@ setGeneric("gate", function(.data,
 #' gate
 #' @docType methods
 #' @rdname gate-methods
+#' @export
 #' @return A tbl object with additional columns for the reduced dimensions. additional columns for the rotated dimensions. The rotated dimensions will be added to the original data set as `<NAME OF DIMENSION> rotated <ANGLE>` by default, or as specified in the input arguments.
-setMethod("gate", "spec_tbl_df", .gate)
+gate.spec_tbl_df = gate.tbl_df = .gate
 
 #' gate
 #' @docType methods
 #' @rdname gate-methods
+#' @export
 #' @return A tbl object with additional columns for the reduced dimensions. additional columns for the rotated dimensions. The rotated dimensions will be added to the original data set as `<NAME OF DIMENSION> rotated <ANGLE>` by default, or as specified in the input arguments.
-setMethod("gate", "tbl_df", .gate)
-
+gate.tbl_df = .gate
