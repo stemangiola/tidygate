@@ -112,7 +112,7 @@ gate <- function(.data,
           .shape = !!.shape,
           
           # size can be number of column
-          .size = .size %>% when(class(.) == "numeric" ~ (.), TRUE ~ !!enquo(.)),
+          .size =  .size %>% when(is.null(.size) | class(.) == "numeric" ~ (.), ~ !!enquo(.)),
           
           opacity = opacity,
           how_many_gates = how_many_gates,
