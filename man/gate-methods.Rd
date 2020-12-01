@@ -3,13 +3,12 @@
 \docType{methods}
 \name{gate_chr}
 \alias{gate_chr}
-\alias{gate_chr.spec_tbl_df}
+\alias{gate_chr.numeric}
 \alias{gate_int}
-\alias{gate_int.spec_tbl_df}
+\alias{gate_int.numeric}
 \title{Label points within a scatter plot drawing a gate}
 \usage{
 gate_chr(
-  .data,
   .dim1,
   .dim2,
   .color = NULL,
@@ -22,8 +21,7 @@ gate_chr(
   ...
 )
 
-\method{gate_chr}{spec_tbl_df}(
-  .data,
+\method{gate_chr}{numeric}(
   .dim1,
   .dim2,
   .color = NULL,
@@ -37,7 +35,6 @@ gate_chr(
 )
 
 gate_int(
-  .data,
   .dim1,
   .dim2,
   .color = NULL,
@@ -50,8 +47,7 @@ gate_int(
   ...
 )
 
-\method{gate_int}{spec_tbl_df}(
-  .data,
+\method{gate_int}{numeric}(
   .dim1,
   .dim2,
   .color = NULL,
@@ -65,8 +61,6 @@ gate_int(
 )
 }
 \arguments{
-\item{.data}{A tibble}
-
 \item{.dim1}{A column symbol. The x dimension}
 
 \item{.dim2}{A column symbol. The y dimension}

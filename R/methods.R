@@ -11,7 +11,6 @@
 #' @name gate_chr
 #'
 #'
-#' @param .data A tibble
 #' @param .dim1 A column symbol. The x dimension
 #' @param .dim2 A column symbol. The y dimension
 #' @param .color A column symbol. Color of points
@@ -56,8 +55,7 @@
 #'
 #'
 #'
-gate_chr <- function(.data,
-                     .dim1,
+gate_chr <- function(.dim1,
                      .dim2,
                      .color = NULL,
                      .shape = NULL,
@@ -72,13 +70,12 @@ gate_chr <- function(.data,
 }
 
 
-#' gate
+#' gate_chr
 #' @docType methods
 #' @rdname gate-methods
 #' @export
 #' @return A tbl object with additional columns for the reduced dimensions. additional columns for the rotated dimensions. The rotated dimensions will be added to the original data set as `<NAME OF DIMENSION> rotated <ANGLE>` by default, or as specified in the input arguments.
-gate_chr.spec_tbl_df = gate_chr.tbl_df = 	function(.data,
-                                                   .dim1,
+gate_chr.numeric = 	function(                     .dim1,
                                                    .dim2,
                                                    .color = NULL,
                                                    .shape = NULL,
@@ -89,24 +86,18 @@ gate_chr.spec_tbl_df = gate_chr.tbl_df = 	function(.data,
                                                    
                                                    gate_list = NULL,
                                                    ...) {
-  # Get column names
-  .dim1 = enquo(.dim1)
-  .dim2 = enquo(.dim2)
-  .color = enquo(.color)
-  .shape = enquo(.shape)
-  .group_by = enquo(.group_by)
+
   
   .gate_chr_int(
-    .data,
-    .dim1 = !!.dim1,
-    .dim2 = !!.dim2,
-    .color = !!.color,
-    .shape = !!.shape,
+    .dim1 = .dim1,
+    .dim2 = .dim2,
+    .color = .color,
+    .shape = .shape,
     .size = .size,
     opacity = opacity,
     how_many_gates = how_many_gates,
-    .group_by = !!.group_by,
-    gate_list = NULL,
+    .group_by = .group_by,
+    gate_list = gate_list,
     output_type = "chr",
     ...
   )
@@ -114,6 +105,7 @@ gate_chr.spec_tbl_df = gate_chr.tbl_df = 	function(.data,
 }
 
 
+#' gate_int
 #' @docType methods
 #' @rdname gate-methods
 #' @export
@@ -121,8 +113,7 @@ gate_chr.spec_tbl_df = gate_chr.tbl_df = 	function(.data,
 #'
 #'
 #'
-gate_int <- function(.data,
-                     .dim1,
+gate_int <- function(.dim1,
                      .dim2,
                      .color = NULL,
                      .shape = NULL,
@@ -137,13 +128,12 @@ gate_int <- function(.data,
 }
 
 
-#' gate
+#' gate_int
 #' @docType methods
 #' @rdname gate-methods
 #' @export
 #' @return A tbl object with additional columns for the reduced dimensions. additional columns for the rotated dimensions. The rotated dimensions will be added to the original data set as `<NAME OF DIMENSION> rotated <ANGLE>` by default, or as specified in the input arguments.
-gate_int.spec_tbl_df = gate_int.tbl_df = 	function(.data,
-                                                   .dim1,
+gate_int.numeric = 	function(  .dim1,
                                                    .dim2,
                                                    .color = NULL,
                                                    .shape = NULL,
@@ -154,26 +144,26 @@ gate_int.spec_tbl_df = gate_int.tbl_df = 	function(.data,
                                                    
                                                    gate_list = NULL,
                                                    ...) {
-  # Get column names
-  .dim1 = enquo(.dim1)
-  .dim2 = enquo(.dim2)
-  .color = enquo(.color)
-  .shape = enquo(.shape)
-  .group_by = enquo(.group_by)
   
-  .gate(
-    .data,
-    .dim1 = !!.dim1,
-    .dim2 = !!.dim2,
-    .color = !!.color,
-    .shape = !!.shape,
+  .gate_chr_int(
+    .dim1 = .dim1,
+    .dim2 = .dim2,
+    .color = .color,
+    .shape = .shape,
     .size = .size,
     opacity = opacity,
     how_many_gates = how_many_gates,
-    .group_by = !!.group_by,
-    gate_list = NULL,
+    .group_by = .group_by,
+    gate_list = gate_list,
     output_type = "int",
     ...
   )
   
 }
+
+
+
+
+
+
+
