@@ -179,7 +179,9 @@ gate_programmatic_chr_int <-
     
     # Loop over gates # Variable needed for recalling the attributes later
     gate_list_result = map(gate_list,
-                           ~ applyGate(my_matrix, .x) %>%
+                           ~ .x %>%
+                             when("data.frame" %in% class(.) ~ .as_matrix(.), ~ (.)) %>%
+                             applyGate(my_matrix, .) %>%
                              which() %>%
                              as.character() %>%
                              
