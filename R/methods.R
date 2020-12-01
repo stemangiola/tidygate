@@ -96,7 +96,7 @@ gate_chr.spec_tbl_df = gate_chr.tbl_df = 	function(.data,
   .shape = enquo(.shape)
   .group_by = enquo(.group_by)
   
-  .gate(
+  .gate_chr_int(
     .data,
     .dim1 = !!.dim1,
     .dim2 = !!.dim2,

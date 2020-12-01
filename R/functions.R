@@ -313,7 +313,7 @@ pretty_plot = function(.data,
 #'
 #' @return A tibble with additional columns
 #'
-gate_interactive <-
+gate_interactive_chr_int <-
 	function(.data,
 					 .dim1,
 					 .dim2, 
@@ -428,7 +428,7 @@ gate_interactive <-
 #'
 #' @return A tibble with additional columns
 #'
-gate_programmatic <- 
+gate_programmatic_chr_int <- 
   function(.data,
            .element,
            .dim1,
@@ -513,7 +513,7 @@ gate_programmatic <-
     
   }
 
-.gate = 		function(.data,
+.gate_chr_int = 		function(.data,
                    .dim1,
                    .dim2, 
                    .color = NULL,
@@ -548,7 +548,7 @@ gate_programmatic <-
       
       # Interactive
       is.null(gate_list) ~ (.) %>% 
-        gate_interactive(
+        gate_interactive_chr_int(
           .dim1 = !!.dim1,
           .dim2 = !!.dim2,
           .color = !!.color,
@@ -564,7 +564,7 @@ gate_programmatic <-
       
       # Programmatic
       is.list(gate_list) ~ (.) %>% 
-        gate_programmatic(
+        gate_programmatic_chr_int(
           .dim1 = !!.dim1,
           .dim2 = !!.dim2,
           gate_list = gate_list
