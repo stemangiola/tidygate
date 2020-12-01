@@ -296,6 +296,8 @@ pretty_plot = function(.data,
 #' @importFrom graphics plot
 #' @importFrom purrr imap
 #' @importFrom purrr map
+#' @importFrom purrr reduce
+#' @importFrom rlang quo_is_symbol
 #'
 #' @param .data A tibble
 #' @param .element A column symbol. The column that is used to calculate distance (i.e., normally genes)
@@ -313,44 +315,36 @@ pretty_plot = function(.data,
 #'
 gate_interactive <-
 	function(.data,
-					 .element,
 					 .dim1,
 					 .dim2, 
 					 .color = NULL,
 					 .shape = NULL,
 					 .size = NULL,
 					 opacity = 1,
-					 how_many_gates = 1,
-					 name = "gate", ...) {
+					 how_many_gates = 1, ...) {
 		
 		# Comply with CRAN NOTES
 		. = NULL
 		value = NULL
 		
 		# Get column names
-		.element = enquo(.element)
 		.dim1 = enquo(.dim1)
 		.dim2 = enquo(.dim2)
 		.color = enquo(.color)
 		.shape = enquo(.shape)
-		
-		
-		# Error if elements with coordinates are not unique
-		.data %>% check_data_unique(!!.element,  !!.dim1, !!.dim2)
+		name = "gate"
 		
 		# my df
 		my_df = 
 			.data %>%
-		  select(!!.element, get_specific_annotation_columns(.data, !!.element)) %>%
-		  distinct %>%
 
 			# Check if dimensions are NA
 		  check_dimensions(!!.dim1, !!.dim2) 
 		
 		my_matrix	=
 			my_df %>%
-			select(!!.element, !!.dim1, !!.dim2) %>%
-		  .as_matrix(rownames = !!.element) 
+			select(!!.dim1, !!.dim2) %>%
+		  .as_matrix() 
 		
 		# Add extra space to right of plot area; change clipping to figure
 		if(
@@ -387,47 +381,30 @@ gate_interactive <-
 		# Loop over gates # Variable needed for recalling the attributes later
 		gate_list = map(1:how_many_gates,  ~ my_matrix %>% gatepoints::fhs(mark = TRUE, ...))
 		
+		# Save gate list
+		temp_file = sprintf("%s.rds", tempfile())
+		message(sprintf("tidygate says: the gates have been saved in %s", temp_file))
+		gate_list %>% attr("gate") %>% saveRDS(temp_file) 
 
-		
 		# Return
 		gate_list %>%
 		  
-		  # Format
-		  imap( ~ .x %>% format_gatepoints(!!.element, name, .y)) %>%
-		  purrr::reduce(full_join, by = quo_names(.element)) %>%
-		  unite(col = !!name,
-		        contains(name),
-		        sep = ",",
-		        na.rm = TRUE) %>%
+		  imap(~ tibble(gate = .y, point = .x)) %>%
+		  reduce(.f = full_join, by = "point") %>%
 		  
-		  # Correct column types
-		  # Keep classes for compatibility
-		  imap(
-		    ~ .x %>%
-		      when(
-		        .y %in% colnames(my_df) &&
-		          class(my_df %>% select(.y) %>% pull(1)) == "numeric" ~ as.numeric(.),
-		        .y %in% colnames(my_df) &&
-		          class(my_df %>% select(.y) %>% pull(1)) == "integer" ~ as.integer(.),
-		        .y %in% colnames(my_df) &&
-		          class(my_df %>% select(.y) %>% pull(1)) == "logical" ~ as.logical(.),
-		        .y %in% colnames(my_df) &&
-		          class(my_df %>% select(.y) %>% pull(1)) == "factor" ~ as.factor(.),
-		        ~ (.)
-		      )
-		  ) %>%
-		  do.call(bind_cols, .) %>%
+		  # Add all points
+		  full_join( 		  tibble(point = as.character(1:nrow(my_df))), by = "point") %>%
+		  arrange(as.numeric(point)) %>%
 		  
-		  # Join with the dataset
-		  right_join(my_df %>% select(!!.element),
-		             by = quo_names(.element)) %>%
+		  # Unite in case of a point belonging to multiple gates
+		  tidyr::unite( contains("gate"), col = "gate",    sep = ",", na.rm = TRUE) %>%
 		  
 		  # Replace NAs
-		  mutate(!!name := replace_na(!!as.symbol(name), 0)) %>%
+		  mutate(gate := if_else(gate == "", "0", gate)) %>%
 		  
-		  # Add internals the list of gates
-		  add_attr(map(gate_list, ~ attr(.x, "gate")), "gate") 
-
+		  # Pull
+		  pull(gate)
+		  
 	}
 
 #' Get points within a user drawn gate
@@ -535,3 +512,71 @@ gate_programmatic <-
       add_attr(gate_list, "gate") 
     
   }
+
+.gate = 		function(.data,
+                   .dim1,
+                   .dim2, 
+                   .color = NULL,
+                   .shape = NULL,
+                   .size = NULL,
+                   opacity = 1,
+                   how_many_gates = 1,	
+                   .group_by = NULL,
+                   
+                   gate_list = NULL,
+                   output_type = "chr", 
+                   ...)
+{
+  
+  # Get column names
+  .dim1 = enquo(.dim1)
+  .dim2 = enquo(.dim2)
+  .color = enquo(.color)
+  .shape = enquo(.shape)
+  .group_by = enquo(.group_by)
+  
+  .data %>% 
+    
+    # Nesting is the case
+    when(
+      !quo_is_null(.group_by) ~ nest(., data___ = -!!.group_by),
+      (.)
+    ) %>%
+    
+    # Interactive or programmatic
+    when(
+      
+      # Interactive
+      is.null(gate_list) ~ (.) %>% 
+        gate_interactive(
+          .dim1 = !!.dim1,
+          .dim2 = !!.dim2,
+          .color = !!.color,
+          .shape = !!.shape,
+          
+          # size can be number of column
+          .size =  .size %>% when(is.null(.size) | class(.) == "numeric" ~ (.), ~ !!enquo(.)),
+          
+          opacity = opacity,
+          how_many_gates = how_many_gates,
+          ...
+        ),
+      
+      # Programmatic
+      is.list(gate_list) ~ (.) %>% 
+        gate_programmatic(
+          .dim1 = !!.dim1,
+          .dim2 = !!.dim2,
+          gate_list = gate_list
+        ),
+      
+      # Else error
+      ~ stop("tidygate says: the parameter gate_list has to be NULL or a list of data frames")
+    ) %>%
+    
+    # Convert
+    when(
+      output_type == "chr" ~ as.character(.),
+      output_type == "int" ~ as.integer(.)
+    )
+}

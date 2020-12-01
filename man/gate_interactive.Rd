@@ -6,7 +6,6 @@
 \usage{
 gate_interactive(
   .data,
-  .element,
   .dim1,
   .dim2,
   .color = NULL,
@@ -14,14 +13,11 @@ gate_interactive(
   .size = NULL,
   opacity = 1,
   how_many_gates = 1,
-  name = "gate",
   ...
 )
 }
 \arguments{
 \item{.data}{A tibble}
-
-\item{.element}{A column symbol. The column that is used to calculate distance (i.e., normally genes)}
 
 \item{.dim1}{A column symbol. The x dimension}
 
@@ -37,9 +33,11 @@ gate_interactive(
 
 \item{how_many_gates}{An integer. The number of gates to label}
 
-\item{name}{A character string. The name of the new column}
-
 \item{...}{Further parameters passed to the function gatepoints::fhs}
+
+\item{.element}{A column symbol. The column that is used to calculate distance (i.e., normally genes)}
+
+\item{name}{A character string. The name of the new column}
 }
 \value{
 A tibble with additional columns

@@ -33,6 +33,7 @@ test_that("gate dimensions", {
   res =
     tidygate::tidygate_data  %>%
     mutate(sh = factor(hierarchy)) %>%
+    distinct(`ct 1`  ,    `ct 2`, Dim1, Dim2) %>%
     gate(
       .element = c(`ct 1`, `ct 2`),
       Dim1, Dim2,
