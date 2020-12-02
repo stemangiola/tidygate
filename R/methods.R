@@ -30,23 +30,36 @@
 #' @examples
 #'
 #' \donttest{
-#'
+#' # Standard use - interactive
+#' 
 #'   if(interactive()){
 #'
-#'     tidygate::tidygate_data %>%
-#'     gate( Dim1, Dim2 )
+#'  tidygate::tidygate_data  %>%
+#'  distinct(`ct 1` , `ct 2`, Dim1, Dim2) %>%
+#'  mutate(gate = gate_chr( Dim1, Dim2)) 
 #'
 #'   }
 #'
 #' }
 #'
 #' library(magrittr)
+#' library(dplyr)
+#' 
+#' # Standard use - programmatic
+#' res_distinct =
+#'  tidygate::tidygate_data  %>%
+#'  distinct(`ct 1` , `ct 2`, Dim1, Dim2) %>%
+#'  mutate(gate = gate_chr( Dim1, Dim2,gate_list = tidygate::gate_list)) 
 #'
-#' tidygate::tidygate_data  %>%
-#'  gate_chr(
-#'    Dim1, Dim2,
-#'    gate_list = tidygate::gate_list
-#'  )
+#' # Grouping - programmatic
+#' res =
+#'  tidygate::tidygate_data  %>%
+#'    mutate(gate = gate_chr( 
+#'      Dim1, Dim2,
+#'      .group_by = c(`ct 1` , `ct 2`), 
+#'      gate_list = tidygate::gate_list
+#'    ))
+#'
 #'
 #' @docType methods
 #' @rdname gate_chr-methods
@@ -71,6 +84,9 @@ gate_chr <- function(.dim1,
 
 
 #' gate_chr
+#' 
+#' @inheritParams gate_chr
+#' 
 #' @export
 gate_chr.numeric = 	function(                     .dim1,
                                                    .dim2,
@@ -104,6 +120,9 @@ gate_chr.numeric = 	function(                     .dim1,
 
 #' gate_int
 #' 
+#' @name gate_int
+#' 
+#' @inheritParams gate_chr
 #' @docType methods
 #' @rdname gate_chr-methods
 #' 
@@ -116,7 +135,6 @@ gate_int <- function(.dim1,
                      opacity = 1,
                      how_many_gates = 1,
                      .group_by = NULL,
-                     
                      gate_list = NULL,
                      ...) {
   UseMethod("gate_int")
@@ -124,6 +142,10 @@ gate_int <- function(.dim1,
 
 
 #' gate_int
+#' 
+#' @inheritParams gate_chr
+#' 
+#' 
 #' @export
 gate_int.numeric = 	function(  .dim1,
                                                    .dim2,

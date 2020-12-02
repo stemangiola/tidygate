@@ -17,6 +17,27 @@
   ...
 )
 }
+\arguments{
+\item{.dim1}{A column symbol. The x dimension}
+
+\item{.dim2}{A column symbol. The y dimension}
+
+\item{.color}{A column symbol. Colour of points}
+
+\item{.shape}{A column symbol. Shape of points}
+
+\item{.size}{A column symbol. Size of points}
+
+\item{opacity}{A number between 0 and 1. The opacity level of the data points}
+
+\item{how_many_gates}{An integer. The number of gates to label}
+
+\item{.group_by}{A column symbol. The column that is used to calculate distance (i.e., normally genes)}
+
+\item{gate_list}{A list of gates. It is returned by gate function as attribute \"gate\". If you want to create this list yourself, each element of the list is a data frame with x and y columns. Each row is a coordinate. The order matter.}
+
+\item{...}{Further parameters passed to the function gatepoints::fhs}
+}
 \description{
 gate_int
 }

@@ -1,4 +1,8 @@
 parse_gate_list = function(.data, my_df){
+  
+  # Comply with CRAN NOTES
+  point = NULL
+  
   .data %>%
     imap( ~ tibble(gate = .y, point = .x)) %>%
     reduce(.f = full_join, by = "point") %>%
@@ -209,6 +213,10 @@ gate_programmatic_chr_int <-
                            output_type = "chr",
                            ...)
 {
+  
+  # Comply with CRAN NOTES
+  . = NULL
+  point = NULL
   
   # If gouping is complex multicolumn
   .group_by =
