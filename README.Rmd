@@ -25,6 +25,17 @@ library(tidygate)
 
 ```
 
+## Installation
+
+```{r, eval=FALSE}
+
+# From Github
+devtools::install_github("stemangiola/tidygate")
+
+# From CRAN
+install.package("tidygate")
+```
+
 It interactively or programmately labels points within custom gates on two dimensions, according to tidyverse principles. The information is added to your tibble. It is based on the package `gatepoints` from Wajid Jawaid. 
 
 The main benefits are 
@@ -34,32 +45,12 @@ The main benefits are
 - you can save your gates and apply the programmatically.
 
 
-
-
 **Input (tibble)**
 
-element | dimension1 | dimension2 | annotations |
------------- | ------------- | ------------- | -------------
-`chr` or `fctr` | `chr` or `fctr` | `numeric` | ...
+dimension1 | dimension2 | annotations |
+ ------------- | ------------- | -------------
+ `chr` or `fctr` | `numeric` | ...
 
-**Command** `input %>% gate(element, dimension1, dimension2)`
-
-![](inst/tidygate.gif)
-
-**Output (tibble)**
-
-element |  dimension1 | dimension2 | annotations | Gate |
------------- | ------------- | ------------- | ------------- | -------------
-`chr` or `fctr` | `chr` or `fctr` | `numeric` | ... | ...
-
-
-## Installation
-
-```{r, eval=FALSE}
-
-devtools::install_github("stemangiola/tidygate")
-
-```
 
 ## Interactive gating
 
@@ -74,6 +65,22 @@ tidygate_gate <-
   
 
 tidygate_gate
+```
+
+
+
+![](inst/tidygate.gif)
+Output tibble
+
+```{r echo=FALSE}
+
+tidygate_data %>%
+  mutate( gate = gate_chr(
+    Dim1, Dim2,
+     # Pre-defined gates
+    gate_list = tidygate::gate_list
+  ))
+
 ```
 
 Gates are saved in a temporary file for later use

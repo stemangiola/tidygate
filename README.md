@@ -18,6 +18,16 @@ heatmaps following tidy principles -
 [tidybulk](https://github.com/stemangiola/tidybulk) for tidy and modular
 transcriptomics analyses
 
+## Installation
+
+``` r
+# From Github
+devtools::install_github("stemangiola/tidygate")
+
+# From CRAN
+install.package("tidygate")
+```
+
 It interactively or programmately labels points within custom gates on
 two dimensions, according to tidyverse principles. The information is
 added to your tibble. It is based on the package `gatepoints` from Wajid
@@ -32,25 +42,9 @@ The main benefits are
 
 **Input (tibble)**
 
-| element         | dimension1      | dimension2 | annotations |
-| --------------- | --------------- | ---------- | ----------- |
-| `chr` or `fctr` | `chr` or `fctr` | `numeric`  | …           |
-
-**Command** `input %>% gate(element, dimension1, dimension2)`
-
-![](inst/tidygate.gif)
-
-**Output (tibble)**
-
-| element         | dimension1      | dimension2 | annotations | Gate |
-| --------------- | --------------- | ---------- | ----------- | ---- |
-| `chr` or `fctr` | `chr` or `fctr` | `numeric`  | …           | …    |
-
-## Installation
-
-``` r
-devtools::install_github("stemangiola/tidygate")
-```
+| dimension1      | dimension2 | annotations |
+| --------------- | ---------- | ----------- |
+| `chr` or `fctr` | `numeric`  | …           |
 
 ## Interactive gating
 
@@ -66,6 +60,23 @@ tidygate_gate <-
 
 tidygate_gate
 ```
+
+![](inst/tidygate.gif) Output tibble
+
+    ## # A tibble: 2,240 x 9
+    ##    group   hierarchy `ct 1`    `ct 2`    relation cancer_ID   Dim1    Dim2 gate 
+    ##    <chr>       <dbl> <chr>     <chr>        <dbl> <chr>      <dbl>   <dbl> <chr>
+    ##  1 adrenal         1 endothel… epitheli…    -1    ACC       -0.874 -0.239  0    
+    ##  2 adrenal         1 endothel… fibrobla…    -1    ACC       -0.740  0.114  1    
+    ##  3 adrenal         1 endothel… immune_c…    -1    ACC       -0.988  0.118  0    
+    ##  4 adrenal         1 epitheli… endothel…     1    ACC        0.851  0.261  0    
+    ##  5 adrenal         1 epitheli… fibrobla…     1    ACC        0.839  0.320  0    
+    ##  6 adrenal         1 epitheli… immune_c…     1    ACC        0.746  0.337  0    
+    ##  7 adrenal         1 fibrobla… endothel…     1    ACC        0.722 -0.0696 0    
+    ##  8 adrenal         1 fibrobla… epitheli…    -1    ACC       -0.849 -0.317  0    
+    ##  9 adrenal         1 fibrobla… immune_c…     0.52 ACC       -0.776 -0.383  0    
+    ## 10 adrenal         1 immune_c… endothel…     1    ACC        0.980 -0.116  0    
+    ## # … with 2,230 more rows
 
 Gates are saved in a temporary file for later use
 

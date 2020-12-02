@@ -184,11 +184,11 @@ pretty_plot_chr_int = function(.data,
   
   # Add legend to top right, outside plot region
   inset_y = 0
-  if (pull(.data, !!.color) %>% unique %>% is.na() %>% not()) {
+  if (pull(.data, !!.color) %>% unique %>% is.na() %>% not() %>% all()) {
     legend(
       "topleft",
       inset = c(1.05, inset_y),
-      legend = distinct(.data_formatted,!!.color) %>% pull(!!.color),
+      legend = distinct(.data,!!.color) %>% pull(!!.color),
       pch = 19,
       col = distinct(.data_formatted,!!.color, .color) %>% pull(.color),
       title = color_title,
@@ -197,7 +197,7 @@ pretty_plot_chr_int = function(.data,
     )
     inset_y = inset_y + distinct(.data_formatted,!!.color, .color) %>% nrow %>% magrittr::multiply_by(.1)
   }
-  if (pull(.data, !!.size) %>% unique %>% is.na() %>% not() &&
+  if (pull(.data, !!.size) %>% unique %>% is.na() %>% not() %>% all() &&
       (.data %>% select(!!enquo(.size)) %>% sapply(class) %in% c("numeric", "integer", "double"))) {
     legend(
       "topleft",
@@ -212,11 +212,11 @@ pretty_plot_chr_int = function(.data,
     )
     inset_y = inset_y + 0.3
   }
-  if (pull(.data, !!.shape) %>% unique %>% is.na() %>% not()) {
+  if (pull(.data, !!.shape) %>% unique %>% is.na() %>% not() %>% all()) {
     legend(
       "topleft",
       inset = c(1.05, inset_y),
-      legend = distinct(.data_formatted,!!.shape) %>% pull(!!.shape),
+      legend = distinct(.data,!!.shape) %>% pull(!!.shape),
       pch = distinct(.data_formatted,!!.shape, .shape) %>% pull(.shape),
       col = "black",
       title = shape_title,
@@ -292,9 +292,9 @@ gate_interactive_chr_int <-
       .as_matrix()
     
     # Add extra space to right of plot area; change clipping to figure
-    if (pull(.data, !!.color) %>% unique %>% is.na() %>% not() |
-        pull(.data, !!.shape) %>% unique %>% is.na() %>% not() |
-        (pull(.data, !!.size) %>% unique %>% is.na() %>% not()  &&
+    if (pull(.data, !!.color) %>% unique %>% is.na() %>% not() %>% all() |
+        pull(.data, !!.shape) %>% unique %>% is.na() %>% not() %>% all()|
+        (pull(.data, !!.size) %>% unique %>% is.na() %>% not() %>% all() &&
          (
            .data %>% select(!!.size) %>% sapply(class) %in% c("numeric", "integer", "double")
          ))) {
