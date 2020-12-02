@@ -13,7 +13,7 @@
 #'
 #' @param .dim1 A column symbol. The x dimension
 #' @param .dim2 A column symbol. The y dimension
-#' @param .color A column symbol. Color of points
+#' @param .color A column symbol. Colour of points
 #' @param .shape A column symbol. Shape of points
 #' @param .size A column symbol. Size of points
 #' @param opacity A number between 0 and 1. The opacity level of the data points
@@ -49,7 +49,7 @@
 #'  )
 #'
 #' @docType methods
-#' @rdname gate-methods
+#' @rdname gate_chr-methods
 #' @export
 #'
 #'
@@ -71,10 +71,7 @@ gate_chr <- function(.dim1,
 
 
 #' gate_chr
-#' @docType methods
-#' @rdname gate-methods
 #' @export
-#' @return A tbl object with additional columns for the reduced dimensions. additional columns for the rotated dimensions. The rotated dimensions will be added to the original data set as `<NAME OF DIMENSION> rotated <ANGLE>` by default, or as specified in the input arguments.
 gate_chr.numeric = 	function(                     .dim1,
                                                    .dim2,
                                                    .color = NULL,
@@ -106,13 +103,7 @@ gate_chr.numeric = 	function(                     .dim1,
 
 
 #' gate_int
-#' @docType methods
-#' @rdname gate-methods
 #' @export
-#'
-#'
-#'
-#'
 gate_int <- function(.dim1,
                      .dim2,
                      .color = NULL,
@@ -129,10 +120,7 @@ gate_int <- function(.dim1,
 
 
 #' gate_int
-#' @docType methods
-#' @rdname gate-methods
 #' @export
-#' @return A tbl object with additional columns for the reduced dimensions. additional columns for the rotated dimensions. The rotated dimensions will be added to the original data set as `<NAME OF DIMENSION> rotated <ANGLE>` by default, or as specified in the input arguments.
 gate_int.numeric = 	function(  .dim1,
                                                    .dim2,
                                                    .color = NULL,
