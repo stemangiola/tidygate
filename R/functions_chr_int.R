@@ -122,12 +122,12 @@ gate_interactive_chr_int <-
     # Save gate list
     temp_file = sprintf("%s.rds", tempfile())
     message(sprintf("tidygate says: the gates have been saved in %s", temp_file))
-    gate_list %>% attr("gate") %>% saveRDS(temp_file)
+    gate_list %>% 
+      map(~ attr(.x, "gate")) %>%
+      saveRDS(temp_file)
     
     # Return
-    gate_list %>%
-      
-      parse_gate_list(my_df)
+    gate_list %>% parse_gate_list(my_df)
     
   }
 
@@ -210,18 +210,37 @@ gate_programmatic_chr_int <-
                            ...)
 {
   
+  # If gouping is complex multicolumn
+  .group_by =
+    .group_by %>%
+    when(
+      !is.null(.group_by) ~ matrix(ncol = length(.group_by) / length(.dim1)) %>%
+        as.data.frame() %>%
+        unite(".group_by", everything(), sep = "___") %>%
+        pull(.group_by),
+      ~ (.)
+    )
+  
+    
   # Create tibble
-  tibble(
+  input_df = 
+    tibble(
     .dim1 = .dim1,
     .dim2 = .dim2
   ) %>%
     when(!is.null(.color) ~ mutate(., .color = .color), ~ (.)) %>%
     when(!is.null(.shape) ~ mutate(., .shape = .shape), ~ (.)) %>%
-    when(!is.null(.group_by) ~ mutate(., .group_by = .group_by), ~ (.)) %>%
+    when(!is.null(.group_by) ~ mutate(., .group_by = .group_by), ~ (.))
+  
+  unique_df = 
+    input_df  %>%
     
     # Nesting is the case
-    when(!is.null(.group_by) ~ nest(., data___ = -!!.group_by),
-         (.)) %>%
+    when(!is.null(.group_by) ~ nest(., data___ = .group_by),
+         (.)) 
+  
+  result_vector = 
+    unique_df %>%
     
     # Interactive or programmatic
     when(
@@ -259,4 +278,14 @@ gate_programmatic_chr_int <-
     # Convert
     when(output_type == "chr" ~ as.character(.),
          output_type == "int" ~ as.integer(.))
+  
+  
+  # Integrate maintaining order in case of nesting
+  input_df %>%
+    left_join(
+      unique_df %>%
+        mutate(gate = result_vector),
+      by = c(".dim1", ".dim2")
+    ) %>%
+    pull(gate)
 }
