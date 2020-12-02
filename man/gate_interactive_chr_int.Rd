@@ -8,7 +8,7 @@ gate_interactive_chr_int(
   .data,
   .dim1,
   .dim2,
-  .color = NULL,
+  .color = NA,
   .shape = NULL,
   .size = NULL,
   opacity = 1,
