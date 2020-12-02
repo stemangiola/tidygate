@@ -32,13 +32,52 @@ test_that("gate dimensions", {
 
   res =
     tidygate::tidygate_data  %>%
+    distinct(`ct 1` , `ct 2`, Dim1, Dim2) %>%
+    mutate(gate = gate_chr( Dim1, Dim2,gate_list = tidygate::gate_list))
+    
+  
+  expect_equal(ncol(res) , 5)
+  
+  
+  res =
+    tidygate::tidygate_data  %>%
+    distinct(`ct 1` , `ct 2`, Dim1, Dim2) %>%
+    mutate(gate = gate_int(Dim1, Dim2, gate_list = tidygate::gate_list))
+  
+  expect_equal(ncol(res) , 5)
+  
+})
+
+test_that("gate grouping", {
+  library(dplyr)
+  
+  res_distinct =
+    tidygate::tidygate_data  %>%
+    distinct(`ct 1` , `ct 2`, Dim1, Dim2) %>%
+    mutate(gate = gate_chr( Dim1, Dim2,gate_list = tidygate::gate_list)) 
+  
+  res =
+    tidygate::tidygate_data  %>%
+    mutate(gate = gate_chr( Dim1, Dim2, .group_by = c(`ct 1` , `ct 2`), gate_list = tidygate::gate_list)) %>%
+    distinct(`ct 1` , `ct 2`, Dim1, Dim2, gate)
+  
+  
+  expect_equal(res_distinct$gate, res$gate)
+  
+})
+
+test_that("gate DEPRECATED", {
+  library(dplyr)
+  
+
+    tidygate::tidygate_data  %>%
     mutate(sh = factor(hierarchy)) %>%
     gate(
       .element = c(`ct 1`, `ct 2`),
       Dim1, Dim2,
       gate_list = tidygate::gate_list
-    )
-  
-  expect_equal(ncol(res) , 10)
+    ) %>%
+      capture_warnings() %>%
+      expect_match("is deprecated as of tidygate 0.3.0.")
   
 })
