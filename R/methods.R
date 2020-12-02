@@ -103,6 +103,10 @@ gate_chr.numeric = 	function(                     .dim1,
 
 
 #' gate_int
+#' 
+#' @docType methods
+#' @rdname gate_chr-methods
+#' 
 #' @export
 gate_int <- function(.dim1,
                      .dim2,

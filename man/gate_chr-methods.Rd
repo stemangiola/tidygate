@@ -3,9 +3,23 @@
 \docType{methods}
 \name{gate_chr}
 \alias{gate_chr}
+\alias{gate_int}
 \title{Label points within a scatter plot drawing a gate}
 \usage{
 gate_chr(
+  .dim1,
+  .dim2,
+  .color = NULL,
+  .shape = NULL,
+  .size = NULL,
+  opacity = 1,
+  how_many_gates = 1,
+  .group_by = NULL,
+  gate_list = NULL,
+  ...
+)
+
+gate_int(
   .dim1,
   .dim2,
   .color = NULL,
