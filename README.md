@@ -61,25 +61,26 @@ on the top-right corner of the plot
 ``` r
 tidygate_gate <-
   tidygate_data %>%
-  gate( 
-    
-    # grouping by
-    c(`ct 1`, `ct 2`), 
-    
-    # Dimensions
-    Dim1, Dim2
-  )
+  mutate( gate = gate_chr( Dim1, Dim2 ) )
+  
 
 tidygate_gate
 ```
 
-We can save our gates in a separate variable for later use
+Gates are saved in a temporary file for later use
 
-``` r
-my_gates = tidygate_gate %>% attr("gate")
-
-my_gates
-```
+    ## [[1]]
+    ##            x          y
+    ## 1 -0.9380459  0.2784375
+    ## 2 -0.9555544 -0.1695209
+    ## 3 -0.3310857  0.2116150
+    ## 
+    ## [[2]]
+    ##             x          y
+    ## 1  0.01324749  0.2165648
+    ## 2 -0.31065917 -0.1026984
+    ## 3 -0.11514794 -0.2982161
+    ## 4  0.48013998  0.1225183
 
 ## Programmatic gating
 
@@ -87,17 +88,11 @@ We can use previously drawn gates to programmately add the gate column
 
 ``` r
 tidygate_data %>%
-  gate( 
-    
-    # grouping by
-    c(`ct 1`, `ct 2`), 
-    
-    # Dimensions
+  mutate( gate = gate_chr(
     Dim1, Dim2,
-    
-    # Pre-defined gates
+     # Pre-defined gates
     gate_list = my_gates
-  )
+  ))
 ```
 
     ## # A tibble: 2,240 x 9
