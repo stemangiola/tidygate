@@ -284,7 +284,7 @@ gate_interactive <-
     )
     
     # Loop over gates # Variable needed for recalling the attributes later
-    gate_list = map(1:how_many_gates,  ~ my_matrix %>% gatepoints::fhs(mark = TRUE, ...))
+    gate_list = map(1:how_many_gates,  ~ my_matrix %>% fhs(mark = TRUE, ...))
     
     
     

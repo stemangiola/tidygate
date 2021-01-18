@@ -326,7 +326,7 @@ gate_interactive_chr_int <-
     
     # Loop over gates # Variable needed for recalling the attributes later
     gate_list = map(1:how_many_gates,
-                    ~ my_matrix %>% gatepoints::fhs(mark = TRUE, ...))
+                    ~ my_matrix %>% fhs(mark = TRUE, ...))
     
     # Save gate list
     temp_file = sprintf("%s.rds", tempfile())
