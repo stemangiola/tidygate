@@ -1,5 +1,5 @@
 # Authors@R: person("Wajid", "Jawaid", email = "wj241@cam.ac.uk", role = c("aut", "cre"))
-# This has been copied from https://github.com/wjawaid/gatepoints
+# This has been copied from https://github.com/wjawaid/gatepoints with the permission of the author, who is also author on tidygate
 # For allowing programmatically application of defined gates, since these functions are hidden from the package
 
 applyGate <- function(data, v) {
