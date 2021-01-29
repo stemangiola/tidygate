@@ -49,3 +49,5 @@ VignetteBuilder:
     knitr
 Biarch: true
 biocViews: AssayDomain, Infrastructure
+URL: https://github.com/stemangiola/tidygate
+BugReports: https://github.com/stemangiola/tidygate/issues
