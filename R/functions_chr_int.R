@@ -45,7 +45,8 @@ pretty_plot_chr_int = function(.data,
                                .color = NULL,
                                .shape = NULL,
                                .size = NULL,
-                               opacity = 1) {
+                               opacity = 1,
+                               is_size_fixed) {
   # Comply with CRAN NOTES
   . = NULL
   
@@ -66,7 +67,7 @@ pretty_plot_chr_int = function(.data,
     when(
       
       # If not defined
-      pull(., !!.color) %>% unique %>% is.na() ~ (.) %>% mutate(.color = "grey25"),
+      pull(., !!.color) %>% unique %>% is.na() %>% all() ~ (.) %>% mutate(.color = "grey25"),
       
       # If continuous
       quo_is_symbol(.color) &&
@@ -74,14 +75,14 @@ pretty_plot_chr_int = function(.data,
         select(!!.color) %>%
         sapply(class) %in% c("numeric", "integer", "double") ~ {
           order_ = findInterval(pull(., !!.color), sort(pull(., !!.color)))
-          (.) %>% mutate(.color = grDevices::colorRampPalette(viridis(n = 5))(n())[order_])
+          (.) %>% mutate(color_hexadecimal = grDevices::colorRampPalette(viridis(n = 5))(n())[order_])
         },
       
       # If discrete
       quo_is_symbol(.color) ~ {
         how_many_colors = .data %>% distinct(!!.color) %>% nrow
         (.) %>%
-          mutate(.color =
+          mutate(color_hexadecimal =
                    grDevices::colorRampPalette(RColorBrewer::brewer.pal(min(
                      9, how_many_colors
                    ), "Set1"))(how_many_colors)[factor(!!.color)])
@@ -91,10 +92,10 @@ pretty_plot_chr_int = function(.data,
     # Define SIZE
     when(
       # If not defined
-      pull(., !!.size) %>% unique %>% is.na() ~ (.)  %>% mutate(.size = 2),
+      pull(., !!.size) %>% unique %>% is.na() %>% all() ~ (.)  %>% mutate(.size = 2),
       
       # If it is a number and not a column name
-      class(.size) == "numeric" ~ (.)  %>% mutate(.size := !!.size),
+      is_size_fixed ~ (.)  %>% mutate(.size := !!.size),
       
       # If continuous
       quo_is_symbol(enquo(.size)) &&
@@ -117,7 +118,7 @@ pretty_plot_chr_int = function(.data,
     when(
       
       # If not defined
-      pull(., !!.shape) %>% unique %>% is.na() ~ (.)  %>% mutate(.shape = 19),
+      pull(., !!.shape) %>% unique %>% is.na() %>% all() ~ (.)  %>% mutate(.shape = 19),
       
       # If continuous
       quo_is_symbol(.shape) &
@@ -145,7 +146,7 @@ pretty_plot_chr_int = function(.data,
         bty = 'l',
         pch = (.) %>% pull(.shape),
         cex = (.) %>% pull(.size),
-        col = (.) %>% pull(.color) %>% alpha(opacity),
+        col = (.) %>% pull(color_hexadecimal) %>% alpha(opacity),
         xlab = quo_names(.dim1) %>% paste(collapse = " "),
         ylab = quo_names(.dim2) %>% paste(collapse = " "),
         xaxt = 'n',
@@ -188,9 +189,21 @@ pretty_plot_chr_int = function(.data,
     legend(
       "topleft",
       inset = c(1.05, inset_y),
-      legend = distinct(.data,!!.color) %>% pull(!!.color),
+      legend = .data_formatted %>% 
+        
+        # If continuous
+        when(
+          pull(., !!.color) %>% class %in% c("numeric", "integer", "double") ~ arrange(., !!.color) %>% slice(1, n()) %>% pull(!!.color) %>% round(digits = 4),
+          ~ arrange(., !!.color) %>% distinct(!!.color) %>% pull(!!.color) 
+        ),
       pch = 19,
-      col = distinct(.data_formatted,!!.color, .color) %>% pull(.color),
+      col =  .data_formatted %>% 
+        
+        # If continuous
+        when(
+          pull(., !!.color) %>% class %in% c("numeric", "integer", "double") ~ arrange(., !!.color) %>% slice(1, n()) %>% pull(color_hexadecimal),
+          ~ arrange(., !!.color) %>% distinct(color_hexadecimal) %>% pull(color_hexadecimal)
+        ),
       title = color_title,
       box.col = "white",
       xjust = 0
@@ -265,6 +278,7 @@ gate_interactive_chr_int <-
            .size = NULL,
            opacity = 1,
            how_many_gates = 1,
+           is_size_fixed,
            ...) {
     # Comply with CRAN NOTES
     . = NULL
@@ -321,7 +335,8 @@ gate_interactive_chr_int <-
       # size can be number or column
       .size = !!.size,
       
-      opacity = opacity
+      opacity = opacity,
+      is_size_fixed = is_size_fixed
     )
     
     # Loop over gates # Variable needed for recalling the attributes later
@@ -475,6 +490,10 @@ gate_programmatic_chr_int <-
           
           opacity = opacity,
           how_many_gates = how_many_gates,
+          is_size_fixed = 
+            class(.size) %in%  c("numeric", "integer", "double") &
+            length(.size) < length(.dim1) &
+            length(.size) == 1,
           ...
         ),
       
