@@ -13,6 +13,7 @@ gate_interactive_chr_int(
   .size = NULL,
   opacity = 1,
   how_many_gates = 1,
+  is_size_fixed,
   ...
 )
 }
