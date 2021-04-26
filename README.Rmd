@@ -7,12 +7,15 @@ output: github_document
 [![Build Status](https://travis-ci.org/stemangiola/tidygate.svg?branch=master)](https://travis-ci.org/stemangiola/tidygate) [![Coverage Status](https://coveralls.io/repos/github/stemangiola/tidygate/badge.svg?branch=master)](https://coveralls.io/github/stemangiola/tidygate?branch=master)
 -->
 <!-- badges: start -->
-  [![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+  [![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 <!-- badges: end -->
 
 Please have a look also to
+
 - [nanny](https://github.com/stemangiola/nanny) for tidy high-level data analysis and manipulation
+
 - [tidyHeatmap](https://github.com/stemangiola/tidyHeatmap) for producing heatmaps following tidy principles
+
 - [tidybulk](https://github.com/stemangiola/tidybulk) for tidy and modular transcriptomics analyses
 
 ```{r, echo=FALSE, include=FALSE, }

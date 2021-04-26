@@ -4,19 +4,21 @@ tidygate: add gate information to your tibble
 <!---
 [![Build Status](https://travis-ci.org/stemangiola/tidygate.svg?branch=master)](https://travis-ci.org/stemangiola/tidygate) [![Coverage Status](https://coveralls.io/repos/github/stemangiola/tidygate/badge.svg?branch=master)](https://coveralls.io/github/stemangiola/tidygate?branch=master)
 -->
-
 <!-- badges: start -->
 
-[![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+[![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 <!-- badges: end -->
 
-Please have a look also to -
-[nanny](https://github.com/stemangiola/nanny) for tidy high-level data
-analysis and manipulation -
-[tidyHeatmap](https://github.com/stemangiola/tidyHeatmap) for producing
-heatmaps following tidy principles -
-[tidybulk](https://github.com/stemangiola/tidybulk) for tidy and modular
-transcriptomics analyses
+Please have a look also to
+
+-   [nanny](https://github.com/stemangiola/nanny) for tidy high-level
+    data analysis and manipulation
+
+-   [tidyHeatmap](https://github.com/stemangiola/tidyHeatmap) for
+    producing heatmaps following tidy principles
+
+-   [tidybulk](https://github.com/stemangiola/tidybulk) for tidy and
+    modular transcriptomics analyses
 
 ## Installation
 
@@ -35,15 +37,15 @@ Jawaid.
 
 The main benefits are
 
-  - in interactive mode you can draw your gates on extensive ggplot-like
+-   in interactive mode you can draw your gates on extensive ggplot-like
     scatter plots
-  - you can draw multiple gates
-  - you can save your gates and apply the programmatically.
+-   you can draw multiple gates
+-   you can save your gates and apply the programmatically.
 
 **Input (tibble)**
 
 | dimension1      | dimension2 | annotations |
-| --------------- | ---------- | ----------- |
+|-----------------|------------|-------------|
 | `chr` or `fctr` | `numeric`  | …           |
 
 ## Interactive gating
