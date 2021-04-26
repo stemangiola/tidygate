@@ -49,6 +49,7 @@ pretty_plot_chr_int = function(.data,
                                is_size_fixed) {
   # Comply with CRAN NOTES
   . = NULL
+  color_hexadecimal = NULL
   
   # Get column names
   .dim1 = enquo(.dim1)
