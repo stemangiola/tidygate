@@ -69,7 +69,7 @@ pretty_plot = function(.data,
       is.null(.size) ~ (.)  %>% mutate(.size = 2 ),
       
       # If it is a number and not a column name
-      class(.size) == "numeric" ~ (.)  %>% mutate(.size := !!.size ),
+      .size %>% is("numeric") ~ (.)  %>% mutate(.size := !!.size ),
       
       # If continuous
       quo_is_symbol(enquo(.size)) && 
@@ -278,7 +278,7 @@ gate_interactive <-
       .shape = !!.shape,
       
       # size can be number or column
-      .size = .size %>% when(is.null(.size) | class(.) == "numeric" ~ (.), ~ !!enquo(.)),
+      .size = .size %>% when(is.null(.size) |  is(., "numeric")  ~ (.), ~ !!enquo(.)),
       
       opacity = opacity
     )
@@ -305,13 +305,13 @@ gate_interactive <-
         ~ .x %>%
           when(
             .y %in% colnames(my_df) &&
-              class(my_df %>% select(.y) %>% pull(1)) == "numeric" ~ as.numeric(.),
+              my_df %>% select(.y) %>% pull(1) %>% is("numeric") ~ as.numeric(.),
             .y %in% colnames(my_df) &&
-              class(my_df %>% select(.y) %>% pull(1)) == "integer" ~ as.integer(.),
+              my_df %>% select(.y) %>% pull(1) %>% is( "integer") ~ as.integer(.),
             .y %in% colnames(my_df) &&
-              class(my_df %>% select(.y) %>% pull(1)) == "logical" ~ as.logical(.),
+              my_df %>% select(.y) %>% pull(1) %>% is( "logical") ~ as.logical(.),
             .y %in% colnames(my_df) &&
-              class(my_df %>% select(.y) %>% pull(1)) == "factor" ~ as.factor(.),
+              my_df %>% select(.y) %>% pull(1) %>% is( "factor") ~ as.factor(.),
             ~ (.)
           )
       ) %>%
@@ -411,13 +411,13 @@ gate_programmatic <-
         ~ .x %>%
           when(
             .y %in% colnames(my_df) &&
-              class(my_df %>% select(.y) %>% pull(1)) == "numeric" ~ as.numeric(.),
+              my_df %>% select(.y) %>% pull(1) %>% is("numeric") ~ as.numeric(.),
             .y %in% colnames(my_df) &&
-              class(my_df %>% select(.y) %>% pull(1)) == "integer" ~ as.integer(.),
+              my_df %>% select(.y) %>% pull(1) %>% is( "integer") ~ as.integer(.),
             .y %in% colnames(my_df) &&
-              class(my_df %>% select(.y) %>% pull(1)) == "logical" ~ as.logical(.),
+              my_df %>% select(.y) %>% pull(1) %>% is( "logical") ~ as.logical(.),
             .y %in% colnames(my_df) &&
-              class(my_df %>% select(.y) %>% pull(1)) == "factor" ~ as.factor(.),
+              my_df %>% select(.y) %>% pull(1) %>% is( "factor") ~ as.factor(.),
             ~ (.)
           )
       ) %>%

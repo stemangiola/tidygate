@@ -54,7 +54,9 @@ gate_int(
 \item{...}{Further parameters passed to the function gatepoints::fhs}
 }
 \value{
-A tbl object with additional columns for the inside gate information. additional columns for the rotated dimensions. The rotated dimensions will be added to the original data set as `<NAME OF DIMENSION> rotated <ANGLE>` by default, or as specified in the input arguments.
+An character vector, with "0" for elements outside gates and "1..N" for the elements inside the N gates.
+
+An integer vector, with 0 for elements outside gates and 1..N for the elements inside the N gates.
 }
 \description{
 gate() takes as input a `tbl` formatted as | <DIMENSION 1> | <DIMENSION 2> | <...> | and calculates the rotated dimensional space of the feature value.

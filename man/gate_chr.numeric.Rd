@@ -38,6 +38,9 @@
 
 \item{...}{Further parameters passed to the function gatepoints::fhs}
 }
+\value{
+An character vector, with "0" for elements outside gates and "1..N" for the elements inside the N gates.
+}
 \description{
 gate_chr
 }

@@ -24,7 +24,7 @@
 #'
 #' @details This function allow the user to label data points in inside one or more 2D gates. This package is based on on the package gatepoints.
 #'
-#' @return A tbl object with additional columns for the inside gate information. additional columns for the rotated dimensions. The rotated dimensions will be added to the original data set as `<NAME OF DIMENSION> rotated <ANGLE>` by default, or as specified in the input arguments.
+#' @return An character vector, with "0" for elements outside gates and "1..N" for the elements inside the N gates. 
 #'
 #'
 #' @examples
@@ -87,6 +87,8 @@ gate_chr <- function(.dim1,
 #' 
 #' @inheritParams gate_chr
 #' 
+#' @return An character vector, with "0" for elements outside gates and "1..N" for the elements inside the N gates. 
+#' 
 #' @export
 gate_chr.numeric = 	function(                     .dim1,
                                                    .dim2,
@@ -126,6 +128,8 @@ gate_chr.numeric = 	function(                     .dim1,
 #' @docType methods
 #' @rdname gate_chr-methods
 #' 
+#' @return An integer vector, with 0 for elements outside gates and 1..N for the elements inside the N gates. 
+#' 
 #' @export
 gate_int <- function(.dim1,
                      .dim2,
@@ -145,6 +149,7 @@ gate_int <- function(.dim1,
 #' 
 #' @inheritParams gate_chr
 #' 
+#' @return An integer vector, with 0 for elements outside gates and 1..N for the elements inside the N gates. 
 #' 
 #' @export
 gate_int.numeric = 	function(  .dim1,
