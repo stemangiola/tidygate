@@ -1,3 +1,4 @@
+
 parse_gate_list = function(.data, my_df){
   
   # Comply with CRAN NOTES
@@ -68,7 +69,7 @@ pretty_plot_chr_int = function(.data,
     when(
       
       # If not defined
-      pull(., !!.color) %>% unique %>% is.na() %>% all() ~ (.) %>% mutate(.color = "grey25"),
+      pull(., !!.color) %>% unique %>% is.na() %>% all() ~ (.) %>% mutate(color_hexadecimal = "grey25"),
       
       # If continuous
       quo_is_symbol(.color) &&
