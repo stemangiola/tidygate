@@ -30,6 +30,8 @@ devtools::install_github("stemangiola/tidygate")
 install.package("tidygate")
 ```
 
+## What is tidygate
+
 It interactively or programmately labels points within custom gates on
 two dimensions, according to tidyverse principles. The information is
 added to your tibble. It is based on the package `gatepoints` from Wajid
@@ -42,28 +44,35 @@ The main benefits are
 -   you can draw multiple gates
 -   you can save your gates and apply the programmatically.
 
-**Input (tibble)**
+## Input
+
+A tibble of this kind
 
 | dimension1      | dimension2 | annotations |
 |-----------------|------------|-------------|
 | `chr` or `fctr` | `numeric`  | …           |
 
-## Interactive gating
+## Step-by-step instructons for Rstudio
 
-The standard way to gate points in a two-dimensional plot is to -
-Interactively draw an arbitrary number of gates - Click “Finish” button
-on the top-right corner of the plot
+##### 1) Execute the following code in the console panel
 
 ``` r
 tidygate_gate <-
   tidygate_data %>%
   mutate( gate = gate_chr( Dim1, Dim2 ) )
-  
-
-tidygate_gate
 ```
 
-![](inst/tidygate.gif) Output tibble
+##### 2) look at the Viewer and draw a gate clicking at least three times on the plot
+
+![](inst/tidygate.gif)
+
+##### 3) Click the finish button on the top-right corner, or press `escape` on your keyboard
+
+## The output tibble
+
+``` r
+tidygate_gate
+```
 
     ## # A tibble: 2,240 x 9
     ##    group   hierarchy `ct 1`    `ct 2`    relation cancer_ID   Dim1    Dim2 gate 
