@@ -68,7 +68,7 @@ pretty_plot_chr_int = function(.data,
     when(
       
       # If not defined
-      pull(., !!.color) %>% unique %>% is.na() %>% all() ~ (.) %>% mutate(.color = "grey25"),
+      pull(., !!.color) %>% unique %>% is.na() %>% all() ~ (.) %>% mutate(.color = "grey25", color_hexadecimal = "#3B3B3B"),
       
       # If continuous
       quo_is_symbol(.color) &&
@@ -133,7 +133,7 @@ pretty_plot_chr_int = function(.data,
       # If discrete
       quo_is_symbol(.shape) ~ (.) %>%	mutate(.shape := c(19, 17, 15, 18, 3, 4, 8, 10, 5)[factor(!!.shape)])
       
-      
+       
     )
   
   # Plot
