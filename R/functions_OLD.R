@@ -322,7 +322,7 @@ gate_interactive <-
                  by = quo_names(.element)) %>%
       
       # Replace NAs
-      mutate(!!name := replace_na(!!as.symbol(name), 0)) %>%
+      mutate(!!name := replace_na(!!as.symbol(name), "0")) %>%
       
       # Add internals the list of gates
       add_attr(map(gate_list, ~ attr(.x, "gate")), "gate") 
@@ -428,7 +428,7 @@ gate_programmatic <-
                  by = quo_names(.element)) %>%
       
       # Replace NAs
-      mutate(!!name := replace_na(!!as.symbol(name), 0)) %>%
+      mutate(!!name := replace_na(!!as.symbol(name), "0")) %>%
       
       # Add internals the list of gates
       add_attr(gate_list, "gate") 
