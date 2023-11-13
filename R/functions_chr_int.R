@@ -456,12 +456,14 @@ gate_programmatic_chr_int <-
     tibble(
     .dim1 = .dim1,
     .dim2 = .dim2
-  ) %>%
-    when(!is.null(.color) ~ mutate(., .color = .color), ~ mutate(., .color = NA)) %>%
-    when(!is.null(.shape) ~ mutate(., .shape = .shape), ~ mutate(., .shape = NA)) %>%
-    when(!is.null(.size) ~ mutate(., .size = .size), ~ mutate(., .size = NA)) %>%
-    
-    when(!is.null(.group_by) ~ mutate(., .group_by = .group_by), ~ (.))
+  ) |> 
+    mutate(.color = NA, .shape = NA, .size = NA)
+  
+  if(!is.null(.color)) input_df = input_df |> mutate(., .color = !!.color)
+  if(!is.null(.shape)) input_df = input_df |> mutate(., .shape = !!.shape)
+  if(!is.null(.size)) input_df = input_df |> mutate(., .size = !!.size)
+  if(!is.null(.group_by)) input_df = input_df |> mutate(., .group_by = !!.group_by)
+  
   
   unique_df = 
     input_df  %>%
@@ -472,57 +474,53 @@ gate_programmatic_chr_int <-
     
     distinct()
   
-
+  # Interactive
+  if(is.null(gate_list))
   result_vector = 
-    unique_df %>%
-    
-    # Interactive or programmatic
-    when(
-      # Interactive
-      is.null(gate_list) ~ (.) %>%
-        gate_interactive_chr_int(
-          .dim1 = .dim1,
-          .dim2 = .dim2,
-          .color = .color,
-          .shape = .shape,
-          
-          # size can be number of column
-          .size =  .size,
-          
-          opacity = opacity,
-          how_many_gates = how_many_gates,
-          is_size_fixed = 
-            class(.size) %in%  c("numeric", "integer", "double") &
-            length(.size) < length(.dim1) &
-            length(.size) == 1,
-          ...
-        ),
+    unique_df |> 
+    gate_interactive_chr_int(
+      .dim1 = .dim1,
+      .dim2 = .dim2,
+      .color = .color,
+      .shape = .shape,
       
-      # Programmatic
-      is.list(gate_list) ~ (.) %>%
-        gate_programmatic_chr_int(
-          .dim1 = .dim1,
-          .dim2 = .dim2,
-          gate_list = gate_list
-        ),
+      # size can be number of column
+      .size =  .size,
       
-      # Else error
-      ~ stop(
-        "tidygate says: the parameter gate_list has to be NULL or a list of data frames"
-      )
-    ) %>%
-    
-    # Convert
-    when(output_type == "chr" ~ as.character(.),
-         output_type == "int" ~ as.integer(.))
+      opacity = opacity,
+      how_many_gates = how_many_gates,
+      is_size_fixed = 
+        class(.size) %in%  c("numeric", "integer", "double") &
+        length(.size) < length(.dim1) &
+        length(.size) == 1,
+      ...
+    )
   
+  # Programmatic
+  else if(is.list(gate_list))
+    result_vector = 
+    unique_df |> 
+    gate_programmatic_chr_int(
+      .dim1 = .dim1,
+      .dim2 = .dim2,
+      gate_list = gate_list
+    )
   
+  else 
+    stop(
+      "tidygate says: the parameter gate_list has to be NULL or a list of data frames"
+    )
+  
+  # Convert
+  if(output_type == "chr") result_vector = result_vector |> as.character()
+  else if(output_type == "int") result_vector = result_vector |> as.integer()
+
   # Integrate maintaining order in case of nesting
   input_df %>%
     left_join(
       unique_df %>%
-        mutate(gate = result_vector),
-      by = c(".dim1", ".dim2")
-    ) %>%
+        mutate(gate = result_vector)
+    ) |> 
+    suppressMessages() |> 
     pull(gate)
 }
