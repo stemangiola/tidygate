@@ -275,6 +275,7 @@ pretty_plot_chr_int = function(.data,
 #' @param .color A column symbol. Color of points
 #' @param .shape A column symbol. Shape of points
 #' @param .size A column symbol. Size of points
+#' @param subsample A numeric value or a fraction indicating the subset of data to sample.
 #' @param opacity A number between 0 and 1. The opacity level of the data points
 #' @param how_many_gates An integer. The number of gates to label
 #' @param gate_list A list of gates. It is returned by gate function as attribute \"gate\". If you want to create this list yourself, each element of the list is a data frame with x and y columns. Each row is a coordinate. The order matter.

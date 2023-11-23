@@ -118,4 +118,15 @@ tidygate_data %>%
 
 ```
 
+## Subsampling
 
+The `subsample` parameter allows you to sample a subset of your data for analysis with a fixed seed. This can be particularly useful for large datasets or for preliminary exploratory analysis. Here's how you can use it:
+
+```{r}
+# For sampling 50% of your data
+result <- your_function(data, subsample = 0.5)
+
+# For sampling 100 specific observations
+result <- your_function(data, subsample = 100)
+
+```
