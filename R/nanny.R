@@ -32,24 +32,27 @@ get_specific_annotation_columns = function(.data, .col){
   n_x = .data %>% distinct_at(vars(!!.col)) %>% nrow
   
   # element wise columns
-  .data %>%
-    select(-!!.col) %>%
-    colnames %>%
+  .data = 
+    .data |>
+    select(-!!.col) |>
+    colnames() |>
     map(
-      ~
-        .x %>%
-        when(
-          .data %>%
-            distinct_at(vars(!!.col, .x)) %>%
-            nrow %>%
-            equals(n_x) ~ .x,
-          ~ NULL
-        )
-    ) %>%
-    
-    # Drop NULL
-    {	(.)[lengths((.)) != 0]	} %>%
-    unlist
+      ~ {
+        current_col <- .x
+        # Check condition
+        if (nrow(.data |> distinct_at(vars(!!.col, current_col))) == n_x) {
+          result <- current_col
+        } else {
+          result <- NULL
+        }
+        result
+      }
+    ) 
+  
+  # Drop null
+  .data[lengths(.data) != 0] |> 
+    unlist()
+  
   
 }
 
@@ -58,53 +61,40 @@ get_specific_annotation_columns = function(.data, .col){
 #' @importFrom magrittr set_rownames
 #' @importFrom rlang quo_is_null
 #' @importFrom rlang quo_is_symbolic
-#' @importFrom purrr when
-.as_matrix = function(.data,
-                      rownames = NULL,
-                      do_check = TRUE,
-                      sep_rownames = "___") {
-  
+.as_matrix = function(.data, rownames = NULL, do_check = TRUE, sep_rownames = "___") {
   # Comply with CRAN NOTES
   variable = NULL
   
   rownames = enquo(rownames)
   
+  # Process data based on conditions
+  if (do_check) {
+    if (!quo_is_null(rownames)) {
+      # If rownames are not null, select columns except rownames
+      .data <- .data |> select(-!!rownames)
+    }
+    
+    # Check for non-numeric columns
+    if (any(!unique(.data |> summarise_all(class) |> gather(variable, class) |> pull(class)) %in% c("numeric", "integer"))) {
+      warning("tidygate says: there are NON-numerical columns, the matrix will NOT be numerical")
+    }
+  }
   
-  .data %>%
-    
-    # Through warning if data frame is not numerical beside the rownames column (if present)
-    when(
-      do_check &&
-        (.) %>%
-        # If rownames defined eliminate it from the data frame
-        when(!quo_is_null(rownames) ~ (.) %>% select(-!!rownames), ~ (.)) %>%
-        dplyr::summarise_all(class) %>%
-        tidyr::gather(variable, class) %>%
-        pull(class) %>%
-        unique() %>%
-        `%in%`(c("numeric", "integer")) %>% `!`() %>% any() ~ {
-          warning("tidygate says: there are NON-numerical columns, the matrix will NOT be numerical")
-          (.)
-        },
-      ~ (.)
-    ) %>%
-    
-    # If rownames multiple enquo (e.g., c(col1, col2)) merge them
-    when(!quo_is_null(rownames) ~ (.) %>% unite(col = "rn", !!rownames, sep = sep_rownames), ~ (.)) %>%
-    
-    as.data.frame() %>%
-    
-    # Deal with rownames column if present
-    when(
-      !quo_is_null(rownames) ~ (.) %>%
-        set_rownames((.) %>% pull(rn)) %>%
-        select(-rn), 
-      ~ (.)
-    ) %>%
-    
-    # Convert to matrix
-    as.matrix()
+  # Merge columns for rownames if rownames are not null
+  if (!quo_is_null(rownames)) {
+    .data <- .data |> unite(col = "rn", !!rownames, sep = sep_rownames)
+  }
+  
+  # Convert to data frame and then to matrix, handling rownames if present
+  if (!quo_is_null(rownames)) {
+    .data <- .data |> 
+      set_rownames(pull(.data, rn)) |> 
+      select(-rn)
+  } 
+  
+  .data |> as.matrix()
 }
+
 
 #' Convert array of quosure (e.g. c(col_a, col_b)) into character vector
 #' 

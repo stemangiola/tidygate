@@ -18,8 +18,6 @@ gate_programmatic(.data, .element, .dim1, .dim2, gate_list, name = "gate")
 \item{gate_list}{A list of gates. Each element of the list is a data frame with x and y columns. Each row is a coordinate. The order matter.}
 
 \item{name}{A character string. The name of the new column}
-
-\item{...}{Further parameters passed to the function gatepoints::fhs}
 }
 \value{
 A tibble with additional columns

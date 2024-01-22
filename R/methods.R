@@ -6,7 +6,6 @@
 #'
 #' @importFrom rlang enquo
 #' @importFrom rlang quo_is_null
-#' @importFrom magrittr "%>%"
 #'
 #' @name gate_chr
 #'

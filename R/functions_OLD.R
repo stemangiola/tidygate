@@ -12,7 +12,7 @@
 #' @importFrom utils head
 #' @importFrom stringr str_pad
 #' @importFrom scales alpha
-
+#' @importFrom purrr when
 pretty_plot = function(.data,
                        .dim1,
                        .dim2,
