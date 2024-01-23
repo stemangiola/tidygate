@@ -46,10 +46,10 @@ check_data_unique = function(.data, .element, .dim1, .dim2) {
 reattach_internals = function(.data,
                               .data_internals_from = NULL,
                               .name = "gate") {
-  if (.data_internals_from %>% is.null)
+  if (.data_internals_from |> is.null())
     .data_internals_from = .data
   
-  .data %>% add_attr(.data_internals_from %>% attr(.name), .name)
+  .data |> add_attr(.data_internals_from |> attr(.name), .name)
 }
 
 #' Add attribute to abject
@@ -67,6 +67,7 @@ add_attr = function(var, attribute, name) {
   var
 }
 
+#' @importFrom utils capture.output
 check_dimensions = function(.data, .dim1, .dim2) {
   .dim1 = enquo(.dim1)
   .dim2 = enquo(.dim2)
@@ -101,12 +102,12 @@ format_gatepoints = function(.data, .element, name, .idx) {
   # Column name
   .element = enquo(.element)
   
-  .data %>%
-    as.character %>%
-    as_tibble() %>%
+  .data |>
+    as.character() |>
+    as_tibble() |>
     
     # Reconstitute columns
-    separate(value, quo_names(.element), sep = "___") %>%
+    separate(value, quo_names(.element), sep = "___") |>
     
     mutate(!!as.symbol(sprintf("%s%s", name, .idx)) := .idx)
 }

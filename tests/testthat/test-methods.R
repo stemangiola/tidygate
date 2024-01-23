@@ -3,8 +3,8 @@
 # test_that("gate dimensions", {
 # library(dplyr)
 # res =
-# tidygate::tidygate_data %>%
-#  mutate(sh = factor(hierarchy)) %>%
+# tidygate::tidygate_data |>
+#  mutate(sh = factor(hierarchy)) |>
 #   mutate(
 #     gate =  gate_chr(
 #       Dim1, Dim2,
@@ -17,8 +17,8 @@
 
 #   
 #   res2 =
-#     tidygate::tidygate_data  %>%
-#     mutate(sh = factor(hierarchy)) %>%
+#     tidygate::tidygate_data  |>
+#     mutate(sh = factor(hierarchy)) |>
 #     gate(
 #       .element = c(`ct 1`, `ct 2`),
 #       Dim1, Dim2,
@@ -33,8 +33,8 @@ test_that("gate dimensions", {
   library(dplyr)
 
   res =
-    tidygate::tidygate_data  %>%
-    distinct(`ct 1` , `ct 2`, Dim1, Dim2) %>%
+    tidygate::tidygate_data  |>
+    distinct(`ct 1` , `ct 2`, Dim1, Dim2) |>
     mutate(gate = gate_chr( Dim1, Dim2,gate_list = tidygate::gate_list))
     
   
@@ -42,8 +42,8 @@ test_that("gate dimensions", {
   
   
   res =
-    tidygate::tidygate_data  %>%
-    distinct(`ct 1` , `ct 2`, Dim1, Dim2) %>%
+    tidygate::tidygate_data  |>
+    distinct(`ct 1` , `ct 2`, Dim1, Dim2) |>
     mutate(gate = gate_int(Dim1, Dim2, gate_list = tidygate::gate_list))
   
   expect_equal(ncol(res) , 5)
@@ -54,13 +54,13 @@ test_that("gate grouping", {
   library(dplyr)
   
   res_distinct =
-    tidygate::tidygate_data  %>%
-    distinct(`ct 1` , `ct 2`, Dim1, Dim2) %>%
+    tidygate::tidygate_data  |>
+    distinct(`ct 1` , `ct 2`, Dim1, Dim2) |>
     mutate(gate = gate_chr( Dim1, Dim2,gate_list = tidygate::gate_list)) 
   
   res =
-    tidygate::tidygate_data  %>%
-    mutate(gate = gate_chr( Dim1, Dim2, .group_by = c(`ct 1` , `ct 2`), gate_list = tidygate::gate_list)) %>%
+    tidygate::tidygate_data  |>
+    mutate(gate = gate_chr( Dim1, Dim2, .group_by = c(`ct 1` , `ct 2`), gate_list = tidygate::gate_list)) |>
     distinct(`ct 1` , `ct 2`, Dim1, Dim2, gate)
   
   

@@ -13,6 +13,7 @@
 #' @importFrom stringr str_pad
 #' @importFrom scales alpha
 #' @importFrom purrr when
+#' @importFrom magrittr %>%
 pretty_plot = function(.data,
                        .dim1,
                        .dim2,

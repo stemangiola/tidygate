@@ -73,8 +73,8 @@ This function allow the user to label data points in inside one or more 2D gates
 
   if(interactive()){
 
- tidygate::tidygate_data  \%>\%
- distinct(`ct 1` , `ct 2`, Dim1, Dim2) \%>\%
+ tidygate::tidygate_data  |>
+ distinct(`ct 1` , `ct 2`, Dim1, Dim2) |>
  mutate(gate = gate_chr( Dim1, Dim2)) 
 
   }
@@ -86,13 +86,13 @@ library(dplyr)
 
 # Standard use - programmatic
 res_distinct =
- tidygate::tidygate_data  \%>\%
- distinct(`ct 1` , `ct 2`, Dim1, Dim2) \%>\%
+ tidygate::tidygate_data  |>
+ distinct(`ct 1` , `ct 2`, Dim1, Dim2) |>
  mutate(gate = gate_chr( Dim1, Dim2,gate_list = tidygate::gate_list)) 
 
 # Grouping - programmatic
 res =
- tidygate::tidygate_data  \%>\%
+ tidygate::tidygate_data  |>
    mutate(gate = gate_chr( 
      Dim1, Dim2,
      .group_by = c(`ct 1` , `ct 2`), 
