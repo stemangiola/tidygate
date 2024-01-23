@@ -7,7 +7,6 @@
 #' @description gate() takes as input a `tbl` formatted as | <DIMENSION 1> | <DIMENSION 2> | <...> | and calculates the rotated dimensional space of the feature value.
 #'
 #' @importFrom rlang enquo
-#' @importFrom magrittr "%>%"
 #' @importFrom lifecycle deprecate_warn
 #'
 #' @name gate

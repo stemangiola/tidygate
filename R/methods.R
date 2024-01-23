@@ -6,7 +6,6 @@
 #'
 #' @importFrom rlang enquo
 #' @importFrom rlang quo_is_null
-#' @importFrom magrittr "%>%"
 #'
 #' @name gate_chr
 #'
@@ -34,8 +33,8 @@
 #' 
 #'   if(interactive()){
 #'
-#'  tidygate::tidygate_data  %>%
-#'  distinct(`ct 1` , `ct 2`, Dim1, Dim2) %>%
+#'  tidygate::tidygate_data  |>
+#'  distinct(`ct 1` , `ct 2`, Dim1, Dim2) |>
 #'  mutate(gate = gate_chr( Dim1, Dim2)) 
 #'
 #'   }
@@ -47,13 +46,13 @@
 #' 
 #' # Standard use - programmatic
 #' res_distinct =
-#'  tidygate::tidygate_data  %>%
-#'  distinct(`ct 1` , `ct 2`, Dim1, Dim2) %>%
+#'  tidygate::tidygate_data  |>
+#'  distinct(`ct 1` , `ct 2`, Dim1, Dim2) |>
 #'  mutate(gate = gate_chr( Dim1, Dim2,gate_list = tidygate::gate_list)) 
 #'
 #' # Grouping - programmatic
 #' res =
-#'  tidygate::tidygate_data  %>%
+#'  tidygate::tidygate_data  |>
 #'    mutate(gate = gate_chr( 
 #'      Dim1, Dim2,
 #'      .group_by = c(`ct 1` , `ct 2`), 
