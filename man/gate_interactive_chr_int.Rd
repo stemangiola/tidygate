@@ -11,6 +11,7 @@ gate_interactive_chr_int(
   .color = NA,
   .shape = NULL,
   .size = NULL,
+  subsample = NULL,
   opacity = 1,
   how_many_gates = 1,
   is_size_fixed,
@@ -29,6 +30,8 @@ gate_interactive_chr_int(
 \item{.shape}{A column symbol. Shape of points}
 
 \item{.size}{A column symbol. Size of points}
+
+\item{subsample}{A numeric value or a fraction indicating the subset of data to sample.}
 
 \item{opacity}{A number between 0 and 1. The opacity level of the data points}
 

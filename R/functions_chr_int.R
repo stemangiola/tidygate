@@ -45,6 +45,7 @@ pretty_plot_chr_int = function(.data,
                                .color = NULL,
                                .shape = NULL,
                                .size = NULL,
+                               subsample = NULL,
                                opacity = 1,
                                is_size_fixed) {
   # Comply with CRAN NOTES
@@ -58,8 +59,19 @@ pretty_plot_chr_int = function(.data,
   .shape = enquo(.shape)
   .size = enquo(.size)
   my_size_range = c(1, 3)
-  
-  
+
+  if (!is.null(subsample)) {
+      if (subsample > 0 && subsample < 1) {
+          # Subsample as a fraction
+          set.seed(123)  # Set seed for reproducibility
+          .data <- .data %>% sample_frac(subsample)
+      } else if (subsample >= 1) {
+          # Subsample as a fixed number
+          set.seed(123)  # Set seed for reproducibility
+          .data <- .data %>% sample_n(subsample)
+      }
+  }
+
   
   .data_formatted =
     .data %>%
@@ -263,6 +275,7 @@ pretty_plot_chr_int = function(.data,
 #' @param .color A column symbol. Color of points
 #' @param .shape A column symbol. Shape of points
 #' @param .size A column symbol. Size of points
+#' @param subsample A numeric value or a fraction indicating the subset of data to sample.
 #' @param opacity A number between 0 and 1. The opacity level of the data points
 #' @param how_many_gates An integer. The number of gates to label
 #' @param gate_list A list of gates. It is returned by gate function as attribute \"gate\". If you want to create this list yourself, each element of the list is a data frame with x and y columns. Each row is a coordinate. The order matter.
@@ -277,6 +290,7 @@ gate_interactive_chr_int <-
            .color = NA,
            .shape = NULL,
            .size = NULL,
+           subsample = NULL,
            opacity = 1,
            how_many_gates = 1,
            is_size_fixed,
@@ -336,6 +350,8 @@ gate_interactive_chr_int <-
       # size can be number or column
       .size = !!.size,
       
+      subsample = subsample,
+
       opacity = opacity,
       is_size_fixed = is_size_fixed
     )
@@ -427,6 +443,7 @@ gate_programmatic_chr_int <-
                            .color = NULL,
                            .shape = NULL,
                            .size = NULL,
+                           subsample = NULL,
                            opacity = 1,
                            how_many_gates = 1,
                            .group_by = NULL,
@@ -484,6 +501,7 @@ gate_programmatic_chr_int <-
       .color = .color,
       .shape = .shape,
       
+      subsample =subsample,
       # size can be number of column
       .size =  .size,
       

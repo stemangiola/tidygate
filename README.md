@@ -131,3 +131,24 @@ tidygate_data %>%
     ##  9 adrenal         1 fibrobla… immune_c…     0.52 ACC       -0.776 -0.383  0    
     ## 10 adrenal         1 immune_c… endothel…     1    ACC        0.980 -0.116  0    
     ## # … with 2,230 more rows
+
+## Subsampling
+
+The `subsample` parameter allows you to sample a subset of your data for analysis with a fixed seed. This can be particularly useful for large datasets or for preliminary exploratory analysis. Here's how you can use it:
+
+```r
+# For sampling 50% of your data
+tidygate_data %>%
+  mutate( gate = gate_chr(
+    Dim1, Dim2, subsample = 0.5
+  ))
+
+
+# For sampling 100 specific observations
+tidygate_data %>%
+  mutate( gate = gate_chr(
+    Dim1, Dim2, subsample = 100
+  ))
+
+
+```
