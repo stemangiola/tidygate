@@ -20,7 +20,7 @@ Depends:
     R (>= 3.6.0)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.3.1
 Imports: 
     utils,
     graphics,
@@ -35,7 +35,9 @@ Imports:
     viridis,
     grDevices,
     RColorBrewer,
-    stringr
+    stringr,
+    shiny,
+    plotly
 RdMacros: lifecycle
 Suggests: 
     testthat,
