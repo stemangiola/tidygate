@@ -37,7 +37,8 @@ Imports:
     RColorBrewer,
     stringr,
     shiny,
-    plotly
+    plotly,
+    ggplot2
 RdMacros: lifecycle
 Suggests: 
     testthat,

@@ -1,6 +1,6 @@
 ---
 title: "tidygate: high-level data analysis and manipulation in tidyverse style"
-output: github_documentdate: "`r Sys.Date()`"
+date: "`r Sys.Date()`"
 package: tidygate
 output:
   BiocStyle::html_document:

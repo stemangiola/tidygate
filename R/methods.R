@@ -199,7 +199,7 @@ gate_int.numeric = 	function(  .dim1,
 #' points. A record of the selected points is stored in `tidygate_env$select_data` and a record of 
 #' the gates is stored in `tidygate_env$brush_data`.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' library(dplyr)
 #' library(ggplot2)
 #' 
@@ -253,7 +253,7 @@ gate_simple <-
 #' points. A record of the selected points is stored in `tidygate_env$select_data` and a 
 #' record of the gates is stored in `tidygate_env$brush_data`.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' library(dplyr)
 #' library(ggplot2)
 #' 
@@ -266,7 +266,7 @@ gate_simple <-
 #'   theme_dark()
 #'   
 #' mtcars |>
-#'   mutate(selected = gate_interactive(dimension_x = mpg, dimension_y = wt, custom_plot = scaled_plot)) |>
+#'   mutate(selected = gate_custom(custom_plot = scaled_plot)) |>
 #'   print()
 #' }
 #' @export

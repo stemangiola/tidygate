@@ -210,7 +210,7 @@ pretty_plot = function(.data,
 #'
 #' @return A tibble with additional columns
 #'
-gate_interactive_old <-
+gate_interactive <-
   function(.data,
            .element,
            .dim1,

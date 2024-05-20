@@ -19,7 +19,7 @@ Launch an interactive scatter plot, based on a user-defined `ggplot2`. Points on
 then be gated.
 }
 \examples{
-\donttest{
+\dontrun{
 library(dplyr)
 library(ggplot2)
 
@@ -32,7 +32,7 @@ scaled_plot <-
   theme_dark()
   
 mtcars |>
-  mutate(selected = gate_interactive(dimension_x = mpg, dimension_y = wt, custom_plot = scaled_plot)) |>
+  mutate(selected = gate_custom(custom_plot = scaled_plot)) |>
   print()
 }
 }

@@ -1,5 +1,5 @@
 #' Create Shiny App UI
-#' @noRd
+#' 
 #' @importFrom shiny fluidPage
 #' @importFrom shiny actionButton
 #' @importFrom plotly plotlyOutput
@@ -13,7 +13,7 @@ ui <-
   )
 
 #' Run Shiny App for interactive gating 
-#' @noRd
+#' 
 #' @importFrom plotly renderPlotly
 #' @importFrom plotly event_data
 #' @importFrom plotly ggplotly
@@ -24,6 +24,9 @@ ui <-
 #' @importFrom purrr map_lgl
 #' @importFrom shiny observe
 #' @importFrom shiny stopApp
+#' @param input Server input parameter
+#' @param output Server output parameter
+#' @param session Server session parameter
 #' @return NA
 #' @export
 server <- 

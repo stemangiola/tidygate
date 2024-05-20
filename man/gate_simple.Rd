@@ -26,7 +26,7 @@ Launch an interactive scatter plot, based on the input X and Y coordinates. Poin
 can then be gated.
 }
 \examples{
-\donttest{
+\dontrun{
 library(dplyr)
 library(ggplot2)
 
