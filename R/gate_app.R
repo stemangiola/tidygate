@@ -31,7 +31,6 @@ server <-
 
     output$plot <- plotly::renderPlotly({
       
-      
       # Begin recording selection and brush information
       select_data <- plotly::event_data("plotly_selected")
       brush_data <- plotly::event_data("plotly_brushed")
@@ -51,10 +50,10 @@ server <-
       if (is.null(tidygate_env$custom_plot)) {
         plot <-
           tidygate_env$input_data |>
-          ggplot2::ggplot(ggplot2::aes(x = tidygate_env$dimension_x, y = tidygate_env$dimension_y, colour = .selected, key = .key)) +
-          ggplot2::geom_point() +
+          ggplot2::ggplot(ggplot2::aes(x = dimension_x, y = dimension_y, colour = .selected, key = .key)) +
+          ggplot2::geom_point(alpha = tidygate_env$input_data$.alpha[[1]], size = tidygate_env$input_data$.size[[1]]) +
           ggplot2::theme_bw()
-      
+        
       # Or load supplied plot
       } else {
         plot <-
