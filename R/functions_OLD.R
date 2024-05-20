@@ -356,7 +356,8 @@ gate_programmatic <-
            .dim1,
            .dim2, 
            gate_list,
-           name = "gate") {
+           name = "gate", 
+           ...) {
     
     # Comply with CRAN NOTES
     . = NULL

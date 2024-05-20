@@ -265,7 +265,6 @@ pretty_plot_chr_int = function(.data,
 #' @param .size A column symbol. Size of points
 #' @param opacity A number between 0 and 1. The opacity level of the data points
 #' @param how_many_gates An integer. The number of gates to label
-#' @param gate_list A list of gates. It is returned by gate function as attribute \"gate\". If you want to create this list yourself, each element of the list is a data frame with x and y columns. Each row is a coordinate. The order matter.
 #' @param ... Further parameters passed to the function gatepoints::fhs
 #'
 #' @return A tibble with additional columns
@@ -379,7 +378,8 @@ gate_programmatic_chr_int <-
   function(.data,
            .dim1,
            .dim2,
-           gate_list
+           gate_list,
+           ...
            ) {
     # Comply with CRAN NOTES
     . = NULL
