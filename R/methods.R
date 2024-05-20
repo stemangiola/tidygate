@@ -276,6 +276,9 @@ gate_custom <-
     
     message("tidygate says: this feature is in early development and may undergo changes or contain bugs.")
     
+    # Fix CRAN NOTES
+    key <- NULL
+    
     # Create tibble with .key column
     data <- 
       custom_plot |>

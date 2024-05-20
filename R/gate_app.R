@@ -34,6 +34,12 @@ server <-
 
     output$plot <- plotly::renderPlotly({
       
+      # Fix CRAN NOTES
+      .key <- NULL
+      .selected <- NULL
+      dimension_x <- NULL
+      dimension_y <- NULL
+      
       # Begin recording selection and brush information
       select_data <- plotly::event_data("plotly_selected")
       brush_data <- plotly::event_data("plotly_brushed")

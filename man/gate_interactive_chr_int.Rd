@@ -35,8 +35,6 @@ gate_interactive_chr_int(
 \item{how_many_gates}{An integer. The number of gates to label}
 
 \item{...}{Further parameters passed to the function gatepoints::fhs}
-
-\item{gate_list}{A list of gates. It is returned by gate function as attribute \"gate\". If you want to create this list yourself, each element of the list is a data frame with x and y columns. Each row is a coordinate. The order matter.}
 }
 \value{
 A tibble with additional columns
