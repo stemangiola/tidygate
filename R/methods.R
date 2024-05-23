@@ -303,4 +303,41 @@ gate_custom <-
     return(gate_vector)
   }
 
+#' Get points within a user drawn gate
+#'
+#' @importFrom purrr map
+#' @importFrom purrr when
+#' @param dimension_x A column symbol representing the X dimension. 
+#' @param dimension_y A column symbol representing the Y dimension.
+#' @param gate_list A list of of dataframes recording gate coordinates, as output by 
+#' `tidygate_env$brush_data`.
+#' @return A vector of lists, recording the gates each X and Y coordinate pair is within. 
+#' @export
+gate_programmatic <-
+  function(dimension_x, dimension_y, gate_list) {
+    
+    data <- 
+      data.frame(dimension_x, dimension_y) |>
+      as.matrix()
+    
+    # Loop over gates # Variable needed for recalling the attributes later
+    gate_list_result <- 
+      gate_list |>
+      purrr::map(
+        ~ .x %>%
+          purrr::when("data.frame" %in% class(.) ~ .as_matrix(.), ~ (.)) %>%
+          applyGate(data, .) %>%
+          which() %>%
+          as.character() %>%
+          
+          # Avoid error for empty gates
+          purrr::when(!is.null(.) ~ (.) %>% add_attr(.x, "gate"))
+)
+    
+    # Return
+    gate_list_result |>
+      parse_gate_list(data)
+  }
+
+
 

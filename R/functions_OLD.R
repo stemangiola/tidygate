@@ -350,7 +350,7 @@ gate_interactive <-
 #'
 #' @return A tibble with additional columns
 #'
-gate_programmatic <- 
+gate_programmatic_old <- 
   function(.data,
            .element,
            .dim1,
