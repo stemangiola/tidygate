@@ -213,25 +213,26 @@ gate_simple <-
   function(dimension_x, dimension_y, alpha = 1, size = 1) {
     
     message("tidygate says: this feature is in early development and may undergo changes or contain bugs.")
-    
+
     # Add needed columns to input data
     data <- 
       tibble::tibble(dimension_x, dimension_y) |>
-      dplyr::mutate(.key = dplyr::row_number()) |>
-      dplyr::mutate(.selected = FALSE) |>
       dplyr::mutate(.alpha = alpha) |>
-      dplyr::mutate(.size = size)
+      dplyr::mutate(.size = size) |>
+      dplyr::mutate(.key = dplyr::row_number()) |>
+      dplyr::mutate(.gate = NULL)
     
     # Create environment and save input variables
     tidygate_env <<- rlang::env()
     tidygate_env$input_data <- data
     tidygate_env$custom_plot <- NULL
+    tidygate_env$event_count <- 1
     
     # Launch Shiny App
     app <- shiny::shinyApp(ui, server)
-    shiny::runApp(app, port = 1234) # Specify a port if needed
+    gate_vector <- shiny::runApp(app, port = 1234)
     
-    return(tidygate_env$input_data$.selected)
+    return(gate_vector)
   }
 
 #' Interactively gate data with a custom plot
@@ -279,7 +280,7 @@ gate_custom <-
     # Fix CRAN NOTES
     key <- NULL
     
-    # Create tibble with .key column
+    # Create tibble with .key column from the custom plot
     data <- 
       custom_plot |>
       ggplot2::ggplot_build() |>
@@ -287,17 +288,19 @@ gate_custom <-
       tibble::as_tibble() |>
       dplyr::select(key) |>
       dplyr::rename(.key = "key") |>
-      dplyr::mutate(.selected = FALSE)
+      dplyr::mutate(.gate = NULL)
       
     # Create environment and save input variables
     tidygate_env <<- rlang::env()
     tidygate_env$input_data <- data
     tidygate_env$custom_plot <- custom_plot
+    tidygate_env$event_count <- 1
     
     # Launch Shiny App
     app <- shiny::shinyApp(ui, server)
-    shiny::runApp(app, port = 1234)
+    gate_vector <- shiny::runApp(app, port = 1234)
     
-    return(tidygate_env$input_data$.selected)
+    return(gate_vector)
   }
+
 

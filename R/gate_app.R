@@ -2,15 +2,16 @@
 #' 
 #' @importFrom shiny fluidPage
 #' @importFrom shiny actionButton
+#' @importFrom shiny verbatimTextOutput
 #' @importFrom plotly plotlyOutput
 #' @return Fluid UI container
 #' @export
-ui <- 
-  shiny::fluidPage(
-    shiny::actionButton("continue_button", "Continue"),
-    # shiny::actionButton("deselect_button", "Deselect all"),
-    plotly::plotlyOutput("plot")
-  )
+ui <- fluidPage(
+  shiny::actionButton("continue_button", "Continue"),
+  plotly::plotlyOutput("plot"),
+  shiny::verbatimTextOutput("select"),
+  shiny::verbatimTextOutput("brush")
+)
 
 #' Run Shiny App for interactive gating 
 #' 
@@ -21,67 +22,83 @@ ui <-
 #' @importFrom ggplot2 aes
 #' @importFrom ggplot2 geom_point
 #' @importFrom ggplot2 theme_bw
-#' @importFrom purrr map_lgl
-#' @importFrom shiny observe
+#' @importFrom dplyr left_join
+#' @importFrom dplyr group_by
+#' @importFrom dplyr summarise
+#' @importFrom dplyr mutate
+#' @importFrom dplyr pull
+#' @importFrom shiny observeEvent
+#' @importFrom shiny renderPrint
 #' @importFrom shiny stopApp
 #' @param input Server input parameter
 #' @param output Server output parameter
 #' @param session Server session parameter
 #' @return NA
 #' @export
-server <- 
-  function(input, output, session) {
-
-    output$plot <- plotly::renderPlotly({
+server <- function(input, output, session) {
+  
+  select_data <- tibble()
+  brush_data <- tibble()
+  
+  # Create or draw plot
+  output$plot <- plotly::renderPlotly({
+    
+    if (is.null(tidygate_env$custom_plot)) {
+      plot <-
+        tidygate_env$input_data |>
+        ggplot2::ggplot(ggplot2::aes(x = dimension_x, y = dimension_y, key = .key)) +
+        ggplot2::geom_point(alpha = tidygate_env$input_data$.alpha[[1]], size = tidygate_env$input_data$.size[[1]]) +
+        ggplot2::theme_bw()
       
-      # Fix CRAN NOTES
-      .key <- NULL
-      .selected <- NULL
-      dimension_x <- NULL
-      dimension_y <- NULL
+    } else {
+      plot <- tidygate_env$custom_plot
+    }
       
-      # Begin recording selection and brush information
-      select_data <- plotly::event_data("plotly_selected")
-      brush_data <- plotly::event_data("plotly_brushed")
-      
-      # Save selection and brush information
-      assign("select_data", tidygate_env$input_data, envir = tidygate_env)
-      assign("brush_data", brush_data, envir = tidygate_env)
-      
-      # Set selected points to TRUE
-      if (!is.null(select_data)) {
-        tidygate_env$input_data <-
-          tidygate_env$input_data |>
-          mutate(.selected = ifelse(.key %in% as.numeric(select_data$key), TRUE, .selected))
-      }
-      
-      # Create plot
-      if (is.null(tidygate_env$custom_plot)) {
-        plot <-
-          tidygate_env$input_data |>
-          ggplot2::ggplot(ggplot2::aes(x = dimension_x, y = dimension_y, colour = .selected, key = .key)) +
-          ggplot2::geom_point(alpha = tidygate_env$input_data$.alpha[[1]], size = tidygate_env$input_data$.size[[1]]) +
-          ggplot2::theme_bw()
-        
-      # Or load supplied plot
-      } else {
-        plot <-
-          tidygate_env$custom_plot
-      }
-
-      # Draw plot
       plot |>
         plotly::ggplotly() |>
-        plotly::layout(dragmode = "lasso") 
-    })
+        plotly::layout(dragmode = "lasso") |>
+        plotly::config(modeBarButtonsToRemove = c("zoomIn2d", "zoomOut2d", "select2d"))      
+  })
+
+  # Get selection information
+  output$select <- shiny::renderPrint({
+    select_event <- plotly::event_data("plotly_selected")
+    if (!is.null(select_event)) {
+      select_event$.gate <- tidygate_env$event_count
+      select_data <<- rbind(select_data, select_event)
+    }
+    select_data
+  })
+
+  # Get brush information
+  output$brush <- shiny::renderPrint({
+    brush_event <- plotly::event_data("plotly_brushed")
+    if (!is.null(brush_event)) {
+      brush_event <- tibble(x = brush_event$x, y = brush_event$y)
+      brush_event$.gate <- tidygate_env$event_count
+      brush_data <<- rbind(brush_data, brush_event)
+      tidygate_env$event_count <- tidygate_env$event_count + 1
+    }
+    brush_data
+  })
+
+  # Close
+  shiny::observeEvent(input$continue_button, {
+
+    # Save supplementary data
+    tidygate_env$select_data <- select_data
+    tidygate_env$brush_data <- brush_data
     
-    # Close Shiny App with button press
-    shiny::observe({
-      if(input$continue_button > 0){
-        shiny::stopApp()
-      }
-      # if(input$deselect_button > 0){
-      #   tidygate_env$input_data$.selected <- FALSE
-      # }
+    # Return vector of gate values
+    shiny::stopApp({
+      tidygate_env$input_data |>
+        dplyr::left_join(
+          tidygate_env$select_data |>
+            dplyr::mutate(key = as.integer(key)) |>
+            dplyr::group_by(key) |>
+            dplyr::summarise(.gate = list(.gate)),
+          by = c(".key" = "key")) |>
+        dplyr::pull(.gate)
     })
-  }
+  })
+}
