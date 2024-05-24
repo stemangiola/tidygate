@@ -29,7 +29,7 @@
 #'
 #' @examples
 #'
-#' \donttest{
+#' \dontrun{
 #' # Standard use - interactive
 #' 
 #'   if(interactive()){
@@ -182,8 +182,8 @@ gate_int.numeric = 	function(  .dim1,
 
 #' Interactively gate data with a simple scatter plot
 #' 
-#' Launch an interactive scatter plot, based on the input X and Y coordinates. Points on this plot 
-#' can then be gated.
+#' Launch an interactive scatter plot, based on the input parameters. Points on this plot can
+#' then be gated using multiple lasso selections.
 #' 
 #' @importFrom tibble tibble
 #' @importFrom dplyr mutate
@@ -192,40 +192,47 @@ gate_int.numeric = 	function(  .dim1,
 #' @importFrom shiny runApp
 #' @param dimension_x A column symbol representing the X dimension. 
 #' @param dimension_y A column symbol representing the Y dimension.
-#' @param alpha The opacity of points, with 1 being completely opaque and 0 being completely
+#' @param colour A column symbol representing the point colour.
+#' @param shape A column symbol representing the point shape. Must be a factor.
+#' @param alpha A numeric value representing the opacity of points, with 1 being completely opaque and 0 being completely
 #' transparent.
-#' @param size The size of points.
-#' @return A vector with TRUE for elements inside gate points and FALSE for elements outside gate 
-#' points. A record of the selected points is stored in `tidygate_env$select_data` and a record of 
-#' the gates is stored in `tidygate_env$brush_data`.
+#' @param size A numeric value representing the size of points.
+#' @return A vector of lists, recording the gates each X and Y coordinate pair is within. A record 
+#' of the selected points is stored in `tidygate_env$select_data` and a record of the gates is 
+#' stored in `tidygate_env$brush_data`.
 #' @examples
 #' \dontrun{
 #' library(dplyr)
-#' library(ggplot2)
 #' 
 #' mtcars |>
-#'   dplyr::mutate(selected = gate_simple(dimension_x = mpg, dimension_y = wt)) |>
+#'   dplyr::mutate(selected = gate_simple(dimension_x = mpg, dimension_y = wt, alpha = 0.5)) |>
 #'   print()
 #'}
 #' @export
 gate_simple <-
   
-  function(dimension_x, dimension_y, alpha = 1, size = 1) {
+  function(dimension_x, dimension_y, colour = NULL, shape = NULL, alpha = 1, size = 1) {
     
     message("tidygate says: this feature is in early development and may undergo changes or contain bugs.")
-
+    
+    # Fix CRAN note
+    .key <- NULL
+    
     # Add needed columns to input data
     data <- 
       tibble::tibble(dimension_x, dimension_y) |>
-      dplyr::mutate(.alpha = alpha) |>
-      dplyr::mutate(.size = size) |>
-      dplyr::mutate(.key = dplyr::row_number()) |>
-      dplyr::mutate(.gate = NULL)
+      dplyr::mutate(.key = dplyr::row_number())
+    
+    plot <-
+      data |>
+      ggplot2::ggplot(ggplot2::aes(x = dimension_x, y = dimension_y, colour = colour, shape = shape, key = .key)) +
+      ggplot2::geom_point(alpha = alpha, size = size) +
+      ggplot2::theme_bw()   
     
     # Create environment and save input variables
     tidygate_env <<- rlang::env()
     tidygate_env$input_data <- data
-    tidygate_env$custom_plot <- NULL
+    tidygate_env$input_plot <- plot
     tidygate_env$event_count <- 1
     
     # Launch Shiny App
@@ -235,10 +242,10 @@ gate_simple <-
     return(gate_vector)
   }
 
-#' Interactively gate data with a custom plot
+#' Interactively gate data with a custom scatter plot
 #' 
 #' Launch an interactive scatter plot, based on a user-defined `ggplot2`. Points on this plot can
-#' then be gated.
+#' then be gated using multiple lasso selections.
 #' 
 #' @importFrom tibble as_tibble
 #' @importFrom dplyr mutate
@@ -249,10 +256,10 @@ gate_simple <-
 #' @importFrom ggplot2 ggplot_build
 #' @importFrom shiny shinyApp
 #' @importFrom shiny runApp
-#' @param custom_plot A ggplot object. Must contain a row index in the `.key` column set as key.
-#' @return A vector with TRUE for elements inside gate points and FALSE for elements outside gate 
-#' points. A record of the selected points is stored in `tidygate_env$select_data` and a 
-#' record of the gates is stored in `tidygate_env$brush_data`.
+#' @param plot A ggplot object. Must contain a row index in the `.key` column set as key.
+#' @return A vector of lists, recording the gates each X and Y coordinate pair is within. A record 
+#' of the selected points is stored in `tidygate_env$select_data` and a record of the gates is 
+#' stored in `tidygate_env$brush_data`.
 #' @examples
 #' \dontrun{
 #' library(dplyr)
@@ -273,7 +280,7 @@ gate_simple <-
 #' @export
 gate_custom <-
   
-  function(custom_plot) {
+  function(plot) {
     
     message("tidygate says: this feature is in early development and may undergo changes or contain bugs.")
     
@@ -282,18 +289,17 @@ gate_custom <-
     
     # Create tibble with .key column from the custom plot
     data <- 
-      custom_plot |>
+      plot |>
       ggplot2::ggplot_build() |>
       purrr::pluck(1, 1) |>
       tibble::as_tibble() |>
       dplyr::select(key) |>
-      dplyr::rename(.key = "key") |>
-      dplyr::mutate(.gate = NULL)
+      dplyr::rename(.key = "key")
       
     # Create environment and save input variables
     tidygate_env <<- rlang::env()
     tidygate_env$input_data <- data
-    tidygate_env$custom_plot <- custom_plot
+    tidygate_env$input_plot <- plot
     tidygate_env$event_count <- 1
     
     # Launch Shiny App
@@ -303,26 +309,31 @@ gate_custom <-
     return(gate_vector)
   }
 
-#' Get points within a user drawn gate
+#' Gate data with pre-recorded lasso selection coordinates
+#'
+#' A helpful way to repeat previous interactive lasso selections to enable reproducibility.
 #'
 #' @importFrom purrr map
 #' @importFrom purrr when
+#' @importFrom stringr str_split
 #' @param dimension_x A column symbol representing the X dimension. 
 #' @param dimension_y A column symbol representing the Y dimension.
-#' @param gate_list A list of of dataframes recording gate coordinates, as output by 
-#' `tidygate_env$brush_data`.
-#' @return A vector of lists, recording the gates each X and Y coordinate pair is within. 
+#' @param gates A `data.frame` recording the gate brush data, as output by 
+#' `tidygate_env$brush_data`. The column `x` records X coordinates, the column `y` records Y 
+#' coordinates and the column `.gate` records the gate.  
+#' @return A vector of lists, of the gates each X and Y coordinate pair is within. 
 #' @export
 gate_programmatic <-
-  function(dimension_x, dimension_y, gate_list) {
-    
+  function(dimension_x, dimension_y, gates) {
+
     data <- 
       data.frame(dimension_x, dimension_y) |>
       as.matrix()
     
-    # Loop over gates # Variable needed for recalling the attributes later
-    gate_list_result <- 
-      gate_list |>
+    # Loop over gates
+    gates |>
+      data.frame() |>
+      split(gates$.gate) |>
       purrr::map(
         ~ .x %>%
           purrr::when("data.frame" %in% class(.) ~ .as_matrix(.), ~ (.)) %>%
@@ -332,12 +343,28 @@ gate_programmatic <-
           
           # Avoid error for empty gates
           purrr::when(!is.null(.) ~ (.) %>% add_attr(.x, "gate"))
-)
+      ) |>
+      
+      parse_gate_list(data) |>
     
-    # Return
-    gate_list_result |>
-      parse_gate_list(data)
+      # Reformat output as vector of numeric lists with NULL for 0 gate
+      map(~ {
+        result <-
+          .x |> 
+          stringr::str_split(",") |> 
+          pluck(1) |>
+          as.numeric()
+        
+        if (length(result) == 1) {
+          if(result == 0){
+            NULL
+          } else{
+            result
+          }
+        } else{
+          result
+        }
+      })
   }
-
 
 

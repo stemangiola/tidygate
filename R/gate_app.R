@@ -37,24 +37,15 @@ ui <- fluidPage(
 #' @export
 server <- function(input, output, session) {
   
+  # Fix CRAN note
+  key <- NULL
+  
   select_data <- tibble()
   brush_data <- tibble()
   
-  # Create or draw plot
+  # Draw plot
   output$plot <- plotly::renderPlotly({
-    
-    if (is.null(tidygate_env$custom_plot)) {
-      plot <-
-        tidygate_env$input_data |>
-        ggplot2::ggplot(ggplot2::aes(x = dimension_x, y = dimension_y, key = .key)) +
-        ggplot2::geom_point(alpha = tidygate_env$input_data$.alpha[[1]], size = tidygate_env$input_data$.size[[1]]) +
-        ggplot2::theme_bw()
-      
-    } else {
-      plot <- tidygate_env$custom_plot
-    }
-      
-      plot |>
+    tidygate_env$input_plot |>
         plotly::ggplotly() |>
         plotly::layout(dragmode = "lasso") |>
         plotly::config(modeBarButtonsToRemove = c("zoomIn2d", "zoomOut2d", "select2d"))      

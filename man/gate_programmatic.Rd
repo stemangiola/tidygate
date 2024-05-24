@@ -2,21 +2,22 @@
 % Please edit documentation in R/methods.R
 \name{gate_programmatic}
 \alias{gate_programmatic}
-\title{Get points within a user drawn gate}
+\title{Gate data with pre-recorded lasso selection coordinates}
 \usage{
-gate_programmatic(dimension_x, dimension_y, gate_list)
+gate_programmatic(dimension_x, dimension_y, gates)
 }
 \arguments{
 \item{dimension_x}{A column symbol representing the X dimension.}
 
 \item{dimension_y}{A column symbol representing the Y dimension.}
 
-\item{gate_list}{A list of of dataframes recording gate coordinates, as output by 
-`tidygate_env$brush_data`.}
+\item{gates}{A `data.frame` recording the gate brush data, as output by 
+`tidygate_env$brush_data`. The column `x` records X coordinates, the column `y` records Y 
+coordinates and the column `.gate` records the gate.}
 }
 \value{
-A vector of lists, recording the gates each X and Y coordinate pair is within.
+A vector of lists, of the gates each X and Y coordinate pair is within.
 }
 \description{
-Get points within a user drawn gate
+A helpful way to repeat previous interactive lasso selections to enable reproducibility.
 }

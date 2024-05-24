@@ -99,7 +99,7 @@ This function allow the user to label data points in inside one or more 2D gates
 }
 \examples{
 
-\donttest{
+\dontrun{
 
   if(interactive()){
 
@@ -108,7 +108,7 @@ This function allow the user to label data points in inside one or more 2D gates
 
   }
 
-}
+
 
 library(magrittr)
 
@@ -118,6 +118,6 @@ tidygate::tidygate_data  \%>\%
    Dim1, Dim2,
    gate_list = tidygate::gate_list
  )
-
+}
 }
 \keyword{internal}

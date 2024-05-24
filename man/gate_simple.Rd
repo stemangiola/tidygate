@@ -4,34 +4,44 @@
 \alias{gate_simple}
 \title{Interactively gate data with a simple scatter plot}
 \usage{
-gate_simple(dimension_x, dimension_y, alpha = 1, size = 1)
+gate_simple(
+  dimension_x,
+  dimension_y,
+  colour = NULL,
+  shape = NULL,
+  alpha = 1,
+  size = 1
+)
 }
 \arguments{
 \item{dimension_x}{A column symbol representing the X dimension.}
 
 \item{dimension_y}{A column symbol representing the Y dimension.}
 
-\item{alpha}{The opacity of points, with 1 being completely opaque and 0 being completely
+\item{colour}{A column symbol representing the point colour.}
+
+\item{shape}{A column symbol representing the point shape. Must be a factor.}
+
+\item{alpha}{A numeric value representing the opacity of points, with 1 being completely opaque and 0 being completely
 transparent.}
 
-\item{size}{The size of points.}
+\item{size}{A numeric value representing the size of points.}
 }
 \value{
-A vector with TRUE for elements inside gate points and FALSE for elements outside gate 
-points. A record of the selected points is stored in `tidygate_env$select_data` and a record of 
-the gates is stored in `tidygate_env$brush_data`.
+A vector of lists, recording the gates each X and Y coordinate pair is within. A record 
+of the selected points is stored in `tidygate_env$select_data` and a record of the gates is 
+stored in `tidygate_env$brush_data`.
 }
 \description{
-Launch an interactive scatter plot, based on the input X and Y coordinates. Points on this plot 
-can then be gated.
+Launch an interactive scatter plot, based on the input parameters. Points on this plot can
+then be gated using multiple lasso selections.
 }
 \examples{
 \dontrun{
 library(dplyr)
-library(ggplot2)
 
 mtcars |>
-  dplyr::mutate(selected = gate_simple(dimension_x = mpg, dimension_y = wt)) |>
+  dplyr::mutate(selected = gate_simple(dimension_x = mpg, dimension_y = wt, alpha = 0.5)) |>
   print()
 }
 }

@@ -34,7 +34,7 @@
 #'
 #' @examples
 #'
-#' \donttest{
+#' \dontrun{
 #' 
 #'   if(interactive()){
 #' 
@@ -43,7 +43,7 @@
 #'
 #'   }
 #' 
-#' }
+#' 
 #' 
 #' library(magrittr)
 #' 
@@ -53,7 +53,7 @@
 #'    Dim1, Dim2,
 #'    gate_list = tidygate::gate_list
 #'  )
-#'
+#' }
 #' @docType methods
 #' @rdname gate-methods
 #' @export

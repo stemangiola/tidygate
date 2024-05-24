@@ -2,21 +2,21 @@
 % Please edit documentation in R/methods.R
 \name{gate_custom}
 \alias{gate_custom}
-\title{Interactively gate data with a custom plot}
+\title{Interactively gate data with a custom scatter plot}
 \usage{
-gate_custom(custom_plot)
+gate_custom(plot)
 }
 \arguments{
-\item{custom_plot}{A ggplot object. Must contain a row index in the `.key` column set as key.}
+\item{plot}{A ggplot object. Must contain a row index in the `.key` column set as key.}
 }
 \value{
-A vector with TRUE for elements inside gate points and FALSE for elements outside gate 
-points. A record of the selected points is stored in `tidygate_env$select_data` and a 
-record of the gates is stored in `tidygate_env$brush_data`.
+A vector of lists, recording the gates each X and Y coordinate pair is within. A record 
+of the selected points is stored in `tidygate_env$select_data` and a record of the gates is 
+stored in `tidygate_env$brush_data`.
 }
 \description{
 Launch an interactive scatter plot, based on a user-defined `ggplot2`. Points on this plot can
-then be gated.
+then be gated using multiple lasso selections.
 }
 \examples{
 \dontrun{
