@@ -188,14 +188,19 @@ gate_int.numeric = 	function(  .dim1,
 #' @importFrom tibble tibble
 #' @importFrom dplyr mutate
 #' @importFrom rlang env
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes
+#' @importFrom ggplot2 theme_bw
+#' @importFrom ggplot2 theme
 #' @importFrom shiny shinyApp
 #' @importFrom shiny runApp
-#' @param dimension_x A column symbol representing the X dimension. 
-#' @param dimension_y A column symbol representing the Y dimension.
-#' @param colour A column symbol representing the point colour.
-#' @param shape A column symbol representing the point shape. Must be a factor.
-#' @param alpha A numeric value representing the opacity of points, with 1 being completely opaque and 0 being completely
-#' transparent.
+#' 
+#' @param x_column A column symbol representing the X dimension. 
+#' @param y_column A column symbol representing the Y dimension.
+#' @param colour_column A column symbol representing the point colour.
+#' @param shape_column A column symbol representing the point shape. Must be a factor.
+#' @param alpha A numeric value representing the opacity of points, with 1 being completely opaque 
+#' and 0 being completely transparent.
 #' @param size A numeric value representing the size of points.
 #' @return A vector of lists, recording the gates each X and Y coordinate pair is within. A record 
 #' of the selected points is stored in `tidygate_env$select_data` and a record of the gates is 
@@ -205,13 +210,13 @@ gate_int.numeric = 	function(  .dim1,
 #' library(dplyr)
 #' 
 #' mtcars |>
-#'   dplyr::mutate(selected = gate_simple(dimension_x = mpg, dimension_y = wt, alpha = 0.5)) |>
+#'   dplyr::mutate(selected = gate_simple(x_column = mpg, y_column = wt, shape_column = factor(am)))
 #'   print()
 #'}
 #' @export
 gate_simple <-
   
-  function(dimension_x, dimension_y, colour = NULL, shape = NULL, alpha = 1, size = 1) {
+  function(x_column, y_column, colour_column = NULL, shape_column = NULL, alpha = 1, size = 2) {
     
     message("tidygate says: this feature is in early development and may undergo changes or contain bugs.")
     
@@ -220,14 +225,14 @@ gate_simple <-
     
     # Add needed columns to input data
     data <- 
-      tibble::tibble(dimension_x, dimension_y) |>
+      tibble::tibble(x_column, y_column) |>
       dplyr::mutate(.key = dplyr::row_number())
     
     plot <-
       data |>
-      ggplot2::ggplot(ggplot2::aes(x = dimension_x, y = dimension_y, colour = colour, shape = shape, key = .key)) +
+      ggplot2::ggplot(ggplot2::aes(x = x_column, y = y_column, colour = colour_column, shape = shape_column, key = .key)) +
       ggplot2::geom_point(alpha = alpha, size = size) +
-      ggplot2::theme_bw()   
+      ggplot2::theme_bw()
     
     # Create environment and save input variables
     tidygate_env <<- rlang::env()
@@ -316,18 +321,18 @@ gate_custom <-
 #' @importFrom purrr map
 #' @importFrom purrr when
 #' @importFrom stringr str_split
-#' @param dimension_x A column symbol representing the X dimension. 
-#' @param dimension_y A column symbol representing the Y dimension.
+#' @param x_column A column symbol representing the X dimension. 
+#' @param y_column A column symbol representing the Y dimension.
 #' @param gates A `data.frame` recording the gate brush data, as output by 
 #' `tidygate_env$brush_data`. The column `x` records X coordinates, the column `y` records Y 
 #' coordinates and the column `.gate` records the gate.  
 #' @return A vector of lists, of the gates each X and Y coordinate pair is within. 
 #' @export
 gate_programmatic <-
-  function(dimension_x, dimension_y, gates) {
+  function(x_column, y_column, gates) {
 
     data <- 
-      data.frame(dimension_x, dimension_y) |>
+      data.frame(x_column, y_column) |>
       as.matrix()
     
     # Loop over gates

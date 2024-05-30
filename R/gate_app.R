@@ -1,16 +1,42 @@
 #' Create Shiny App UI
 #' 
 #' @importFrom shiny fluidPage
+#' @importFrom shiny fluidRow
+#' @importFrom shiny column
+#' @importFrom shiny h2
+#' @importFrom shiny h5
+#' @importFrom shiny br
 #' @importFrom shiny actionButton
 #' @importFrom shiny verbatimTextOutput
 #' @importFrom plotly plotlyOutput
 #' @return Fluid UI container
 #' @export
-ui <- fluidPage(
-  shiny::actionButton("continue_button", "Continue"),
-  plotly::plotlyOutput("plot"),
-  shiny::verbatimTextOutput("select"),
-  shiny::verbatimTextOutput("brush")
+ui <- shiny::fluidPage(
+  shiny::fluidRow(
+    shiny::column(
+      shiny::fluidRow(
+        shiny::column(
+          shiny::h2("tidygate"),
+          width = 6
+        ),
+        shiny::column(
+          shiny::br(), 
+          shiny::actionButton("continue_button", "Continue"),
+          width = 6
+        ),
+        align = "center"
+      ),
+      shiny::h5("Gated points"),
+      shiny::verbatimTextOutput("select"),
+      shiny::h5("Brush path"),
+      shiny::verbatimTextOutput("brush"), 
+      width = 4
+      ),
+    shiny::column(
+      plotly::plotlyOutput("plot"), 
+      width = 8
+    )
+  )
 )
 
 #' Run Shiny App for interactive gating 
@@ -39,6 +65,8 @@ server <- function(input, output, session) {
   
   # Fix CRAN note
   key <- NULL
+  curveNumber <- NULL
+  pointNumber <- NULL
   
   select_data <- tibble()
   brush_data <- tibble()
@@ -52,25 +80,35 @@ server <- function(input, output, session) {
   })
 
   # Get selection information
-  output$select <- shiny::renderPrint({
-    select_event <- plotly::event_data("plotly_selected")
-    if (!is.null(select_event)) {
-      select_event$.gate <- tidygate_env$event_count
-      select_data <<- rbind(select_data, select_event)
-    }
-    select_data
+  output$select <- 
+    shiny::renderPrint({
+      select_event <- plotly::event_data("plotly_selected")
+      
+      if (!is.null(select_event)) {
+        select_event <-
+          select_event |>
+          tibble() |>
+          select(-curveNumber, -pointNumber)
+        
+        select_event$.gate <- tidygate_env$event_count
+        select_data <<- rbind(select_data, select_event)
+      }
+    select_data |> 
+      print(n = 100)
   })
 
   # Get brush information
-  output$brush <- shiny::renderPrint({
-    brush_event <- plotly::event_data("plotly_brushed")
-    if (!is.null(brush_event)) {
-      brush_event <- tibble(x = brush_event$x, y = brush_event$y)
-      brush_event$.gate <- tidygate_env$event_count
-      brush_data <<- rbind(brush_data, brush_event)
-      tidygate_env$event_count <- tidygate_env$event_count + 1
-    }
-    brush_data
+  output$brush <- 
+    shiny::renderPrint({
+      brush_event <- plotly::event_data("plotly_brushed")
+      if (!is.null(brush_event)) {
+        brush_event <- tibble(x = brush_event$x, y = brush_event$y)
+        brush_event$.gate <- tidygate_env$event_count
+        brush_data <<- rbind(brush_data, brush_event)
+        tidygate_env$event_count <- tidygate_env$event_count + 1
+      }
+    brush_data |> 
+      print(n = 100)
   })
 
   # Close

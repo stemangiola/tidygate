@@ -5,25 +5,25 @@
 \title{Interactively gate data with a simple scatter plot}
 \usage{
 gate_simple(
-  dimension_x,
-  dimension_y,
-  colour = NULL,
-  shape = NULL,
+  x_column,
+  y_column,
+  colour_column = NULL,
+  shape_column = NULL,
   alpha = 1,
-  size = 1
+  size = 2
 )
 }
 \arguments{
-\item{dimension_x}{A column symbol representing the X dimension.}
+\item{x_column}{A column symbol representing the X dimension.}
 
-\item{dimension_y}{A column symbol representing the Y dimension.}
+\item{y_column}{A column symbol representing the Y dimension.}
 
-\item{colour}{A column symbol representing the point colour.}
+\item{colour_column}{A column symbol representing the point colour.}
 
-\item{shape}{A column symbol representing the point shape. Must be a factor.}
+\item{shape_column}{A column symbol representing the point shape. Must be a factor.}
 
-\item{alpha}{A numeric value representing the opacity of points, with 1 being completely opaque and 0 being completely
-transparent.}
+\item{alpha}{A numeric value representing the opacity of points, with 1 being completely opaque 
+and 0 being completely transparent.}
 
 \item{size}{A numeric value representing the size of points.}
 }
@@ -41,7 +41,7 @@ then be gated using multiple lasso selections.
 library(dplyr)
 
 mtcars |>
-  dplyr::mutate(selected = gate_simple(dimension_x = mpg, dimension_y = wt, alpha = 0.5)) |>
+  dplyr::mutate(selected = gate_simple(x_column = mpg, y_column = wt, shape_column = factor(am)))
   print()
 }
 }
