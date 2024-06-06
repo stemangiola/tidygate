@@ -25,13 +25,19 @@ knitr::opts_chunk$set(cache = TRUE, warning = FALSE,
 
 library(dplyr)
 library(tidygate)
-
 ```
+
+## Introdiction 
+
+tidygate allows you to interactively gate data by user-defined X and Y coordinates with a single 
+line of code. If greater flexibility is needed, [ggplot2](https://ggplot2.tidyverse.org/) 
+can be leveraged to enable near endless plot customisation. 
+
+Interactively drawn gates are recorded and can be applied programmatically to reproduce results exactly. Programmatic gating is based on the package [gatepoints](https://github.com/wjawaid/gatepoints) by Wajid Jawaid. 
 
 ## Installation
 
 ```{r, eval=FALSE}
-
 # From Github
 devtools::install_github("stemangiola/tidygate")
 
@@ -39,83 +45,94 @@ devtools::install_github("stemangiola/tidygate")
 install.package("tidygate")
 ```
 
-## What is tidygate
+## Example usage 
 
-It interactively or programmately labels points within custom gates on two dimensions, according to tidyverse principles. The information is added to your tibble. It is based on the package `gatepoints` from Wajid Jawaid. 
-
-The main benefits are 
-
-- in interactive mode you can draw your gates on extensive ggplot-like scatter plots
-- you can draw multiple gates
-- you can save your gates and apply the programmatically.
-
-
-## Input 
-
-A tibble of this kind
-
-
-dimension1 | dimension2 | annotations |
- ------------- | ------------- | -------------
- `chr` or `fctr` | `numeric` | ...
-
-
-## Step-by-step instructons for Rstudio
-
-##### 1) Execute the following code in the console panel
-
-```{r eval=FALSE}
-tidygate_gate <-
-  tidygate_data %>%
-  mutate( gate = gate_chr( Dim1, Dim2 ) )
-```
-
-##### 2) look at the Viewer and draw a gate clicking at least three times on the plot
-
-![](inst/tidygate.gif) 
-
-
-##### 3) Click the finish button on the top-right corner, or press `escape` on your keyboard 
-
-
-## The output tibble
-
-```{r eval=FALSE}
-tidygate_gate
-```
-
-```{r echo=FALSE}
-
-tidygate_data %>%
-  mutate( gate = gate_chr(
-    Dim1, Dim2,
-     # Pre-defined gates
-    gate_list = tidygate::gate_list
-  ))
-
-```
-
-Gates are saved in a temporary file for later use
-
-```{r, echo = FALSE}
-my_gates = tidygate::gate_list
-
-my_gates
-```
-
-## Programmatic gating
-
-We can use previously drawn gates to programmately add the gate column 
+tidygate provides three user-facing functions, `gate_simple`, `gate_custom` and `gate_programmatic`.
+The following examples will make use of these functions, along with dplyr, ggplot2 and the inbuilt
+`mtcars` dataset. 
 
 ```{r}
+library(tidygate)
+library(dplyr)
+library(ggplot2)
 
-tidygate_data %>%
-  mutate( gate = gate_chr(
-    Dim1, Dim2,
-     # Pre-defined gates
-    gate_list = my_gates
-  ))
-
+mtcars
 ```
 
+`gate_simple` can be used to quickly interactively gate points based on their X and Y coordinates. 
+Additional parameters can be provided to modify point colour, shape, size and alpha. 
 
+```{r eval=FALSE}
+mtcars |>
+  mutate(gate = gate_simple(x_column = mpg, y_column = wt, shape_column = factor(am), size = 2))
+```
+
+![](man/figures/tidygate_gate_simple_demo.gif)
+
+`gate_custom` allows the user to define their own plot using ggplot2, and then 
+interactively gate points. For example, this enables the application of a log scale or custom theme.
+
+```{r eval=FALSE}
+scaled_plot <- 
+  mtcars |>
+  mutate(.key = row_number()) |>
+  ggplot(aes(x = mpg, y = wt, key = .key)) +
+  scale_y_log10() +
+  geom_point() +
+  theme_grey()
+
+mtcars_gated <-
+  mtcars |>
+  mutate(gate = gate_custom(plot = scaled_plot))
+
+mtcars_gated
+```
+
+![](man/figures/tidygate_gate_custom_demo.gif)
+
+
+```{r, echo=FALSE}
+# tidygate_env$select_data |> write.csv("data/custom_gating_demo_select_data.csv")
+# tidygate_env$brush_data |> write.csv("data/custom_gating_demo_brush_data.csv")
+
+# Load pre-recorded brush path from data for example
+tidygate_env <<- rlang::env()
+tidygate_env$select_data <- read.csv("data/custom_gating_demo_select_data.csv")
+tidygate_env$brush_data <- read.csv("data/custom_gating_demo_brush_data.csv")
+
+mtcars_gated <- 
+  mtcars |>
+  mutate(gate = gate_programmatic(
+    x_column = mpg, y_column = wt, tidygate_env$brush_data
+  ))
+```
+
+To select points which appear within any gates, the `lengths()` function can be used. To select points which appear within a specific gate, `map_lgl()` can be used with `any()` to check each value in the gate results column for each cell. 
+
+```{r}
+# Select cells within any gate
+mtcars_gated |> 
+  filter(lengths(gate) > 0)
+
+# Select cells within gate 2
+mtcars_gated |>
+  filter(purrr::map_lgl(gate, ~ any(2 %in% .x)))
+```
+
+Details of the gated points and lasso brush selection are stored within the `tidygate_env` 
+environment. These variables are overwritten each time interactive gating is run, so save them
+right away if you would like to access them later.  
+
+```{r eval=FALSE}
+tidygate_env$select_data
+tidygate_env$brush_data
+```
+
+`gate_programmatic` gates points programmatically by their X and Y coordinates, and a predefined lasso brush path. This function can be used to make interactive gates reproducible. Here `gate_programmatic` reproduces the previous defined interactive gates exactly. 
+
+```{r eval=FALSE}
+mtcars_gated |>
+  mutate(gate_programatic = gate_programmatic(
+    x_column = mpg, y_column = wt, tidygate_env$brush_data
+  )) 
+```

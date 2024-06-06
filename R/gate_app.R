@@ -74,7 +74,7 @@ server <- function(input, output, session) {
   # Draw plot
   output$plot <- plotly::renderPlotly({
     tidygate_env$input_plot |>
-        plotly::ggplotly() |>
+        plotly::ggplotly(tooltip = NULL) |>
         plotly::layout(dragmode = "lasso") |>
         plotly::config(modeBarButtonsToRemove = c("zoomIn2d", "zoomOut2d", "select2d"))      
   })

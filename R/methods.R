@@ -316,7 +316,9 @@ gate_custom <-
 
 #' Gate data with pre-recorded lasso selection coordinates
 #'
-#' A helpful way to repeat previous interactive lasso selections to enable reproducibility.
+#' A helpful way to repeat previous interactive lasso selections to enable reproducibility. 
+#' Programmatic gating is based on the package [gatepoints](https://github.com/wjawaid/gatepoints)
+#' by Wajid Jawaid. 
 #'
 #' @importFrom purrr map
 #' @importFrom purrr when
@@ -331,6 +333,8 @@ gate_custom <-
 gate_programmatic <-
   function(x_column, y_column, gates) {
 
+    message("tidygate says: this feature is in early development and may undergo changes or contain bugs.")
+    
     data <- 
       data.frame(x_column, y_column) |>
       as.matrix()

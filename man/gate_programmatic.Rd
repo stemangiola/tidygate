@@ -19,5 +19,7 @@ coordinates and the column `.gate` records the gate.}
 A vector of lists, of the gates each X and Y coordinate pair is within.
 }
 \description{
-A helpful way to repeat previous interactive lasso selections to enable reproducibility.
+A helpful way to repeat previous interactive lasso selections to enable reproducibility. 
+Programmatic gating is based on the package [gatepoints](https://github.com/wjawaid/gatepoints)
+by Wajid Jawaid.
 }
