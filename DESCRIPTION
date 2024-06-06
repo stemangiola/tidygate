@@ -1,7 +1,7 @@
 Package: tidygate
 Type: Package
 Title: Add Gate Information to Your Tibble
-Version: 0.5.3
+Version: 0.5.4
 Authors@R: 
     c(person(given = "Stefano",
            family = "Mangiola",
