@@ -4,7 +4,7 @@
 \alias{gate_programmatic}
 \title{Get points within a user drawn gate}
 \usage{
-gate_programmatic(.data, .element, .dim1, .dim2, gate_list, name = "gate")
+gate_programmatic(.data, .element, .dim1, .dim2, gate_list, name = "gate", ...)
 }
 \arguments{
 \item{.data}{A tibble}

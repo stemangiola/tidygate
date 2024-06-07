@@ -180,9 +180,124 @@ gate_int.numeric = 	function(  .dim1,
   
 }
 
+#' Interactively gate data with a simple scatter plot
+#' 
+#' Launch an interactive scatter plot, based on the input X and Y coordinates. Points on this plot 
+#' can then be gated.
+#' 
+#' @importFrom tibble tibble
+#' @importFrom dplyr mutate
+#' @importFrom rlang env
+#' @importFrom shiny shinyApp
+#' @importFrom shiny runApp
+#' @param dimension_x A column symbol representing the X dimension. 
+#' @param dimension_y A column symbol representing the Y dimension.
+#' @param alpha The opacity of points, with 1 being completely opaque and 0 being completely
+#' transparent.
+#' @param size The size of points.
+#' @return A vector with TRUE for elements inside gate points and FALSE for elements outside gate 
+#' points. A record of the selected points is stored in `tidygate_env$select_data` and a record of 
+#' the gates is stored in `tidygate_env$brush_data`.
+#' @examples
+#' \dontrun{
+#' library(dplyr)
+#' library(ggplot2)
+#' 
+#' mtcars |>
+#'   dplyr::mutate(selected = gate_simple(dimension_x = mpg, dimension_y = wt)) |>
+#'   print()
+#'}
+#' @export
+gate_simple <-
+  
+  function(dimension_x, dimension_y, alpha = 1, size = 1) {
+    
+    message("tidygate says: this feature is in early development and may undergo changes or contain bugs.")
+    
+    # Add needed columns to input data
+    data <- 
+      tibble::tibble(dimension_x, dimension_y) |>
+      dplyr::mutate(.key = dplyr::row_number()) |>
+      dplyr::mutate(.selected = FALSE) |>
+      dplyr::mutate(.alpha = alpha) |>
+      dplyr::mutate(.size = size)
+    
+    # Create environment and save input variables
+    tidygate_env <<- rlang::env()
+    tidygate_env$input_data <- data
+    tidygate_env$custom_plot <- NULL
+    
+    # Launch Shiny App
+    app <- shiny::shinyApp(ui, server)
+    shiny::runApp(app, port = 1234) # Specify a port if needed
+    
+    return(tidygate_env$input_data$.selected)
+  }
 
-
-
-
-
+#' Interactively gate data with a custom plot
+#' 
+#' Launch an interactive scatter plot, based on a user-defined `ggplot2`. Points on this plot can
+#' then be gated.
+#' 
+#' @importFrom tibble as_tibble
+#' @importFrom dplyr mutate
+#' @importFrom dplyr select
+#' @importFrom dplyr rename
+#' @importFrom rlang env
+#' @importFrom purrr pluck
+#' @importFrom ggplot2 ggplot_build
+#' @importFrom shiny shinyApp
+#' @importFrom shiny runApp
+#' @param custom_plot A ggplot object. Must contain a row index in the `.key` column set as key.
+#' @return A vector with TRUE for elements inside gate points and FALSE for elements outside gate 
+#' points. A record of the selected points is stored in `tidygate_env$select_data` and a 
+#' record of the gates is stored in `tidygate_env$brush_data`.
+#' @examples
+#' \dontrun{
+#' library(dplyr)
+#' library(ggplot2)
+#' 
+#' scaled_plot <- 
+#'   mtcars |> 
+#'   mutate(.key = row_number()) |>
+#'   ggplot(aes(x = mpg, y = wt, key = .key)) + 
+#'   scale_y_log10() +
+#'   geom_point() +
+#'   theme_dark()
+#'   
+#' mtcars |>
+#'   mutate(selected = gate_custom(custom_plot = scaled_plot)) |>
+#'   print()
+#' }
+#' @export
+gate_custom <-
+  
+  function(custom_plot) {
+    
+    message("tidygate says: this feature is in early development and may undergo changes or contain bugs.")
+    
+    # Fix CRAN NOTES
+    key <- NULL
+    
+    # Create tibble with .key column
+    data <- 
+      custom_plot |>
+      ggplot2::ggplot_build() |>
+      purrr::pluck(1, 1) |>
+      tibble::as_tibble() |>
+      dplyr::select(key) |>
+      dplyr::rename(.key = "key") |>
+      dplyr::mutate(.selected = FALSE)
+      
+    # Create environment and save input variables
+    tidygate_env <<- rlang::env()
+    tidygate_env$input_data <- data
+    tidygate_env$custom_plot <- custom_plot
+    
+    # Launch Shiny App
+    app <- shiny::shinyApp(ui, server)
+    shiny::runApp(app, port = 1234)
+    
+    return(tidygate_env$input_data$.selected)
+  }
 

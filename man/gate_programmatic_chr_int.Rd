@@ -4,7 +4,7 @@
 \alias{gate_programmatic_chr_int}
 \title{Get points within a user drawn gate}
 \usage{
-gate_programmatic_chr_int(.data, .dim1, .dim2, gate_list)
+gate_programmatic_chr_int(.data, .dim1, .dim2, gate_list, ...)
 }
 \arguments{
 \item{.data}{A tibble}
