@@ -7,6 +7,7 @@
 #' @importFrom rlang enquo
 #' @importFrom rlang quo_is_null
 #' @importFrom magrittr "%>%"
+#' @importFrom lifecycle deprecate_warn
 #'
 #' @name gate_chr
 #'
@@ -79,6 +80,7 @@ gate_chr <- function(.dim1,
                      
                      gate_list = NULL,
                      ...) {
+  lifecycle::deprecate_warn("1.0.0", "tidygate::gate_chr()")
   UseMethod("gate_chr")
 }
 
@@ -124,6 +126,8 @@ gate_chr.numeric = 	function(                     .dim1,
 #' 
 #' @name gate_int
 #' 
+#' @importFrom lifecycle deprecate_warn
+#' 
 #' @inheritParams gate_chr
 #' @docType methods
 #' @rdname gate_chr-methods
@@ -141,6 +145,7 @@ gate_int <- function(.dim1,
                      .group_by = NULL,
                      gate_list = NULL,
                      ...) {
+  lifecycle::deprecate_warn("1.0.0", "tidygate::gate_int()")
   UseMethod("gate_int")
 }
 
