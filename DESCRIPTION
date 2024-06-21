@@ -20,11 +20,12 @@ Description: It interactively or programmatically label points within custom gat
     The benefits are (i) in interactive mode you can draw your gates on extensive 'ggplot'-like scatter plots; 
     (ii) you can draw multiple gates; and (iii) you can save your gates and apply the programmatically.
 License: GPL-3
-Depends:
-    R (>= 3.6.0)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
+Depends:
+    R (>= 3.6.0),
+    dplyr
 Imports: 
     utils,
     graphics,
@@ -32,7 +33,6 @@ Imports:
     scales,
     magrittr,
     tibble,
-    dplyr,
     purrr,
     rlang,
     tidyr,

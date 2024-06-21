@@ -20,9 +20,6 @@ then be gated using multiple lasso selections.
 }
 \examples{
 \dontrun{
-library(dplyr)
-library(ggplot2)
-
 scaled_plot <- 
   mtcars |> 
   mutate(.key = row_number()) |>

@@ -188,51 +188,115 @@ gate_int.numeric = 	function(  .dim1,
 #' @importFrom tibble tibble
 #' @importFrom dplyr mutate
 #' @importFrom rlang env
+#' @importFrom rlang quo_is_null
+#' @importFrom rlang quo_is_symbol
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes
+#' @importFrom ggplot2 scale_colour_manual
+#' @importFrom ggplot2 scale_shape_manual
+#' @importFrom ggplot2 scale_alpha_manual
+#' @importFrom ggplot2 scale_shape_manual
+#' @importFrom ggplot2 guides
 #' @importFrom ggplot2 theme_bw
 #' @importFrom ggplot2 theme
 #' @importFrom shiny shinyApp
 #' @importFrom shiny runApp
 #' 
-#' @param x_column A column symbol representing the X dimension. 
-#' @param y_column A column symbol representing the Y dimension.
-#' @param colour_column A column symbol representing the point colour.
-#' @param shape_column A column symbol representing the point shape. Must be a factor.
-#' @param alpha A numeric value representing the opacity of points, with 1 being completely opaque 
-#' and 0 being completely transparent.
-#' @param size A numeric value representing the size of points.
+#' @param x A vector representing the X dimension. 
+#' @param y A vector representing the Y dimension.
+#' @param colour A vector representing the point colour. Or, a colour code string compatible
+#' with ggplot2.
+#' @param shape A vector representing the point shape, coercible to a factor. Or, a shape code 
+#' numeric compatible with ggplot2 (0-127)
+#' @param alpha A vector representing the point alpha, coercible to a factor. Or, an alpha numeric 
+#' compatible with ggplot2 (0-1). 
+#' @param size A vector representing the point size, coercible to a factor. Or, a size numeric 
+#' compatible with ggplot2 (0-20).
 #' @return A vector of lists, recording the gates each X and Y coordinate pair is within. A record 
 #' of the selected points is stored in `tidygate_env$select_data` and a record of the gates is 
 #' stored in `tidygate_env$brush_data`.
 #' @examples
 #' \dontrun{
-#' library(dplyr)
-#' 
 #' mtcars |>
-#'   dplyr::mutate(selected = gate_simple(x_column = mpg, y_column = wt, shape_column = factor(am)))
-#'   print()
+#'   mutate(selected = gate_interactive(x = mpg, y = wt, shape = am))
 #'}
 #' @export
-gate_simple <-
+gate_interactive <-
   
-  function(x_column, y_column, colour_column = NULL, shape_column = NULL, alpha = 1, size = 2) {
+  function(x, y, colour = NULL, shape = NULL, alpha = 1, size = 2) {
     
     message("tidygate says: this feature is in early development and may undergo changes or contain bugs.")
+    
+    x_name <- quo_name(enquo(x))
+    y_name <- quo_name(enquo(y))
+    colour_quo <- enquo(colour)
+    shape_quo <- enquo(shape)
+    alpha_quo <- enquo(alpha)
+    size_quo <- enquo(size)
     
     # Fix CRAN note
     .key <- NULL
     
-    # Add needed columns to input data
-    data <- 
-      tibble::tibble(x_column, y_column) |>
+    # Create basic input data tibble
+    data <-
+      tibble::tibble(x, y) |>
       dplyr::mutate(.key = dplyr::row_number())
-    
+
+    # Create basic plot
     plot <-
       data |>
-      ggplot2::ggplot(ggplot2::aes(x = x_column, y = y_column, colour = colour_column, shape = shape_column, key = .key)) +
-      ggplot2::geom_point(alpha = alpha, size = size) +
-      ggplot2::theme_bw()
+      ggplot2::ggplot(ggplot2::aes(x = x, y = y, key = .key)) +
+      ggplot2::geom_point() +
+      ggplot2::labs(x = x_name, y = y_name) +
+      theme_bw()
+    
+    # Add colour 
+    if (!rlang::quo_is_null(colour_quo)) {
+      plot <- plot + ggplot2::aes(colour = !!colour_quo) # Set aesthetic
+      if (!rlang::quo_is_symbol(colour_quo)) { # Set to equal constant if not a column symbol
+        colour_fixed <- rlang::eval_tidy(colour_quo)
+        plot <- 
+          plot + 
+          ggplot2::scale_colour_manual(values = colour_fixed) +
+          ggplot2::guides(colour = FALSE)
+      }
+    }
+    
+    # Add shape 
+    if (!rlang::quo_is_null(shape_quo)) {
+      plot <- plot + ggplot2::aes(shape = as.factor(!!shape_quo))
+      if (!rlang::quo_is_symbol(shape_quo)) {
+        fixed_shape <- rlang::eval_tidy(shape_quo)
+        plot <- 
+          plot + 
+          ggplot2::scale_shape_manual(values = fixed_shape) +
+          ggplot2::guides(shape = FALSE)
+      }
+    }
+    
+    # Add alpha
+    if (!rlang::quo_is_null(alpha_quo)) {
+      plot <- plot + ggplot2::aes(alpha = as.factor(!!alpha_quo))
+      if (!rlang::quo_is_symbol(alpha_quo)) {
+        alpha_fixed <- rlang::eval_tidy(alpha_quo)
+        plot <- 
+          plot + 
+          ggplot2::scale_alpha_manual(values = alpha_fixed) +
+          ggplot2::guides(alpha = FALSE)
+      }
+    }
+    
+    # Add size
+    if (!rlang::quo_is_null(size_quo)) {
+      plot <- plot + ggplot2::aes(size = as.factor(!!size_quo))
+      if (!rlang::quo_is_symbol(size_quo)) {
+        size_fixed <- rlang::eval_tidy(size_quo)
+        plot <- 
+          plot + 
+          ggplot2::scale_size_manual(values = size_fixed) +
+          ggplot2::guides(size = FALSE)
+      }
+    }
     
     # Create environment and save input variables
     tidygate_env <<- rlang::env()
@@ -267,9 +331,6 @@ gate_simple <-
 #' stored in `tidygate_env$brush_data`.
 #' @examples
 #' \dontrun{
-#' library(dplyr)
-#' library(ggplot2)
-#' 
 #' scaled_plot <- 
 #'   mtcars |> 
 #'   mutate(.key = row_number()) |>
@@ -323,20 +384,20 @@ gate_custom <-
 #' @importFrom purrr map
 #' @importFrom purrr when
 #' @importFrom stringr str_split
-#' @param x_column A column symbol representing the X dimension. 
-#' @param y_column A column symbol representing the Y dimension.
-#' @param gates A `data.frame` recording the gate brush data, as output by 
-#' `tidygate_env$brush_data`. The column `x` records X coordinates, the column `y` records Y 
-#' coordinates and the column `.gate` records the gate.  
+#' @param x A column symbol representing the X dimension. 
+#' @param y A column symbol representing the Y dimension.
+#' @param brush_data A `data.frame` of the gate brush data, as saved in `tidygate_env$brush_data`. 
+#' The column `x` records X coordinates, the column `y` records Y coordinates and the column `.gate` 
+#' records the gate number.  
 #' @return A vector of lists, of the gates each X and Y coordinate pair is within. 
 #' @export
 gate_programmatic <-
-  function(x_column, y_column, gates) {
+  function(x, y, brush_data) {
 
     message("tidygate says: this feature is in early development and may undergo changes or contain bugs.")
     
     data <- 
-      data.frame(x_column, y_column) |>
+      data.frame(x, y) |>
       as.matrix()
     
     # Loop over gates

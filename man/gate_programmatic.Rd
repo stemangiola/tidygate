@@ -4,12 +4,12 @@
 \alias{gate_programmatic}
 \title{Gate data with pre-recorded lasso selection coordinates}
 \usage{
-gate_programmatic(x_column, y_column, gates)
+gate_programmatic(x, y, gates)
 }
 \arguments{
-\item{x_column}{A column symbol representing the X dimension.}
+\item{x}{A column symbol representing the X dimension.}
 
-\item{y_column}{A column symbol representing the Y dimension.}
+\item{y}{A column symbol representing the Y dimension.}
 
 \item{gates}{A `data.frame` recording the gate brush data, as output by 
 `tidygate_env$brush_data`. The column `x` records X coordinates, the column `y` records Y 
