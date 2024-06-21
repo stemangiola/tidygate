@@ -182,8 +182,9 @@ gate_int.numeric = 	function(  .dim1,
 
 #' Interactively gate data with a simple scatter plot
 #' 
-#' Launch an interactive scatter plot, based on the input parameters. Points on this plot can
-#' then be gated using multiple lasso selections.
+#' Create an interactive scatter plot based on user-defined X and Y coordinates. Colour, shape, size 
+#' and alpha can be defined as constant values, or can be controlled by values in a specified 
+#' column. 
 #' 
 #' @importFrom tibble tibble
 #' @importFrom dplyr mutate
@@ -224,9 +225,7 @@ gate_int.numeric = 	function(  .dim1,
 gate_interactive <-
   
   function(x, y, colour = NULL, shape = NULL, alpha = 1, size = 2) {
-    
-    message("tidygate says: this feature is in early development and may undergo changes or contain bugs.")
-    
+
     x_name <- quo_name(enquo(x))
     y_name <- quo_name(enquo(y))
     colour_quo <- enquo(colour)
@@ -311,7 +310,7 @@ gate_interactive <-
     return(gate_vector)
   }
 
-#' Gate data with pre-recorded lasso selection coordinates
+#' Programmatically gate data with pre-recorded lasso selection coordinates
 #'
 #' A helpful way to repeat previous interactive lasso selections to enable reproducibility. 
 #' Programmatic gating is based on the package [gatepoints](https://github.com/wjawaid/gatepoints)
@@ -319,9 +318,10 @@ gate_interactive <-
 #'
 #' @importFrom purrr map
 #' @importFrom purrr when
+#' @importFrom purrr pluck
 #' @importFrom stringr str_split
-#' @param x A column symbol representing the X dimension. 
-#' @param y A column symbol representing the Y dimension.
+#' @param x A vector representing the X dimension. 
+#' @param y A vector representing the Y dimension.
 #' @param brush_data A `data.frame` of the gate brush data, as saved in `tidygate_env$brush_data`. 
 #' The column `x` records X coordinates, the column `y` records Y coordinates and the column `.gate` 
 #' records the gate number.  
@@ -330,16 +330,14 @@ gate_interactive <-
 gate_programmatic <-
   function(x, y, brush_data) {
 
-    message("tidygate says: this feature is in early development and may undergo changes or contain bugs.")
-    
     data <- 
       data.frame(x, y) |>
       as.matrix()
     
     # Loop over gates
-    gates |>
+    brush_data |>
       data.frame() |>
-      split(gates$.gate) |>
+      split(brush_data$.gate) |>
       purrr::map(
         ~ .x %>%
           purrr::when("data.frame" %in% class(.) ~ .as_matrix(.), ~ (.)) %>%
@@ -358,7 +356,7 @@ gate_programmatic <-
         result <-
           .x |> 
           stringr::str_split(",") |> 
-          pluck(1) |>
+          purrr::pluck(1) |>
           as.numeric()
         
         if (length(result) == 1) {
@@ -372,5 +370,3 @@ gate_programmatic <-
         }
       })
   }
-
-

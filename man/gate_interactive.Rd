@@ -29,8 +29,9 @@ of the selected points is stored in `tidygate_env$select_data` and a record of t
 stored in `tidygate_env$brush_data`.
 }
 \description{
-Launch an interactive scatter plot, based on the input parameters. Points on this plot can
-then be gated using multiple lasso selections.
+Create an interactive scatter plot based on user-defined X and Y coordinates. Colour, shape, size 
+and alpha can be defined as constant values, or can be controlled by values in a specified 
+column.
 }
 \examples{
 \dontrun{
