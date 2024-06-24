@@ -24,7 +24,7 @@ compatible with ggplot2 (0-1).}
 compatible with ggplot2 (0-20).}
 }
 \value{
-A vector of lists, recording the gates each X and Y coordinate pair is within. A record 
+A vector of strings, of the gates each X and Y coordinate pair is within. A record 
 of the selected points is stored in `tidygate_env$select_data` and a record of the gates is 
 stored in `tidygate_env$brush_data`.
 }

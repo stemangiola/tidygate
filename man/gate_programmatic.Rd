@@ -16,7 +16,7 @@ The column `x` records X coordinates, the column `y` records Y coordinates and t
 records the gate number.}
 }
 \value{
-A vector of lists, of the gates each X and Y coordinate pair is within.
+A vector of strings, of the gates each X and Y coordinate pair is within.
 }
 \description{
 A helpful way to repeat previous interactive lasso selections to enable reproducibility. 

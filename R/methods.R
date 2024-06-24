@@ -196,6 +196,7 @@ gate_int.numeric = 	function(  .dim1,
 #' @importFrom rlang env
 #' @importFrom rlang quo_is_null
 #' @importFrom rlang quo_is_symbol
+#' @importFrom purrr map_chr
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes
 #' @importFrom ggplot2 scale_colour_manual
@@ -218,7 +219,7 @@ gate_int.numeric = 	function(  .dim1,
 #' compatible with ggplot2 (0-1). 
 #' @param size A vector representing the point size, coercible to a factor. Or, a size numeric 
 #' compatible with ggplot2 (0-20).
-#' @return A vector of lists, recording the gates each X and Y coordinate pair is within. A record 
+#' @return A vector of strings, of the gates each X and Y coordinate pair is within. A record 
 #' of the selected points is stored in `tidygate_env$select_data` and a record of the gates is 
 #' stored in `tidygate_env$brush_data`.
 #' @examples
@@ -310,7 +311,9 @@ gate_interactive <-
     
     # Launch Shiny App
     app <- shiny::shinyApp(ui, server)
-    gate_vector <- shiny::runApp(app, port = 1234)
+    gate_vector <- 
+      shiny::runApp(app, port = 1234) |> 
+      purrr::map_chr(~ .x |> paste(collapse = ","))
     
     return(gate_vector)
   }
@@ -324,23 +327,24 @@ gate_interactive <-
 #' @importFrom purrr map
 #' @importFrom purrr when
 #' @importFrom purrr pluck
-#' @importFrom stringr str_split
 #' @param x A vector representing the X dimension. 
 #' @param y A vector representing the Y dimension.
 #' @param brush_data A `data.frame` of the gate brush data, as saved in `tidygate_env$brush_data`. 
 #' The column `x` records X coordinates, the column `y` records Y coordinates and the column `.gate` 
 #' records the gate number.  
-#' @return A vector of lists, of the gates each X and Y coordinate pair is within. 
+#' @return A vector of strings, of the gates each X and Y coordinate pair is within. 
 #' @export
 gate_programmatic <-
   function(x, y, brush_data) {
 
+    # Format input
     data <- 
       data.frame(x, y) |>
       as.matrix()
     
     # Loop over gates
-    brush_data |>
+    gate_vector <-
+      brush_data |>
       data.frame() |>
       split(brush_data$.gate) |>
       purrr::map(
@@ -354,24 +358,10 @@ gate_programmatic <-
           purrr::when(!is.null(.) ~ (.) %>% add_attr(.x, "gate"))
       ) |>
       
-      parse_gate_list(data) |>
+      parse_gate_list(data)
+      
+    # Format output
+    gate_vector <- ifelse(gate_vector == "0", "", gate_vector)
     
-      # Reformat output as vector of numeric lists with NULL for 0 gate
-      map(~ {
-        result <-
-          .x |> 
-          stringr::str_split(",") |> 
-          purrr::pluck(1) |>
-          as.numeric()
-        
-        if (length(result) == 1) {
-          if(result == 0){
-            NULL
-          } else{
-            result
-          }
-        } else{
-          result
-        }
-      })
+    return(gate_vector)
   }

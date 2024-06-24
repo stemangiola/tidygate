@@ -38,12 +38,13 @@ install.package("tidygate")
 
 tidygate provides two user-facing functions: `gate_interactive` and
 `gate_programmatic`. The following examples will make use of these
-functions, dplyr’s `mutate` and the inbuilt `mtcars` dataset.
+functions, the tidyverse and the inbuilt `mtcars` dataset.
 
 ``` r
 library(tidygate)
 library(dplyr)
 library(ggplot2)
+library(stringr)
 
 mtcars
 ```
@@ -89,7 +90,7 @@ specified column.
 
 Once the plot has been created, multiple lasso selection gates can be
 drawn with the mouse. When you have finished your selection,
-`gate_interactive` will return a vector of lists, recording the gates
+`gate_interactive` will return a vector of strings, recording the gates
 each X and Y coordinate pair is within.
 
 ``` r
@@ -100,15 +101,14 @@ mtcars_gated <-
 
 ![](man/figures/demo_gate.gif)
 
-To select points which appear within any gates, the `lengths()` function
-can be used. To select points which appear within a specific gate,
-`map_lgl()` can be used with `any()` to check each value in the gate
-results column for each point.
+To select points which appear within any gates, filter for non-empty
+strings. To select points which appear within a specific gate, string
+pattern matchings can be used.
 
 ``` r
 # Select points within any gate
 mtcars_gated |> 
-  filter(lengths(gated_interactively) > 0)
+  filter(gated_interactively != "")
 ```
 
     ##                    mpg cyl  disp  hp drat    wt  qsec vs am gear carb
@@ -131,27 +131,27 @@ mtcars_gated |>
     ## Maserati Bora     15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
     ##                   gated_interactively
     ## Hornet 4 Drive                      2
-    ## Hornet Sportabout                1, 2
-    ## Valiant                          1, 2
+    ## Hornet Sportabout                 1,2
+    ## Valiant                           1,2
     ## Duster 360                          1
     ## Merc 240D                           2
     ## Merc 230                            2
-    ## Merc 280                         1, 2
-    ## Merc 280C                        1, 2
+    ## Merc 280                          1,2
+    ## Merc 280C                         1,2
     ## Merc 450SE                          1
-    ## Merc 450SL                       1, 2
+    ## Merc 450SL                        1,2
     ## Merc 450SLC                         1
     ## Dodge Challenger                    1
     ## AMC Javelin                         1
     ## Camaro Z28                          1
-    ## Pontiac Firebird                 1, 2
+    ## Pontiac Firebird                  1,2
     ## Ford Pantera L                      1
     ## Maserati Bora                       1
 
 ``` r
 # Select cells within gate 2
 mtcars_gated |>
-  filter(purrr::map_lgl(gated_interactively, ~ any(2 %in% .x)))
+  filter(str_detect(gated_interactively, "2"))
 ```
 
     ##                    mpg cyl  disp  hp drat    wt  qsec vs am gear carb
@@ -166,14 +166,14 @@ mtcars_gated |>
     ## Pontiac Firebird  19.2   8 400.0 175 3.08 3.845 17.05  0  0    3    2
     ##                   gated_interactively
     ## Hornet 4 Drive                      2
-    ## Hornet Sportabout                1, 2
-    ## Valiant                          1, 2
+    ## Hornet Sportabout                 1,2
+    ## Valiant                           1,2
     ## Merc 240D                           2
     ## Merc 230                            2
-    ## Merc 280                         1, 2
-    ## Merc 280C                        1, 2
-    ## Merc 450SL                       1, 2
-    ## Pontiac Firebird                 1, 2
+    ## Merc 280                          1,2
+    ## Merc 280C                         1,2
+    ## Merc 450SL                        1,2
+    ## Pontiac Firebird                  1,2
 
 Details of the gated points and lasso brush path are stored within the
 `tidygate_env` environment. These variables are overwritten each time
@@ -225,7 +225,7 @@ mtcars_gated <-
   ))
 
 mtcars_gated |> 
-  filter(lengths(gated_programmatically) > 0)
+  filter(gated_programmatically != "")
 ```
 
     ##                    mpg cyl  disp  hp drat    wt  qsec vs am gear carb
@@ -248,19 +248,19 @@ mtcars_gated |>
     ## Maserati Bora     15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
     ##                   gated_interactively gated_programmatically
     ## Hornet 4 Drive                      2                      2
-    ## Hornet Sportabout                1, 2                   1, 2
-    ## Valiant                          1, 2                   1, 2
+    ## Hornet Sportabout                 1,2                    1,2
+    ## Valiant                           1,2                    1,2
     ## Duster 360                          1                      1
     ## Merc 240D                           2                      2
     ## Merc 230                            2                      2
-    ## Merc 280                         1, 2                   1, 2
-    ## Merc 280C                        1, 2                   1, 2
+    ## Merc 280                          1,2                    1,2
+    ## Merc 280C                         1,2                    1,2
     ## Merc 450SE                          1                      1
-    ## Merc 450SL                       1, 2                   1, 2
+    ## Merc 450SL                        1,2                    1,2
     ## Merc 450SLC                         1                      1
     ## Dodge Challenger                    1                      1
     ## AMC Javelin                         1                      1
     ## Camaro Z28                          1                      1
-    ## Pontiac Firebird                 1, 2                   1, 2
+    ## Pontiac Firebird                  1,2                    1,2
     ## Ford Pantera L                      1                      1
     ## Maserati Bora                       1                      1

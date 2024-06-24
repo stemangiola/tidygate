@@ -11,13 +11,15 @@ output: github_document
   [![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 <!-- badges: end -->
 
-```{r, echo=FALSE, include=FALSE, }
+```{r setup, echo=FALSE, include=FALSE}
 library(knitr)
-knitr::opts_chunk$set(cache = TRUE, warning = FALSE,
-                      message = FALSE, cache.lazy = FALSE)
-
-library(dplyr)
 library(tidygate)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+
+
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, cache.lazy = FALSE)
 ```
 
 ## Introduction 
@@ -42,19 +44,20 @@ install.package("tidygate")
 ## Example usage 
 
 tidygate provides two user-facing functions: `gate_interactive` and `gate_programmatic`.
-The following examples will make use of these functions, dplyr's `mutate` and the inbuilt `mtcars` dataset. 
+The following examples will make use of these functions, the tidyverse and the inbuilt `mtcars` dataset. 
 
 ```{r}
 library(tidygate)
 library(dplyr)
 library(ggplot2)
+library(stringr)
 
 mtcars
 ```
 
 `gate_interactive` creates an interactive scatter plot based on user-defined X and Y coordinates. Colour, shape, size and alpha can be defined as constant values, or can be controlled by values in a specified column. 
 
-Once the plot has been created, multiple lasso selection gates can be drawn with the mouse. When you have finished your selection, `gate_interactive` will return a vector of lists, recording the gates each X and Y coordinate pair is within.
+Once the plot has been created, multiple lasso selection gates can be drawn with the mouse. When you have finished your selection, `gate_interactive` will return a vector of strings, recording the gates each X and Y coordinate pair is within.
 
 ```{r eval=FALSE}
 mtcars_gated <- 
@@ -80,16 +83,16 @@ mtcars_gated <-
   ))
 ```
 
-To select points which appear within any gates, the `lengths()` function can be used. To select points which appear within a specific gate, `map_lgl()` can be used with `any()` to check each value in the gate results column for each point. 
+To select points which appear within any gates, filter for non-empty strings. To select points which appear within a specific gate, string pattern matchings can be used.
 
 ```{r}
 # Select points within any gate
 mtcars_gated |> 
-  filter(lengths(gated_interactively) > 0)
+  filter(gated_interactively != "")
 
 # Select cells within gate 2
 mtcars_gated |>
-  filter(purrr::map_lgl(gated_interactively, ~ any(2 %in% .x)))
+  filter(str_detect(gated_interactively, "2"))
 ```
 
 Details of the gated points and lasso brush path are stored within the `tidygate_env` environment. These variables are overwritten each time interactive gating is run, so save them right away if you would like to access them later.  
@@ -114,5 +117,5 @@ mtcars_gated <-
   ))
 
 mtcars_gated |> 
-  filter(lengths(gated_programmatically) > 0)
+  filter(gated_programmatically != "")
 ```

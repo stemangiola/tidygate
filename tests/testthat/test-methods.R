@@ -89,8 +89,8 @@ test_that("gate_programmatic", {
   
   expect_equal(
     mtcars |>
-      mutate(gate_programatic = gate_programmatic(mpg, wt, brush_data = demo_brush_data)) |>
-      filter(lengths(gate_programatic) > 0) |>
+      mutate(gated_programatically = gate_programmatic(mpg, wt, brush_data = demo_brush_data)) |>
+      filter(gated_programatically != "") |>
       nrow(),
     17
   )

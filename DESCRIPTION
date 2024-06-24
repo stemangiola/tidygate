@@ -18,14 +18,13 @@ Maintainer: Stefano Mangiola <mangiolastefano@gmail.com>
 Description: 
   tidygate allows you to interactively gate points on a scatter plot. Interactively drawn gates are 
   recorded and can be applied programmatically to reproduce results exactly. Programmatic gating is 
-  based on the package gatepoints by Wajid Jawaid (who is also author of this package). 
+  based on the package gatepoints by Wajid Jawaid (who is also an author of this package). 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
 Depends:
-    R (>= 3.6.0),
-    dplyr
+    R (>= 3.6.0)
 Imports: 
     utils,
     graphics,
@@ -33,6 +32,7 @@ Imports:
     scales,
     magrittr,
     tibble,
+    dplyr,
     purrr,
     rlang,
     tidyr,
