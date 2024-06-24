@@ -30,7 +30,7 @@
 ##' }
 ##' @importFrom graphics locator lines points
 fhs <- function(data, mark = TRUE, names = TRUE, ...) {
-  lifecycle::deprecate_warn("1.0.0", "tidygate::fhs()")
+  lifecycle::deprecate_warn("1.0.0", "tidygate::fhs()", with = "tidygate::gate_interactive()")
   
   cat("Mark region on plot.\n")
   if (!(is.data.frame(data) || is.matrix(data))) stop("data must be a data frame or matrix")

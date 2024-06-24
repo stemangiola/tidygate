@@ -80,7 +80,7 @@ gate_chr <- function(.dim1,
                      
                      gate_list = NULL,
                      ...) {
-  lifecycle::deprecate_warn("1.0.0", "tidygate::gate_chr()")
+  lifecycle::deprecate_warn("1.0.0", "tidygate::gate_chr()", with = "tidygate::gate_interactive()")
   UseMethod("gate_chr")
 }
 
@@ -145,7 +145,7 @@ gate_int <- function(.dim1,
                      .group_by = NULL,
                      gate_list = NULL,
                      ...) {
-  lifecycle::deprecate_warn("1.0.0", "tidygate::gate_int()")
+  lifecycle::deprecate_warn("1.0.0", "tidygate::gate_int()", with = "tidygate::gate_interactive()")
   UseMethod("gate_int")
 }
 
