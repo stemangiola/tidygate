@@ -82,3 +82,16 @@ test_that("gate grouping", {
 #     )
 #   )
 # })
+
+test_that("gate_programmatic", {
+  
+  data("demo_brush_data", package = "tidygate")
+  
+  expect_equal(
+    mtcars |>
+      mutate(gated_programatically = gate_programmatic(mpg, wt, brush_data = demo_brush_data)) |>
+      filter(gated_programatically != "") |>
+      nrow(),
+    17
+  )
+})
