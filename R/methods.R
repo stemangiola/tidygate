@@ -222,7 +222,7 @@ gate_int.numeric = 	function(  .dim1,
 #' @param size A vector representing the point size, coercible to a factor of 6 or less levels. Or, 
 #' a ggplot2 size numeric ranging from 0 to 20.
 #' @return A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
-#' drawn interactively, is stored as `tidygate_env$gates`.
+#' drawn interactively, they are temporarily saved to `tidygate_env$gates`
 #' @examples
 #' \dontrun{
 #' mtcars |>
@@ -367,12 +367,18 @@ gate_interactive <-
     tidygate_env$input_plot <- plot
     tidygate_env$event_count <- 1
     
+    # Set RStudio Viewer as browser if in RStudio
+    if (.Platform$GUI == "Rstudio") {
+      options(shiny.launch.browser = .rs.invokeShinyPaneViewer)
+    }
+    
     # Launch Shiny App
     app <- shiny::shinyApp(ui, server)
     gate_vector <- 
       shiny::runApp(app, port = 1234) |> 
       purrr::map_chr(~ .x |> paste(collapse = ","))
     
+    message("tidygate says: interactively drawn gates are temporarily saved to tidygate_env$gates")
     return(gate_vector)
   }
 
@@ -448,7 +454,7 @@ gate_programmatic <-
 #' `tidygate_env$gates`. The column `x` records X coordinates, the column `y` records Y coordinates and the column `.gate` 
 #' records the gate number. When this argument is supplied, gates will be drawn programmatically.
 #' @return A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
-#' drawn interactively, gates are saved as `tidygate_env$gates`.
+#' drawn interactively, they are temporarily saved to `tidygate_env$gates`.
 #' @examples 
 #' \dontrun{
 #' # Gate points interactively
