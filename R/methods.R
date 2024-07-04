@@ -312,7 +312,7 @@ gate_interactive <-
         plot <- 
           plot + 
           ggplot2::scale_colour_manual(values = colour_fixed) +
-          ggplot2::guides(colour = FALSE)
+          ggplot2::guides(colour = "none")
       }
     }
     
@@ -327,7 +327,7 @@ gate_interactive <-
         plot <- 
           plot + 
           ggplot2::scale_shape_manual(values = fixed_shape) +
-          ggplot2::guides(shape = FALSE)
+          ggplot2::guides(shape = "none")
       }
     }
     
@@ -342,7 +342,7 @@ gate_interactive <-
         plot <- 
           plot + 
           ggplot2::scale_alpha_manual(values = alpha_fixed) +
-          ggplot2::guides(alpha = FALSE)
+          ggplot2::guides(alpha = "none")
       }
     }
     
@@ -357,7 +357,7 @@ gate_interactive <-
         plot <- 
           plot + 
           ggplot2::scale_size_manual(values = size_fixed) +
-          ggplot2::guides(size = FALSE)
+          ggplot2::guides(size = "none")
       }
     }
     
