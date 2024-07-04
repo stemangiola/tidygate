@@ -215,12 +215,12 @@ gate_int.numeric = 	function(  .dim1,
 #' @param y A vector representing the Y dimension.
 #' @param colour A vector representing the point colour. Or, a colour code string compatible
 #' with ggplot2.
-#' @param shape A vector representing the point shape, coercible to a factor. Or, a shape code 
-#' numeric compatible with ggplot2 (0-127)
-#' @param alpha A vector representing the point alpha, coercible to a factor. Or, an alpha numeric 
-#' compatible with ggplot2 (0-1). 
-#' @param size A vector representing the point size, coercible to a factor. Or, a size numeric 
-#' compatible with ggplot2 (0-20).
+#' @param shape A vector representing the point shape, coercible to a factor of 6 or less levels. 
+#' Or, a ggplot2 shape numeric ranging from 0 to 127. 
+#' @param alpha A vector representing the point alpha, coercible to a factor of 6 or less levels. 
+#' Or, an ggplot2 alpha numeric ranging from 0 to 1. 
+#' @param size A vector representing the point size, coercible to a factor of 6 or less levels. Or, 
+#' a ggplot2 size numeric ranging from 0 to 20.
 #' @return A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
 #' drawn interactively, is stored as `tidygate_env$gates`.
 #' @examples
@@ -229,9 +229,60 @@ gate_int.numeric = 	function(  .dim1,
 #'   mutate(selected = gate_interactive(x = mpg, y = wt, shape = am))
 #'}
 gate_interactive <-
-  
   function(x, y, colour = NULL, shape = NULL, alpha = 1, size = 2) {
+    
+    # Check input values are valid
+    if (!rlang::quo_is_null(shape)) {
+      if (rlang::quo_is_symbol(shape)) {
+        shape_factor_length <- 
+          shape |>
+          rlang::eval_tidy() |>
+          as.factor() |>
+          levels() |>
+          length()
+        if (shape_factor_length > 6) {
+          stop("tidygate says: shape factor level count exceeds the limit of 6") 
+        } 
+      } else {
+        if (rlang::eval_tidy(shape) < 0 | rlang::eval_tidy(shape) > 127)
+          stop("tidygate says: shape numeric outside of the range 0 to 127") 
+        }      
+      }
 
+    if (!rlang::quo_is_null(alpha)) {
+      if (rlang::quo_is_symbol(alpha)) {
+        alpha_factor_length <- 
+          alpha |>
+          rlang::eval_tidy() |>
+          as.factor() |>
+          levels() |>
+          length()
+        if (alpha_factor_length > 6) {
+          stop("tidygate says: alpha factor level count exceeds the limit of 6") 
+        }
+      } else {
+        if (rlang::eval_tidy(alpha) < 0 | rlang::eval_tidy(alpha) > 1)
+          stop("tidygate says: alpha numeric outside of the range 0 to 1") 
+        }      
+      }
+
+    if (!rlang::quo_is_null(size)) {
+      if (rlang::quo_is_symbol(size)) {
+        size_factor_length <- 
+          size |>
+          rlang::eval_tidy() |>
+          as.factor() |>
+          levels() |>
+          length()
+        if (size_factor_length > 6) {
+          stop("tidygate says: size factor level count exceeds the limit of 6") 
+        }
+      } else {
+        if (rlang::eval_tidy(size) < 0 | rlang::eval_tidy(size) > 20)
+          stop("tidygate says: size numeric outside of the range 0 to 20") 
+        }      
+    }
+    
     # Fix CRAN note
     .key <- NULL
     
@@ -387,12 +438,12 @@ gate_programmatic <-
 #' @param y A vector representing the Y dimension.
 #' @param colour A vector representing the point colour. Or, a colour code string compatible
 #' with ggplot2.
-#' @param shape A vector representing the point shape, coercible to a factor. Or, a shape code 
-#' numeric compatible with ggplot2 (0-127)
-#' @param alpha A vector representing the point alpha, coercible to a factor. Or, an alpha numeric 
-#' compatible with ggplot2 (0-1). 
-#' @param size A vector representing the point size, coercible to a factor. Or, a size numeric 
-#' compatible with ggplot2 (0-20).
+#' @param shape A vector representing the point shape, coercible to a factor of 6 or less levels. 
+#' Or, a ggplot2 shape numeric ranging from 0 to 127. 
+#' @param alpha A vector representing the point alpha, coercible to a factor of 6 or less levels. 
+#' Or, an ggplot2 alpha numeric ranging from 0 to 1. 
+#' @param size A vector representing the point size, coercible to a factor of 6 or less levels. Or, 
+#' a ggplot2 size numeric ranging from 0 to 20.
 #' @param programmatic_gates A `data.frame` of the gate brush data, as saved in 
 #' `tidygate_env$gates`. The column `x` records X coordinates, the column `y` records Y coordinates and the column `.gate` 
 #' records the gate number. When this argument is supplied, gates will be drawn programmatically.
