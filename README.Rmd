@@ -86,7 +86,7 @@ To select points which appear within any gates, filter for non-empty strings. To
 mtcars_gated |> 
   filter(gated_interactively != "")
 
-# Select cells within gate 2
+# Select points within gate 2
 mtcars_gated |>
   filter(str_detect(gated_interactively, "2"))
 ```

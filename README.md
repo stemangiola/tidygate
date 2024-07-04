@@ -36,15 +36,15 @@ install.package("tidygate")
 
 ## Example usage
 
-tidygate provides a single user-facing functions: `gate`. The following
+tidygate provides a single user-facing function: `gate`. The following
 examples make use of this function, three packages from the tidyverse
 and the inbuilt `mtcars` dataset.
 
 ``` r
-library(tidygate)
 library(dplyr)
 library(ggplot2)
 library(stringr)
+library(tidygate)
 
 mtcars
 ```
@@ -88,10 +88,10 @@ user-defined X and Y coordinates. Colour, shape, size and alpha can be
 defined as constant values, or can be controlled by values in a
 specified column.
 
-Once the plot has been created, multiple lasso selection gates can be
-drawn with the mouse. When you have finished your selection, click
-continue. `gate` will then return a vector of strings, recording the
-gates each X and Y coordinate pair is within.
+Once the plot has been created, multiple gates can be drawn with the
+mouse. When you have finished, click continue. `gate` will then return a
+vector of strings, recording the gates each X and Y coordinate pair is
+within.
 
 ``` r
 mtcars_gated <- 
@@ -103,7 +103,7 @@ mtcars_gated <-
 
 To select points which appear within any gates, filter for non-empty
 strings. To select points which appear within a specific gate, string
-pattern matchings can be used.
+pattern matching can be used.
 
 ``` r
 # Select points within any gate
@@ -176,7 +176,7 @@ mtcars_gated |>
     ## Pontiac Firebird                  1,2
 
 Details of the interactively drawn gates are saved to
-`tidygate_env$gates` This variable is overwritten each time interactive
+`tidygate_env$gates`. This variable is overwritten each time interactive
 gates are drawn, so save it right away if you would like to access it
 later.
 
