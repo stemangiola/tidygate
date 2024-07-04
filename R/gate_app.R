@@ -115,14 +115,13 @@ server <- function(input, output, session) {
   shiny::observeEvent(input$continue_button, {
 
     # Save supplementary data
-    tidygate_env$select_data <- select_data
-    tidygate_env$brush_data <- brush_data
+    tidygate_env$gates <- brush_data
     
     # Return vector of gate values
     shiny::stopApp({
       tidygate_env$input_data |>
         dplyr::left_join(
-          tidygate_env$select_data |>
+          select_data |>
             dplyr::mutate(key = as.integer(key)) |>
             dplyr::group_by(key) |>
             dplyr::summarise(.gate = list(.gate)),

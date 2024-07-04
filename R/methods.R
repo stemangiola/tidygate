@@ -196,6 +196,8 @@ gate_int.numeric = 	function(  .dim1,
 #' @importFrom rlang env
 #' @importFrom rlang quo_is_null
 #' @importFrom rlang quo_is_symbol
+#' @importFrom rlang quo_name
+#' @importFrom rlang eval_tidy
 #' @importFrom purrr map_chr
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes
@@ -219,47 +221,43 @@ gate_int.numeric = 	function(  .dim1,
 #' compatible with ggplot2 (0-1). 
 #' @param size A vector representing the point size, coercible to a factor. Or, a size numeric 
 #' compatible with ggplot2 (0-20).
-#' @return A vector of strings, of the gates each X and Y coordinate pair is within. A record 
-#' of the selected points is stored in `tidygate_env$select_data` and a record of the gates is 
-#' stored in `tidygate_env$brush_data`.
+#' @return A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
+#' drawn interactively, is stored as `tidygate_env$gates`.
 #' @examples
 #' \dontrun{
 #' mtcars |>
 #'   mutate(selected = gate_interactive(x = mpg, y = wt, shape = am))
 #'}
-#' @export
 gate_interactive <-
   
   function(x, y, colour = NULL, shape = NULL, alpha = 1, size = 2) {
 
-    x_name <- quo_name(enquo(x))
-    y_name <- quo_name(enquo(y))
-    colour_quo <- enquo(colour)
-    shape_quo <- enquo(shape)
-    alpha_quo <- enquo(alpha)
-    size_quo <- enquo(size)
-    
     # Fix CRAN note
     .key <- NULL
     
     # Create basic input data tibble
     data <-
-      tibble::tibble(x, y) |>
+      tibble::tibble(x = rlang::eval_tidy(x), y = rlang::eval_tidy(y)) |>
       dplyr::mutate(.key = dplyr::row_number())
-
+  
     # Create basic plot
     plot <-
       data |>
       ggplot2::ggplot(ggplot2::aes(x = x, y = y, key = .key)) +
       ggplot2::geom_point() +
-      ggplot2::labs(x = x_name, y = y_name) +
+      ggplot2::labs(x = rlang::quo_name(x), y = rlang::quo_name(y)) +
       theme_bw()
-    
+
     # Add colour 
-    if (!rlang::quo_is_null(colour_quo)) {
-      plot <- plot + ggplot2::aes(colour = !!colour_quo) # Set aesthetic
-      if (!rlang::quo_is_symbol(colour_quo)) { # Set to equal constant if not a column symbol
-        colour_fixed <- rlang::eval_tidy(colour_quo)
+    # Set colour to equal column value if provided
+    if (!rlang::quo_is_null(colour)) {
+      plot <- 
+        plot + 
+        ggplot2::aes(colour = !!colour)
+      
+      # Set to equal constant if not a column symbol and remove legend
+      if (!rlang::quo_is_symbol(colour)) { 
+        colour_fixed <- rlang::eval_tidy(colour)
         plot <- 
           plot + 
           ggplot2::scale_colour_manual(values = colour_fixed) +
@@ -268,10 +266,13 @@ gate_interactive <-
     }
     
     # Add shape 
-    if (!rlang::quo_is_null(shape_quo)) {
-      plot <- plot + ggplot2::aes(shape = as.factor(!!shape_quo))
-      if (!rlang::quo_is_symbol(shape_quo)) {
-        fixed_shape <- rlang::eval_tidy(shape_quo)
+    if (!rlang::quo_is_null(shape)) {
+      plot <- 
+        plot + 
+        ggplot2::aes(shape = as.factor(!!shape)) +
+        ggplot2::guides(shape = ggplot2::guide_legend(title = quo_name(shape)))
+      if (!rlang::quo_is_symbol(shape)) {
+        fixed_shape <- rlang::eval_tidy(shape)
         plot <- 
           plot + 
           ggplot2::scale_shape_manual(values = fixed_shape) +
@@ -280,10 +281,13 @@ gate_interactive <-
     }
     
     # Add alpha
-    if (!rlang::quo_is_null(alpha_quo)) {
-      plot <- plot + ggplot2::aes(alpha = as.factor(!!alpha_quo))
-      if (!rlang::quo_is_symbol(alpha_quo)) {
-        alpha_fixed <- rlang::eval_tidy(alpha_quo)
+    if (!rlang::quo_is_null(alpha)) {
+      plot <- 
+        plot + 
+        ggplot2::aes(alpha = as.factor(!!alpha)) +
+        ggplot2::guides(alpha = ggplot2::guide_legend(title = quo_name(alpha)))
+      if (!rlang::quo_is_symbol(alpha)) {
+        alpha_fixed <- rlang::eval_tidy(alpha)
         plot <- 
           plot + 
           ggplot2::scale_alpha_manual(values = alpha_fixed) +
@@ -292,10 +296,13 @@ gate_interactive <-
     }
     
     # Add size
-    if (!rlang::quo_is_null(size_quo)) {
-      plot <- plot + ggplot2::aes(size = as.factor(!!size_quo))
-      if (!rlang::quo_is_symbol(size_quo)) {
-        size_fixed <- rlang::eval_tidy(size_quo)
+    if (!rlang::quo_is_null(size)) {
+      plot <- 
+        plot + 
+        ggplot2::aes(size = as.factor(!!size)) +
+        ggplot2::guides(size = ggplot2::guide_legend(title = quo_name(size)))
+      if (!rlang::quo_is_symbol(size)) {
+        size_fixed <- rlang::eval_tidy(size)
         plot <- 
           plot + 
           ggplot2::scale_size_manual(values = size_fixed) +
@@ -329,13 +336,12 @@ gate_interactive <-
 #' @importFrom purrr pluck
 #' @param x A vector representing the X dimension. 
 #' @param y A vector representing the Y dimension.
-#' @param brush_data A `data.frame` of the gate brush data, as saved in `tidygate_env$brush_data`. 
-#' The column `x` records X coordinates, the column `y` records Y coordinates and the column `.gate` 
-#' records the gate number.  
+#' @param programmatic_gates A `data.frame` of the gate brush data, as saved in 
+#' `tidygate_env$gates`. The column `x` records X coordinates, the column `y` records Y 
+#' coordinates and the column `.gate` records the gate number.  
 #' @return A vector of strings, of the gates each X and Y coordinate pair is within. 
-#' @export
 gate_programmatic <-
-  function(x, y, brush_data) {
+  function(x, y, programmatic_gates) {
 
     # Format input
     data <- 
@@ -344,9 +350,9 @@ gate_programmatic <-
     
     # Loop over gates
     gate_vector <-
-      brush_data |>
+      programmatic_gates |>
       data.frame() |>
-      split(brush_data$.gate) |>
+      split(programmatic_gates$.gate) |>
       purrr::map(
         ~ .x %>%
           purrr::when("data.frame" %in% class(.) ~ .as_matrix(.), ~ (.)) %>%
@@ -365,3 +371,54 @@ gate_programmatic <-
     
     return(gate_vector)
   }
+
+#' Gate points
+#' 
+#' @description
+#' Gate points based on their X and Y coordinates. By default, this function launches an interactive
+#' scatter plot. Colour, shape, size and alpha can be defined as constant values, or can be 
+#' controlled by the values of a specified column. 
+#' 
+#' If previously drawn gates are supplied to the `programmatic_gates` argument, points will be gated 
+#' programmatically. This feature allows the reproduction of previously drawn interactive gates.
+#' Programmatic gating is based on the package gatepoints by Wajid Jawaid. 
+#' 
+#' @param x A vector representing the X dimension. 
+#' @param y A vector representing the Y dimension.
+#' @param colour A vector representing the point colour. Or, a colour code string compatible
+#' with ggplot2.
+#' @param shape A vector representing the point shape, coercible to a factor. Or, a shape code 
+#' numeric compatible with ggplot2 (0-127)
+#' @param alpha A vector representing the point alpha, coercible to a factor. Or, an alpha numeric 
+#' compatible with ggplot2 (0-1). 
+#' @param size A vector representing the point size, coercible to a factor. Or, a size numeric 
+#' compatible with ggplot2 (0-20).
+#' @param programmatic_gates A `data.frame` of the gate brush data, as saved in 
+#' `tidygate_env$gates`. The column `x` records X coordinates, the column `y` records Y coordinates and the column `.gate` 
+#' records the gate number. When this argument is supplied, gates will be drawn programmatically.
+#' @return A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
+#' drawn interactively, gates are saved as `tidygate_env$gates`.
+#' @examples 
+#' \dontrun{
+#' # Gate points interactively
+#' mtcars |>
+#'   mutate(gated_interactively = gate(x = mpg, y = wt, shape = am))
+#' 
+#' # Gate points programmatically
+#' mtcars_gated |>
+#'   mutate(gated_programmatically = gate(
+#'     x = mpg, y = wt, programmatic_gates = tidygate_env$programmatic_gates
+#'   ))
+#'}
+#' @export
+gate <-
+  function(x, y, colour = NULL, shape = NULL, alpha = 1, size = 2, programmatic_gates = NULL) {
+    
+    if (is.null(programmatic_gates)) {
+      gate_interactive(x = enquo(x), y = enquo(y), colour = enquo(colour), shape = enquo(shape), 
+                       alpha = enquo(alpha), size = enquo(size))
+    } else {
+      gate_programmatic(x = x, y = y, programmatic_gates = programmatic_gates)
+    }
+  }
+    

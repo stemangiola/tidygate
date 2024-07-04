@@ -36,9 +36,9 @@ install.package("tidygate")
 
 ## Example usage
 
-tidygate provides two user-facing functions: `gate_interactive` and
-`gate_programmatic`. The following examples will make use of these
-functions, the tidyverse and the inbuilt `mtcars` dataset.
+tidygate provides a single user-facing functions: `gate`. The following
+examples make use of this function, three packages from the tidyverse
+and the inbuilt `mtcars` dataset.
 
 ``` r
 library(tidygate)
@@ -83,20 +83,20 @@ mtcars
     ## Maserati Bora       15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
     ## Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2
 
-`gate_interactive` creates an interactive scatter plot based on
+By default, `gate` creates an interactive scatter plot based on
 user-defined X and Y coordinates. Colour, shape, size and alpha can be
 defined as constant values, or can be controlled by values in a
 specified column.
 
 Once the plot has been created, multiple lasso selection gates can be
-drawn with the mouse. When you have finished your selection,
-`gate_interactive` will return a vector of strings, recording the gates
-each X and Y coordinate pair is within.
+drawn with the mouse. When you have finished your selection, click
+continue. `gate` will then return a vector of strings, recording the
+gates each X and Y coordinate pair is within.
 
 ``` r
 mtcars_gated <- 
   mtcars |>
-  mutate(gated_interactively = gate_interactive(x = mpg, y = wt, colour = disp))
+  mutate(gated_interactively = gate(x = mpg, y = wt, colour = disp))
 ```
 
 ![](man/figures/demo_gate.gif)
@@ -175,30 +175,14 @@ mtcars_gated |>
     ## Merc 450SL                        1,2
     ## Pontiac Firebird                  1,2
 
-Details of the gated points and lasso brush path are stored within the
-`tidygate_env` environment. These variables are overwritten each time
-interactive gating is run, so save them right away if you would like to
-access them later.
+Details of the interactively drawn gates are saved to
+`tidygate_env$gates` This variable is overwritten each time interactive
+gates are drawn, so save it right away if you would like to access it
+later.
 
 ``` r
-# Gated points
-tidygate_env$select_data |>
-  head()
-```
-
-    ## # A tibble: 6 × 4
-    ##       x     y key   .gate
-    ##   <dbl> <dbl> <chr> <dbl>
-    ## 1  18.7  3.44 5         1
-    ## 2  18.1  3.46 6         1
-    ## 3  14.3  3.57 7         1
-    ## 4  19.2  3.44 10        1
-    ## 5  17.8  3.44 11        1
-    ## 6  16.4  4.07 12        1
-
-``` r
-# Brush path
-tidygate_env$brush_data |>
+# Previously drawn gates
+tidygate_env$gates |>
   head()
 ```
 
@@ -212,16 +196,15 @@ tidygate_env$brush_data |>
     ## 5  12.1  4.34     1
     ## 6  11.7  4.26     1
 
-`gate_programmatic` gates points programmatically by their X and Y
-coordinates, and a predefined lasso brush path. This function can be
-used to make interactive gates reproducible. Here `gate_programmatic`
-reproduces the previous defined interactive gates exactly.
+If previously drawn gates are supplied to the `programmatic_gates`
+argument, points will be gated programmatically. This feature allows the
+reproduction of previously drawn interactive gates.
 
 ``` r
 mtcars_gated <-
   mtcars_gated |>
-  mutate(gated_programmatically = gate_programmatic(
-    x = mpg, y = wt, brush_data = tidygate_env$brush_data
+  mutate(gated_programmatically = gate(
+    x = mpg, y = wt, programmatic_gates = tidygate_env$gates
   ))
 
 mtcars_gated |> 

@@ -24,9 +24,8 @@ compatible with ggplot2 (0-1).}
 compatible with ggplot2 (0-20).}
 }
 \value{
-A vector of strings, of the gates each X and Y coordinate pair is within. A record 
-of the selected points is stored in `tidygate_env$select_data` and a record of the gates is 
-stored in `tidygate_env$brush_data`.
+A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
+drawn interactively, is stored as `tidygate_env$gates`.
 }
 \description{
 Create an interactive scatter plot based on user-defined X and Y coordinates. Colour, shape, size 

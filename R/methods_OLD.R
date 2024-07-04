@@ -10,7 +10,7 @@
 #' @importFrom magrittr "%>%"
 #' @importFrom lifecycle deprecate_warn
 #'
-#' @name gate
+#' @name gate_old
 #'
 #'
 #' @param .data A tibble
@@ -61,7 +61,7 @@
 #'
 #'
 #'
-gate <- function(.data,
+gate_old <- function(.data,
                  .element,
                  .dim1,
                  .dim2, 

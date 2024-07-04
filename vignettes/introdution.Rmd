@@ -52,46 +52,44 @@ install.package("tidygate")
 
 ## Example usage 
 
-tidygate provides two user-facing functions: `gate_interactive` and `gate_programmatic`.
-The following examples will make use of these functions, the tidyverse and the inbuilt `mtcars` dataset. 
+tidygate provides a single user-facing function: `gate`. The following examples make use of this function, three packages from the tidyverse and the inbuilt `mtcars` dataset. 
 
 ```{r}
-library(tidygate)
 library(dplyr)
 library(ggplot2)
 library(stringr)
+library(tidygate)
+
 mtcars
 ```
 
-`gate_interactive` creates an interactive scatter plot based on user-defined X and Y coordinates. Colour, shape, size and alpha can be defined as constant values, or can be controlled by values in a specified column. 
+By default, `gate` creates an interactive scatter plot based on user-defined X and Y coordinates. Colour, shape, size and alpha can be defined as constant values, or can be controlled by values in a specified column. 
 
-Once the plot has been created, multiple lasso selection gates can be drawn with the mouse. When you have finished your selection, `gate_interactive` will return a vector of strings, recording the gates each X and Y coordinate pair is within.
+Once the plot has been created, multiple gates can be drawn with the mouse. When you have finished, click continue. `gate` will then return a vector of strings, recording the gates each X and Y coordinate pair is within.
 
 ```{r eval=FALSE}
 mtcars_gated <- 
   mtcars |>
-  mutate(gated_interactively = gate_interactive(x = mpg, y = wt, colour = disp))
+  mutate(gated_interactively = gate(x = mpg, y = wt, colour = disp))
 ```
 
 ![](man/figures/demo_gate.gif)
 
 ```{r, echo=FALSE}
-data("demo_select_data", package = "tidygate")
-data("demo_brush_data", package = "tidygate")
+load("../data/demo_gate_data.rda")
 
 # Load pre-recorded brush path from data for example
 tidygate_env <<- rlang::env()
-tidygate_env$select_data <- demo_select_data
-tidygate_env$brush_data <- demo_brush_data
+tidygate_env$gates <- demo_gate_data
 
 mtcars_gated <- 
   mtcars |>
-  mutate(gated_interactively = gate_programmatic(
-    x = mpg, y = wt, brush_data = tidygate_env$brush_data
+  mutate(gated_interactively = gate(
+    x = mpg, y = wt, programmatic_gates = tidygate_env$gates
   ))
 ```
 
-To select points which appear within any gates, filter for non-empty strings. To select points which appear within a specific gate, string pattern matchings can be used.
+To select points which appear within any gates, filter for non-empty strings. To select points which appear within a specific gate, string pattern matching can be used.
 
 ```{r}
 # Select points within any gate
@@ -103,25 +101,21 @@ mtcars_gated |>
   filter(str_detect(gated_interactively, "2"))
 ```
 
-Details of the gated points and lasso brush path are stored within the `tidygate_env` environment. These variables are overwritten each time interactive gating is run, so save them right away if you would like to access them later.  
+Details of the interactively drawn gates are saved to `tidygate_env$gates`. This variable is overwritten each time interactive gates are drawn, so save it right away if you would like to access it later.  
 
 ```{r}
-# Gated points
-tidygate_env$select_data |>
-  head()
-
-# Brush path
-tidygate_env$brush_data |>
+# Previously drawn gates
+tidygate_env$gates |>
   head()
 ```
 
-`gate_programmatic` gates points programmatically by their X and Y coordinates, and a predefined lasso brush path. This function can be used to make interactive gates reproducible. Here `gate_programmatic` reproduces the previous defined interactive gates exactly. 
+If previously drawn gates are supplied to the `programmatic_gates` argument, points will be gated programmatically. This feature allows the reproduction of previously drawn interactive gates.
 
 ```{r}
 mtcars_gated <-
   mtcars_gated |>
-  mutate(gated_programmatically = gate_programmatic(
-    x = mpg, y = wt, brush_data = tidygate_env$brush_data
+  mutate(gated_programmatically = gate(
+    x = mpg, y = wt, programmatic_gates = tidygate_env$gates
   ))
 
 mtcars_gated |> 
