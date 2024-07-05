@@ -1,3 +1,6 @@
+# Define otherwise undefined global variables for R CMD check
+utils::globalVariables(c(".key", ".rs.invokeShinyPaneViewer"))
+
 #' Label points within a scatter plot drawing a gate
 #'
 #' \lifecycle{maturing}
@@ -7,6 +10,7 @@
 #' @importFrom rlang enquo
 #' @importFrom rlang quo_is_null
 #' @importFrom magrittr "%>%"
+#' @importFrom lifecycle deprecate_warn
 #'
 #' @name gate_chr
 #'
@@ -29,7 +33,7 @@
 #'
 #' @examples
 #'
-#' \donttest{
+#' \dontrun{
 #' # Standard use - interactive
 #' 
 #'   if(interactive()){
@@ -79,6 +83,7 @@ gate_chr <- function(.dim1,
                      
                      gate_list = NULL,
                      ...) {
+  lifecycle::deprecate_warn("1.0.0", "tidygate::gate_chr()", with = "tidygate::gate()")
   UseMethod("gate_chr")
 }
 
@@ -124,6 +129,8 @@ gate_chr.numeric = 	function(                     .dim1,
 #' 
 #' @name gate_int
 #' 
+#' @importFrom lifecycle deprecate_warn
+#' 
 #' @inheritParams gate_chr
 #' @docType methods
 #' @rdname gate_chr-methods
@@ -141,6 +148,7 @@ gate_int <- function(.dim1,
                      .group_by = NULL,
                      gate_list = NULL,
                      ...) {
+  lifecycle::deprecate_warn("1.0.0", "tidygate::gate_int()", with = "tidygate::gate()")
   UseMethod("gate_int")
 }
 
@@ -182,122 +190,301 @@ gate_int.numeric = 	function(  .dim1,
 
 #' Interactively gate data with a simple scatter plot
 #' 
-#' Launch an interactive scatter plot, based on the input X and Y coordinates. Points on this plot 
-#' can then be gated.
+#' Create an interactive scatter plot based on user-defined X and Y coordinates. Colour, shape, size 
+#' and alpha can be defined as constant values, or can be controlled by values in a specified 
+#' column. 
 #' 
+#' @importFrom utils globalVariables
 #' @importFrom tibble tibble
 #' @importFrom dplyr mutate
 #' @importFrom rlang env
+#' @importFrom rlang quo_is_null
+#' @importFrom rlang quo_is_symbol
+#' @importFrom rlang quo_name
+#' @importFrom rlang eval_tidy
+#' @importFrom purrr map_chr
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes
+#' @importFrom ggplot2 scale_colour_manual
+#' @importFrom ggplot2 scale_shape_manual
+#' @importFrom ggplot2 scale_alpha_manual
+#' @importFrom ggplot2 scale_shape_manual
+#' @importFrom ggplot2 guides
+#' @importFrom ggplot2 theme_bw
+#' @importFrom ggplot2 theme
 #' @importFrom shiny shinyApp
 #' @importFrom shiny runApp
-#' @param dimension_x A column symbol representing the X dimension. 
-#' @param dimension_y A column symbol representing the Y dimension.
-#' @param alpha The opacity of points, with 1 being completely opaque and 0 being completely
-#' transparent.
-#' @param size The size of points.
-#' @return A vector with TRUE for elements inside gate points and FALSE for elements outside gate 
-#' points. A record of the selected points is stored in `tidygate_env$select_data` and a record of 
-#' the gates is stored in `tidygate_env$brush_data`.
+#' 
+#' @param x A vector representing the X dimension. 
+#' @param y A vector representing the Y dimension.
+#' @param colour A single colour code string compatible with ggplot2. Or, a vector representing the 
+#' point colour.
+#' @param shape A single ggplot2 shape numeric ranging from 0 to 127. Or, a vector representing the 
+#' point shape, coercible to a factor of 6 or less levels.
+#' @param alpha A single ggplot2 alpha numeric ranging from 0 to 1. Or, a vector representing the 
+#' point alpha, either a numeric or factor of 6 or less levels.
+#' @param size A single ggplot2 size numeric ranging from 0 to 20. Or, a vector representing the 
+#' point size, either a numeric or factor of 6 or less levels.
+#' @return A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
+#' drawn interactively, they are temporarily saved to `tidygate_env$gates`
 #' @examples
 #' \dontrun{
-#' library(dplyr)
-#' library(ggplot2)
-#' 
 #' mtcars |>
-#'   dplyr::mutate(selected = gate_simple(dimension_x = mpg, dimension_y = wt)) |>
-#'   print()
+#'   mutate(selected = gate_interactive(x = mpg, y = wt, shape = am))
+#'}
+gate_interactive <-
+  function(x, y, colour = NULL, shape = NULL, alpha = 1, size = 2) {
+    
+    # Check input values are valid
+    if (!rlang::quo_is_null(shape)) {
+      if (rlang::quo_is_symbol(shape)) {
+        shape_factor_length <- 
+          shape |>
+          rlang::eval_tidy() |>
+          as.factor() |>
+          levels() |>
+          length()
+        if (shape_factor_length > 6) {
+          stop("tidygate says: shape factor level count exceeds the limit of 6") 
+        }
+      } else {
+        if (rlang::eval_tidy(shape) < 0 | rlang::eval_tidy(shape) > 127)
+          stop("tidygate says: shape numeric outside of the range 0 to 127") 
+        }      
+      }
+
+    if (!rlang::quo_is_null(alpha)) {
+      if (rlang::quo_is_symbol(alpha)) {
+        if (is.factor(rlang::eval_tidy(alpha))) {
+          alpha_factor_length <- 
+            alpha |>
+            rlang::eval_tidy() |>
+            as.factor() |>
+            levels() |>
+            length()
+          if (alpha_factor_length > 6) {
+            stop("tidygate says: alpha factor level count exceeds the limit of 6") 
+          }
+        }
+      } else {
+        if (rlang::eval_tidy(alpha) < 0 | rlang::eval_tidy(alpha) > 1)
+          stop("tidygate says: alpha numeric outside of the range 0 to 1") 
+        }      
+      }
+
+    if (!rlang::quo_is_null(size)) {
+      if (rlang::quo_is_symbol(size)) {
+        if (is.factor(rlang::eval_tidy(size))) {
+          size_factor_length <- 
+            size |>
+            rlang::eval_tidy() |>
+            as.factor() |>
+            levels() |>
+            length()
+          if (size_factor_length > 6) {
+            stop("tidygate says: size factor level count exceeds the limit of 6") 
+          }
+        }
+      } else {
+        if (rlang::eval_tidy(size) < 0 | rlang::eval_tidy(size) > 20)
+          stop("tidygate says: size numeric outside of the range 0 to 20") 
+        }      
+    }
+    
+    # Create basic input data tibble
+    data <-
+      tibble::tibble(x = rlang::eval_tidy(x), y = rlang::eval_tidy(y)) |>
+      dplyr::mutate(.key = dplyr::row_number())
+  
+    # Create basic plot
+    plot <-
+      data |>
+      ggplot2::ggplot(ggplot2::aes(x = x, y = y, key = .key)) +
+      ggplot2::geom_point() +
+      ggplot2::labs(x = rlang::quo_name(x), y = rlang::quo_name(y)) +
+      theme_bw()
+
+    # Add colour 
+    # Set colour to equal column value if provided
+    if (!rlang::quo_is_null(colour)) {
+      
+      if (rlang::quo_is_symbol(colour)) { 
+        plot <- 
+          plot + 
+          ggplot2::aes(colour = !!colour)
+        
+      # Set to equal constant if not a column symbol and remove legend
+      } else { 
+        plot <- 
+          plot + 
+          ggplot2::aes(colour = !!colour) +
+          ggplot2::scale_colour_manual(values = rlang::eval_tidy(colour)) +
+          ggplot2::guides(colour = "none")
+      }
+    }
+    
+    # Add shape 
+    if (!rlang::quo_is_null(shape)) {
+      if (rlang::quo_is_symbol(shape)) {
+        plot <- 
+          plot + 
+          ggplot2::aes(shape = as.factor(!!shape)) +
+          ggplot2::guides(shape = ggplot2::guide_legend(title = rlang::quo_name(shape)))
+      } else {
+        plot <- 
+          plot + 
+          ggplot2::aes(shape = as.factor(!!shape)) +
+          ggplot2::scale_shape_manual(values = rlang::eval_tidy(shape)) +
+          ggplot2::guides(shape = "none")
+      }
+    }
+    
+    # Add alpha
+    if (!rlang::quo_is_null(alpha)) {
+      if (rlang::quo_is_symbol(alpha)) {
+        plot <- 
+          plot + 
+          ggplot2::aes(alpha = !!alpha) +
+          ggplot2::guides(alpha = ggplot2::guide_legend(title = rlang::quo_name(alpha)))
+      } else {
+        plot <- 
+          plot + 
+          ggplot2::aes(alpha = "fixed_alpha") +
+          ggplot2::scale_alpha_manual(values = rlang::eval_tidy(alpha)) +
+          ggplot2::guides(alpha = "none")
+      }
+    }
+    
+    # Add size
+    if (!rlang::quo_is_null(size)) {
+      if (rlang::quo_is_symbol(size)) {
+        plot <- 
+          plot + 
+          ggplot2::aes(size = !!size) +
+          ggplot2::guides(size = ggplot2::guide_legend(title = rlang::quo_name(size)))
+      } else {
+        plot <- 
+          plot + 
+          ggplot2::aes(size = "fixed_size") +
+          ggplot2::scale_size_manual(values = rlang::eval_tidy(size)) +
+          ggplot2::guides(size = "none")
+      }
+    }
+    
+    # Create environment and save input variables
+    tidygate_env <<- rlang::env()
+    tidygate_env$input_data <- data
+    tidygate_env$input_plot <- plot
+    tidygate_env$event_count <- 1
+    
+    # Set RStudio Viewer as browser if in RStudio
+    if (.Platform$GUI == "Rstudio") {
+      options(shiny.launch.browser = .rs.invokeShinyPaneViewer)
+    }
+    
+    # Launch Shiny App
+    app <- shiny::shinyApp(ui, server)
+    gate_vector <- 
+      shiny::runApp(app, port = 1234) |> 
+      purrr::map_chr(~ .x |> paste(collapse = ",")) |>
+      purrr::map_chr(~ ifelse(.x == "", NA, .x))
+    
+    message("tidygate says: interactively drawn gates are temporarily saved to tidygate_env$gates")
+    return(gate_vector)
+  }
+
+#' Programmatically gate data with pre-recorded lasso selection coordinates
+#'
+#' A helpful way to repeat previous interactive lasso selections to enable reproducibility. 
+#' Programmatic gating is based on the package [gatepoints](https://github.com/wjawaid/gatepoints)
+#' by Wajid Jawaid. 
+#'
+#' @importFrom purrr map
+#' @importFrom purrr when
+#' @importFrom purrr pluck
+#' @param x A vector representing the X dimension. 
+#' @param y A vector representing the Y dimension.
+#' @param programmatic_gates A `data.frame` of the gate brush data, as saved in 
+#' `tidygate_env$gates`. The column `x` records X coordinates, the column `y` records Y 
+#' coordinates and the column `.gate` records the gate number.  
+#' @return A vector of strings, of the gates each X and Y coordinate pair is within. 
+gate_programmatic <-
+  function(x, y, programmatic_gates) {
+
+    # Format input
+    data <- 
+      data.frame(x, y) |>
+      as.matrix()
+    
+    # Loop over gates
+    gate_vector <-
+      programmatic_gates |>
+      data.frame() |>
+      split(programmatic_gates$.gate) |>
+      purrr::map(
+        ~ .x %>%
+          purrr::when("data.frame" %in% class(.) ~ .as_matrix(.), ~ (.)) %>%
+          applyGate(data, .) %>%
+          which() %>%
+          as.character() %>%
+          
+          # Avoid error for empty gates
+          purrr::when(!is.null(.) ~ (.) %>% add_attr(.x, "gate"))
+      ) |>
+      
+      parse_gate_list(data)
+      
+    # Format output
+    gate_vector <- ifelse(gate_vector == "0", NA, gate_vector)
+    
+    return(gate_vector)
+  }
+
+#' Gate points
+#' 
+#' @description
+#' Gate points based on their X and Y coordinates. By default, this function launches an interactive
+#' scatter plot. Colour, shape, size and alpha can be defined as constant values, or can be 
+#' controlled by the values of a specified column. 
+#' 
+#' If previously drawn gates are supplied to the `programmatic_gates` argument, points will be gated 
+#' programmatically. This feature allows the reproduction of previously drawn interactive gates.
+#' Programmatic gating is based on the package gatepoints by Wajid Jawaid. 
+#' 
+#' @param x A vector representing the X dimension. 
+#' @param y A vector representing the Y dimension.
+#' @param colour A single colour code string compatible with ggplot2. Or, a vector representing the 
+#' point colour.
+#' @param shape A single ggplot2 shape numeric ranging from 0 to 127. Or, a vector representing the 
+#' point shape, coercible to a factor of 6 or less levels.
+#' @param alpha A single ggplot2 alpha numeric ranging from 0 to 1. Or, a vector representing the 
+#' point alpha, either a numeric or factor of 6 or less levels.
+#' @param size A single ggplot2 size numeric ranging from 0 to 20. Or, a vector representing the 
+#' point size, either a numeric or factor of 6 or less levels.
+#' @param programmatic_gates A `data.frame` of the gate brush data, as saved in 
+#' `tidygate_env$gates`. The column `x` records X coordinates, the column `y` records Y coordinates and the column `.gate` 
+#' records the gate number. When this argument is supplied, gates will be drawn programmatically.
+#' @return A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
+#' drawn interactively, they are temporarily saved to `tidygate_env$gates`.
+#' @examples 
+#' \dontrun{
+#' # Gate points interactively
+#' mtcars |>
+#'   mutate(gated = gate(x = mpg, y = wt, shape = am))
+#' 
+#' # Gate points programmatically
+#' mtcars |>
+#'   mutate(gated = gate(x = mpg, y = wt, programmatic_gates = tidygate_env$programmatic_gates))
 #'}
 #' @export
-gate_simple <-
-  
-  function(dimension_x, dimension_y, alpha = 1, size = 1) {
+gate <-
+  function(x, y, colour = NULL, shape = NULL, alpha = 1, size = 2, programmatic_gates = NULL) {
     
-    message("tidygate says: this feature is in early development and may undergo changes or contain bugs.")
-    
-    # Add needed columns to input data
-    data <- 
-      tibble::tibble(dimension_x, dimension_y) |>
-      dplyr::mutate(.key = dplyr::row_number()) |>
-      dplyr::mutate(.selected = FALSE) |>
-      dplyr::mutate(.alpha = alpha) |>
-      dplyr::mutate(.size = size)
-    
-    # Create environment and save input variables
-    tidygate_env <<- rlang::env()
-    tidygate_env$input_data <- data
-    tidygate_env$custom_plot <- NULL
-    
-    # Launch Shiny App
-    app <- shiny::shinyApp(ui, server)
-    shiny::runApp(app, port = 1234) # Specify a port if needed
-    
-    return(tidygate_env$input_data$.selected)
+    if (is.null(programmatic_gates)) {
+      gate_interactive(x = enquo(x), y = enquo(y), colour = enquo(colour), shape = enquo(shape), 
+                       alpha = enquo(alpha), size = enquo(size))
+    } else {
+      gate_programmatic(x = x, y = y, programmatic_gates = programmatic_gates)
+    }
   }
-
-#' Interactively gate data with a custom plot
-#' 
-#' Launch an interactive scatter plot, based on a user-defined `ggplot2`. Points on this plot can
-#' then be gated.
-#' 
-#' @importFrom tibble as_tibble
-#' @importFrom dplyr mutate
-#' @importFrom dplyr select
-#' @importFrom dplyr rename
-#' @importFrom rlang env
-#' @importFrom purrr pluck
-#' @importFrom ggplot2 ggplot_build
-#' @importFrom shiny shinyApp
-#' @importFrom shiny runApp
-#' @param custom_plot A ggplot object. Must contain a row index in the `.key` column set as key.
-#' @return A vector with TRUE for elements inside gate points and FALSE for elements outside gate 
-#' points. A record of the selected points is stored in `tidygate_env$select_data` and a 
-#' record of the gates is stored in `tidygate_env$brush_data`.
-#' @examples
-#' \dontrun{
-#' library(dplyr)
-#' library(ggplot2)
-#' 
-#' scaled_plot <- 
-#'   mtcars |> 
-#'   mutate(.key = row_number()) |>
-#'   ggplot(aes(x = mpg, y = wt, key = .key)) + 
-#'   scale_y_log10() +
-#'   geom_point() +
-#'   theme_dark()
-#'   
-#' mtcars |>
-#'   mutate(selected = gate_custom(custom_plot = scaled_plot)) |>
-#'   print()
-#' }
-#' @export
-gate_custom <-
-  
-  function(custom_plot) {
     
-    message("tidygate says: this feature is in early development and may undergo changes or contain bugs.")
-    
-    # Fix CRAN NOTES
-    key <- NULL
-    
-    # Create tibble with .key column
-    data <- 
-      custom_plot |>
-      ggplot2::ggplot_build() |>
-      purrr::pluck(1, 1) |>
-      tibble::as_tibble() |>
-      dplyr::select(key) |>
-      dplyr::rename(.key = "key") |>
-      dplyr::mutate(.selected = FALSE)
-      
-    # Create environment and save input variables
-    tidygate_env <<- rlang::env()
-    tidygate_env$input_data <- data
-    tidygate_env$custom_plot <- custom_plot
-    
-    # Launch Shiny App
-    app <- shiny::shinyApp(ui, server)
-    shiny::runApp(app, port = 1234)
-    
-    return(tidygate_env$input_data$.selected)
-  }
-

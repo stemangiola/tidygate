@@ -6,32 +6,34 @@ output: github_document
 <!---
 [![Build Status](https://travis-ci.org/stemangiola/tidygate.svg?branch=master)](https://travis-ci.org/stemangiola/tidygate) [![Coverage Status](https://coveralls.io/repos/github/stemangiola/tidygate/badge.svg?branch=master)](https://coveralls.io/github/stemangiola/tidygate?branch=master)
 -->
+
 <!-- badges: start -->
   [![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 <!-- badges: end -->
 
-Please have a look also to
-
-- [nanny](https://github.com/stemangiola/nanny) for tidy high-level data analysis and manipulation
-
-- [tidyHeatmap](https://github.com/stemangiola/tidyHeatmap) for producing heatmaps following tidy principles
-
-- [tidybulk](https://github.com/stemangiola/tidybulk) for tidy and modular transcriptomics analyses
-
-```{r, echo=FALSE, include=FALSE, }
+```{r setup, echo=FALSE, include=FALSE}
 library(knitr)
-knitr::opts_chunk$set(cache = TRUE, warning = FALSE,
-                      message = FALSE, cache.lazy = FALSE)
-
-library(dplyr)
 library(tidygate)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(readr)
 
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, cache.lazy = FALSE)
 ```
+
+## Introduction 
+
+tidygate allows you to interactively gate points on a scatter plot. Interactively drawn gates are recorded and can be applied programmatically to reproduce results exactly. Programmatic gating is based on the package [gatepoints](https://github.com/wjawaid/gatepoints) by Wajid Jawaid. 
+
+For more tidy data analysis:
+
+- [tidyomics](https://github.com/tidyomics) - A software ecosystem for tidy analysis of omic data.
+- [tidyHeatmap](https://github.com/stemangiola/tidyHeatmap) - Produce heatmaps with tidy principles.
 
 ## Installation
 
 ```{r, eval=FALSE}
-
 # From Github
 devtools::install_github("stemangiola/tidygate")
 
@@ -39,83 +41,84 @@ devtools::install_github("stemangiola/tidygate")
 install.package("tidygate")
 ```
 
-## What is tidygate
+## Example usage 
 
-It interactively or programmately labels points within custom gates on two dimensions, according to tidyverse principles. The information is added to your tibble. It is based on the package `gatepoints` from Wajid Jawaid. 
-
-The main benefits are 
-
-- in interactive mode you can draw your gates on extensive ggplot-like scatter plots
-- you can draw multiple gates
-- you can save your gates and apply the programmatically.
-
-
-## Input 
-
-A tibble of this kind
-
-
-dimension1 | dimension2 | annotations |
- ------------- | ------------- | -------------
- `chr` or `fctr` | `numeric` | ...
-
-
-## Step-by-step instructons for Rstudio
-
-##### 1) Execute the following code in the console panel
-
-```{r eval=FALSE}
-tidygate_gate <-
-  tidygate_data %>%
-  mutate( gate = gate_chr( Dim1, Dim2 ) )
-```
-
-##### 2) look at the Viewer and draw a gate clicking at least three times on the plot
-
-![](inst/tidygate.gif) 
-
-
-##### 3) Click the finish button on the top-right corner, or press `escape` on your keyboard 
-
-
-## The output tibble
-
-```{r eval=FALSE}
-tidygate_gate
-```
-
-```{r echo=FALSE}
-
-tidygate_data %>%
-  mutate( gate = gate_chr(
-    Dim1, Dim2,
-     # Pre-defined gates
-    gate_list = tidygate::gate_list
-  ))
-
-```
-
-Gates are saved in a temporary file for later use
-
-```{r, echo = FALSE}
-my_gates = tidygate::gate_list
-
-my_gates
-```
-
-## Programmatic gating
-
-We can use previously drawn gates to programmately add the gate column 
+tidygate provides a single user-facing function: `gate`. The following examples make use of this function, four packages from the tidyverse and the inbuilt `mtcars` dataset. 
 
 ```{r}
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(readr)
+library(tidygate)
 
-tidygate_data %>%
-  mutate( gate = gate_chr(
-    Dim1, Dim2,
-     # Pre-defined gates
-    gate_list = my_gates
-  ))
-
+mtcars |>
+  head()
 ```
 
+By default, `gate` creates an interactive scatter plot based on user-defined X and Y coordinates. Colour, shape, size and alpha can be defined as constant values, or can be controlled by values in a specified column. 
 
+Once the plot has been created, multiple gates can be drawn with the mouse. When you have finished, click continue. `gate` will then return a vector of strings, recording the gates each X and Y coordinate pair is within.
+
+```{r eval=FALSE}
+mtcars_gated <- 
+  mtcars |>
+  mutate(gated = gate(x = mpg, y = wt, colour = disp))
+```
+
+![](man/figures/demo_gate.gif)
+
+```{r, echo=FALSE}
+load("data/demo_gate_data.rda")
+
+# Load pre-recorded brush path from data for example
+tidygate_env <<- rlang::env()
+tidygate_env$gates <- demo_gate_data
+
+mtcars_gated <- 
+  mtcars |>
+  mutate(gated = gate(x = mpg, y = wt, programmatic_gates = tidygate_env$gates))
+```
+
+To select points which appear within any gates, filter for non-NA values. To select points which appear within a specific gate, string pattern matching can be used.
+
+```{r}
+# Select points within any gate
+mtcars_gated |> 
+  filter(!is.na(gated))
+
+# Select points within gate 2
+mtcars_gated |>
+  filter(str_detect(gated, "2"))
+```
+
+Details of the interactively drawn gates are saved to `tidygate_env$gates`. This variable is overwritten each time interactive gates are drawn, so save it right away if you would like to access it later.  
+
+```{r}
+# Inspect previously drawn gates
+tidygate_env$gates |>
+  head()
+```
+
+```{r, eval=FALSE}
+# Save if needed
+tidygate_env$gates |>
+  write_rds("important_gates.rds")
+```
+
+If previously drawn gates are supplied to the `programmatic_gates` argument, points will be gated programmatically. This feature allows the reproduction of previously drawn interactive gates.
+
+```{r, eval=FALSE}
+important_gates <-
+  read_rds("important_gates.rds")
+
+mtcars |>
+  mutate(gated = gate(x = mpg, y = wt, programmatic_gates = important_gates)) |>
+  filter(!is.na(gated))
+```
+
+```{r, echo=FALSE}
+mtcars |>
+  mutate(gated = gate(x = mpg, y = wt, programmatic_gates = tidygate_env$gates)) |>
+  filter(!is.na(gated))
+```

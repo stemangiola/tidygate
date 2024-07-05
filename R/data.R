@@ -11,3 +11,8 @@
 #'
 #'
 "gate_list"
+
+#' Demo gate data
+#' 
+#' @keywords data
+"demo_gate_data"

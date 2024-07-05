@@ -68,7 +68,7 @@ This function allow the user to label data points in inside one or more 2D gates
 }
 \examples{
 
-\donttest{
+\dontrun{
 # Standard use - interactive
 
   if(interactive()){

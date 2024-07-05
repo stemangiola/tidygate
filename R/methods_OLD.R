@@ -10,7 +10,7 @@
 #' @importFrom magrittr "%>%"
 #' @importFrom lifecycle deprecate_warn
 #'
-#' @name gate
+#' @name gate_old
 #'
 #'
 #' @param .data A tibble
@@ -34,7 +34,7 @@
 #'
 #' @examples
 #'
-#' \donttest{
+#' \dontrun{
 #' 
 #'   if(interactive()){
 #' 
@@ -43,7 +43,7 @@
 #'
 #'   }
 #' 
-#' }
+#' 
 #' 
 #' library(magrittr)
 #' 
@@ -53,7 +53,7 @@
 #'    Dim1, Dim2,
 #'    gate_list = tidygate::gate_list
 #'  )
-#'
+#' }
 #' @docType methods
 #' @rdname gate-methods
 #' @export
@@ -61,7 +61,7 @@
 #'
 #'
 #'
-gate <- function(.data,
+gate_old <- function(.data,
                  .element,
                  .dim1,
                  .dim2, 
