@@ -19,17 +19,17 @@ gate(
 
 \item{y}{A vector representing the Y dimension.}
 
-\item{colour}{A vector representing the point colour. Or, a colour code string compatible
-with ggplot2.}
+\item{colour}{A single colour code string compatible with ggplot2. Or, a vector representing the 
+point colour.}
 
-\item{shape}{A vector representing the point shape, coercible to a factor of 6 or less levels. 
-Or, a ggplot2 shape numeric ranging from 0 to 127.}
+\item{shape}{A single ggplot2 shape numeric ranging from 0 to 127. Or, a vector representing the 
+point shape, coercible to a factor of 6 or less levels.}
 
-\item{alpha}{A vector representing the point alpha, coercible to a factor of 6 or less levels. 
-Or, an ggplot2 alpha numeric ranging from 0 to 1.}
+\item{alpha}{A single ggplot2 alpha numeric ranging from 0 to 1. Or, a vector representing the 
+point alpha, either a factor of 6 or less levels or a numeric with values ranging from 0 to 1.}
 
-\item{size}{A vector representing the point size, coercible to a factor of 6 or less levels. Or, 
-a ggplot2 size numeric ranging from 0 to 20.}
+\item{size}{A single ggplot2 size numeric ranging from 0 to 20. Or, a vector representing the 
+point size, either a factor of 6 or less levels or a numeric with values ranging from 0 to 20.}
 
 \item{programmatic_gates}{A `data.frame` of the gate brush data, as saved in 
 `tidygate_env$gates`. The column `x` records X coordinates, the column `y` records Y coordinates and the column `.gate` 

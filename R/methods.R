@@ -217,14 +217,14 @@ gate_int.numeric = 	function(  .dim1,
 #' 
 #' @param x A vector representing the X dimension. 
 #' @param y A vector representing the Y dimension.
-#' @param colour A vector representing the point colour. Or, a colour code string compatible
-#' with ggplot2.
-#' @param shape A vector representing the point shape, coercible to a factor of 6 or less levels. 
-#' Or, a ggplot2 shape numeric ranging from 0 to 127. 
-#' @param alpha A vector representing the point alpha, coercible to a factor of 6 or less levels. 
-#' Or, an ggplot2 alpha numeric ranging from 0 to 1. 
-#' @param size A vector representing the point size, coercible to a factor of 6 or less levels. Or, 
-#' a ggplot2 size numeric ranging from 0 to 20.
+#' @param colour A single colour code string compatible with ggplot2. Or, a vector representing the 
+#' point colour.
+#' @param shape A single ggplot2 shape numeric ranging from 0 to 127. Or, a vector representing the 
+#' point shape, coercible to a factor of 6 or less levels.
+#' @param alpha A single ggplot2 alpha numeric ranging from 0 to 1. Or, a vector representing the 
+#' point alpha, either a factor of 6 or less levels or a numeric with values ranging from 0 to 1.
+#' @param size A single ggplot2 size numeric ranging from 0 to 20. Or, a vector representing the 
+#' point size, either a factor of 6 or less levels or a numeric with values ranging from 0 to 20.
 #' @return A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
 #' drawn interactively, they are temporarily saved to `tidygate_env$gates`
 #' @examples
@@ -246,7 +246,7 @@ gate_interactive <-
           length()
         if (shape_factor_length > 6) {
           stop("tidygate says: shape factor level count exceeds the limit of 6") 
-        } 
+        }
       } else {
         if (rlang::eval_tidy(shape) < 0 | rlang::eval_tidy(shape) > 127)
           stop("tidygate says: shape numeric outside of the range 0 to 127") 
@@ -255,14 +255,21 @@ gate_interactive <-
 
     if (!rlang::quo_is_null(alpha)) {
       if (rlang::quo_is_symbol(alpha)) {
-        alpha_factor_length <- 
-          alpha |>
-          rlang::eval_tidy() |>
-          as.factor() |>
-          levels() |>
-          length()
-        if (alpha_factor_length > 6) {
-          stop("tidygate says: alpha factor level count exceeds the limit of 6") 
+        if (is.factor(rlang::eval_tidy(alpha))) {
+          alpha_factor_length <- 
+            alpha |>
+            rlang::eval_tidy() |>
+            as.factor() |>
+            levels() |>
+            length()
+          if (alpha_factor_length > 6) {
+            stop("tidygate says: alpha factor level count exceeds the limit of 6") 
+          }
+        }
+        if (is.numeric(rlang::eval_tidy(alpha))) {
+          if (any(rlang::eval_tidy(alpha) < 0 | rlang::eval_tidy(alpha) > 1)) {
+            stop("tidygate says: alpha numeric values outside of the range 0 to 1")
+          }
         }
       } else {
         if (rlang::eval_tidy(alpha) < 0 | rlang::eval_tidy(alpha) > 1)
@@ -272,14 +279,21 @@ gate_interactive <-
 
     if (!rlang::quo_is_null(size)) {
       if (rlang::quo_is_symbol(size)) {
-        size_factor_length <- 
-          size |>
-          rlang::eval_tidy() |>
-          as.factor() |>
-          levels() |>
-          length()
-        if (size_factor_length > 6) {
-          stop("tidygate says: size factor level count exceeds the limit of 6") 
+        if (is.factor(rlang::eval_tidy(size))) {
+          size_factor_length <- 
+            size |>
+            rlang::eval_tidy() |>
+            as.factor() |>
+            levels() |>
+            length()
+          if (size_factor_length > 6) {
+            stop("tidygate says: size factor level count exceeds the limit of 6") 
+          }
+        }
+        if (is.numeric(rlang::eval_tidy(size))) {
+          if (any(rlang::eval_tidy(size) < 0 | rlang::eval_tidy(size) > 20)) {
+            stop("tidygate says: size numeric values outside of the range 0 to 20")
+          }
         }
       } else {
         if (rlang::eval_tidy(size) < 0 | rlang::eval_tidy(size) > 20)
@@ -303,61 +317,66 @@ gate_interactive <-
     # Add colour 
     # Set colour to equal column value if provided
     if (!rlang::quo_is_null(colour)) {
-      plot <- 
-        plot + 
-        ggplot2::aes(colour = !!colour)
       
-      # Set to equal constant if not a column symbol and remove legend
-      if (!rlang::quo_is_symbol(colour)) { 
-        colour_fixed <- rlang::eval_tidy(colour)
+      if (rlang::quo_is_symbol(colour)) { 
         plot <- 
           plot + 
-          ggplot2::scale_colour_manual(values = colour_fixed) +
+          ggplot2::aes(colour = !!colour)
+        
+      # Set to equal constant if not a column symbol and remove legend
+      } else { 
+        plot <- 
+          plot + 
+          ggplot2::aes(colour = !!colour) +
+          ggplot2::scale_colour_manual(values = rlang::eval_tidy(colour)) +
           ggplot2::guides(colour = "none")
       }
     }
     
     # Add shape 
     if (!rlang::quo_is_null(shape)) {
-      plot <- 
-        plot + 
-        ggplot2::aes(shape = as.factor(!!shape)) +
-        ggplot2::guides(shape = ggplot2::guide_legend(title = quo_name(shape)))
-      if (!rlang::quo_is_symbol(shape)) {
-        fixed_shape <- rlang::eval_tidy(shape)
+      if (rlang::quo_is_symbol(shape)) {
         plot <- 
           plot + 
-          ggplot2::scale_shape_manual(values = fixed_shape) +
+          ggplot2::aes(shape = as.factor(!!shape)) +
+          ggplot2::guides(shape = ggplot2::guide_legend(title = rlang::quo_name(shape)))
+      } else {
+        plot <- 
+          plot + 
+          ggplot2::aes(shape = as.factor(!!shape)) +
+          ggplot2::scale_shape_manual(values = rlang::eval_tidy(shape)) +
           ggplot2::guides(shape = "none")
       }
     }
     
     # Add alpha
     if (!rlang::quo_is_null(alpha)) {
-      plot <- 
-        plot + 
-        ggplot2::aes(alpha = as.factor(!!alpha)) +
-        ggplot2::guides(alpha = ggplot2::guide_legend(title = quo_name(alpha)))
-      if (!rlang::quo_is_symbol(alpha)) {
-        alpha_fixed <- rlang::eval_tidy(alpha)
+      if (rlang::quo_is_symbol(alpha)) {
         plot <- 
           plot + 
-          ggplot2::scale_alpha_manual(values = alpha_fixed) +
+          ggplot2::aes(alpha = !!alpha) +
+          ggplot2::guides(alpha = ggplot2::guide_legend(title = rlang::quo_name(alpha)))
+      } else {
+        plot <- 
+          plot + 
+          ggplot2::aes(alpha = "fixed_alpha") +
+          ggplot2::scale_alpha_manual(values = rlang::eval_tidy(alpha)) +
           ggplot2::guides(alpha = "none")
       }
     }
     
     # Add size
     if (!rlang::quo_is_null(size)) {
-      plot <- 
-        plot + 
-        ggplot2::aes(size = as.factor(!!size)) +
-        ggplot2::guides(size = ggplot2::guide_legend(title = quo_name(size)))
-      if (!rlang::quo_is_symbol(size)) {
-        size_fixed <- rlang::eval_tidy(size)
+      if (rlang::quo_is_symbol(size)) {
         plot <- 
           plot + 
-          ggplot2::scale_size_manual(values = size_fixed) +
+          ggplot2::aes(size = !!size) +
+          ggplot2::guides(size = ggplot2::guide_legend(title = rlang::quo_name(size)))
+      } else {
+        plot <- 
+          plot + 
+          ggplot2::aes(size = "fixed_size") +
+          ggplot2::scale_size_manual(values = rlang::eval_tidy(size)) +
           ggplot2::guides(size = "none")
       }
     }
@@ -443,14 +462,14 @@ gate_programmatic <-
 #' 
 #' @param x A vector representing the X dimension. 
 #' @param y A vector representing the Y dimension.
-#' @param colour A vector representing the point colour. Or, a colour code string compatible
-#' with ggplot2.
-#' @param shape A vector representing the point shape, coercible to a factor of 6 or less levels. 
-#' Or, a ggplot2 shape numeric ranging from 0 to 127. 
-#' @param alpha A vector representing the point alpha, coercible to a factor of 6 or less levels. 
-#' Or, an ggplot2 alpha numeric ranging from 0 to 1. 
-#' @param size A vector representing the point size, coercible to a factor of 6 or less levels. Or, 
-#' a ggplot2 size numeric ranging from 0 to 20.
+#' @param colour A single colour code string compatible with ggplot2. Or, a vector representing the 
+#' point colour.
+#' @param shape A single ggplot2 shape numeric ranging from 0 to 127. Or, a vector representing the 
+#' point shape, coercible to a factor of 6 or less levels.
+#' @param alpha A single ggplot2 alpha numeric ranging from 0 to 1. Or, a vector representing the 
+#' point alpha, either a factor of 6 or less levels or a numeric with values ranging from 0 to 1.
+#' @param size A single ggplot2 size numeric ranging from 0 to 20. Or, a vector representing the 
+#' point size, either a factor of 6 or less levels or a numeric with values ranging from 0 to 20.
 #' @param programmatic_gates A `data.frame` of the gate brush data, as saved in 
 #' `tidygate_env$gates`. The column `x` records X coordinates, the column `y` records Y coordinates and the column `.gate` 
 #' records the gate number. When this argument is supplied, gates will be drawn programmatically.
