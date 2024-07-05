@@ -37,7 +37,7 @@ records the gate number. When this argument is supplied, gates will be drawn pro
 }
 \value{
 A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
-drawn interactively, gates are saved as `tidygate_env$gates`.
+drawn interactively, they are temporarily saved to `tidygate_env$gates`.
 }
 \description{
 Gate points based on their X and Y coordinates. By default, this function launches an interactive
@@ -52,12 +52,10 @@ Programmatic gating is based on the package gatepoints by Wajid Jawaid.
 \dontrun{
 # Gate points interactively
 mtcars |>
-  mutate(gated_interactively = gate(x = mpg, y = wt, shape = am))
+  mutate(gated = gate(x = mpg, y = wt, shape = am))
 
 # Gate points programmatically
-mtcars_gated |>
-  mutate(gated_programmatically = gate(
-    x = mpg, y = wt, programmatic_gates = tidygate_env$programmatic_gates
-  ))
+mtcars |>
+  mutate(gated = gate(x = mpg, y = wt, programmatic_gates = tidygate_env$programmatic_gates))
 }
 }

@@ -1,3 +1,6 @@
+# Define otherwise undefined global variables for R CMD check
+utils::globalVariables(c(".key", ".rs.invokeShinyPaneViewer"))
+
 #' Label points within a scatter plot drawing a gate
 #'
 #' \lifecycle{maturing}
@@ -191,6 +194,7 @@ gate_int.numeric = 	function(  .dim1,
 #' and alpha can be defined as constant values, or can be controlled by values in a specified 
 #' column. 
 #' 
+#' @importFrom utils globalVariables
 #' @importFrom tibble tibble
 #' @importFrom dplyr mutate
 #' @importFrom rlang env
@@ -282,9 +286,6 @@ gate_interactive <-
           stop("tidygate says: size numeric outside of the range 0 to 20") 
         }      
     }
-    
-    # Fix CRAN note
-    .key <- NULL
     
     # Create basic input data tibble
     data <-
@@ -459,13 +460,11 @@ gate_programmatic <-
 #' \dontrun{
 #' # Gate points interactively
 #' mtcars |>
-#'   mutate(gated_interactively = gate(x = mpg, y = wt, shape = am))
+#'   mutate(gated = gate(x = mpg, y = wt, shape = am))
 #' 
 #' # Gate points programmatically
-#' mtcars_gated |>
-#'   mutate(gated_programmatically = gate(
-#'     x = mpg, y = wt, programmatic_gates = tidygate_env$programmatic_gates
-#'   ))
+#' mtcars |>
+#'   mutate(gated = gate(x = mpg, y = wt, programmatic_gates = tidygate_env$programmatic_gates))
 #'}
 #' @export
 gate <-

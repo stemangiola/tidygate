@@ -25,7 +25,7 @@ a ggplot2 size numeric ranging from 0 to 20.}
 }
 \value{
 A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
-drawn interactively, is stored as `tidygate_env$gates`.
+drawn interactively, they are temporarily saved to `tidygate_env$gates`
 }
 \description{
 Create an interactive scatter plot based on user-defined X and Y coordinates. Colour, shape, size 

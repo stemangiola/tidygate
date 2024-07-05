@@ -47,7 +47,8 @@ RdMacros: lifecycle
 Suggests: 
     testthat,
     markdown,
-    knitr
+    knitr,
+    readr
 VignetteBuilder: 
     knitr
 Biarch: true
