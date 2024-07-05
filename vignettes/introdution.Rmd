@@ -90,12 +90,12 @@ mtcars_gated <-
   mutate(gated = gate(x = mpg, y = wt, programmatic_gates = tidygate_env$gates))
 ```
 
-To select points which appear within any gates, filter for non-empty strings. To select points which appear within a specific gate, string pattern matching can be used.
+To select points which appear within any gates, filter for non-NA values. To select points which appear within a specific gate, string pattern matching can be used.
 
 ```{r}
 # Select points within any gate
 mtcars_gated |> 
-  filter(gated != "")
+  filter(!is.na(gated))
 
 # Select points within gate 2
 mtcars_gated |>
@@ -124,13 +124,13 @@ important_gates <-
 
 mtcars |>
   mutate(gated = gate(x = mpg, y = wt, programmatic_gates = important_gates)) |>
-  filter(gated != "")
+  filter(!is.na(gated))
 ```
 
 ```{r, echo=FALSE}
 mtcars |>
   mutate(gated = gate(x = mpg, y = wt, programmatic_gates = tidygate_env$gates)) |>
-  filter(gated != "")
+  filter(!is.na(gated))
 ```
 
 ```{r}

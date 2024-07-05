@@ -396,7 +396,8 @@ gate_interactive <-
     app <- shiny::shinyApp(ui, server)
     gate_vector <- 
       shiny::runApp(app, port = 1234) |> 
-      purrr::map_chr(~ .x |> paste(collapse = ","))
+      purrr::map_chr(~ .x |> paste(collapse = ",")) |>
+      purrr::map_chr(~ ifelse(.x == "", NA, .x))
     
     message("tidygate says: interactively drawn gates are temporarily saved to tidygate_env$gates")
     return(gate_vector)
@@ -444,7 +445,7 @@ gate_programmatic <-
       parse_gate_list(data)
       
     # Format output
-    gate_vector <- ifelse(gate_vector == "0", "", gate_vector)
+    gate_vector <- ifelse(gate_vector == "0", NA, gate_vector)
     
     return(gate_vector)
   }

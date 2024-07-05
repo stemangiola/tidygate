@@ -127,6 +127,7 @@ server <- function(input, output, session) {
             dplyr::summarise(.gate = list(.gate)),
           by = c(".key" = "key")) |>
         dplyr::pull(.gate)
+        
     })
   })
 }
