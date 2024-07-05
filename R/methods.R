@@ -83,7 +83,7 @@ gate_chr <- function(.dim1,
                      
                      gate_list = NULL,
                      ...) {
-  lifecycle::deprecate_warn("1.0.0", "tidygate::gate_chr()", with = "tidygate::gate_interactive()")
+  lifecycle::deprecate_warn("1.0.0", "tidygate::gate_chr()", with = "tidygate::gate()")
   UseMethod("gate_chr")
 }
 
@@ -148,7 +148,7 @@ gate_int <- function(.dim1,
                      .group_by = NULL,
                      gate_list = NULL,
                      ...) {
-  lifecycle::deprecate_warn("1.0.0", "tidygate::gate_int()", with = "tidygate::gate_interactive()")
+  lifecycle::deprecate_warn("1.0.0", "tidygate::gate_int()", with = "tidygate::gate()")
   UseMethod("gate_int")
 }
 
@@ -222,9 +222,9 @@ gate_int.numeric = 	function(  .dim1,
 #' @param shape A single ggplot2 shape numeric ranging from 0 to 127. Or, a vector representing the 
 #' point shape, coercible to a factor of 6 or less levels.
 #' @param alpha A single ggplot2 alpha numeric ranging from 0 to 1. Or, a vector representing the 
-#' point alpha, either a factor of 6 or less levels or a numeric with values ranging from 0 to 1.
+#' point alpha, either a numeric or factor of 6 or less levels.
 #' @param size A single ggplot2 size numeric ranging from 0 to 20. Or, a vector representing the 
-#' point size, either a factor of 6 or less levels or a numeric with values ranging from 0 to 20.
+#' point size, either a numeric or factor of 6 or less levels.
 #' @return A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
 #' drawn interactively, they are temporarily saved to `tidygate_env$gates`
 #' @examples
@@ -266,11 +266,6 @@ gate_interactive <-
             stop("tidygate says: alpha factor level count exceeds the limit of 6") 
           }
         }
-        if (is.numeric(rlang::eval_tidy(alpha))) {
-          if (any(rlang::eval_tidy(alpha) < 0 | rlang::eval_tidy(alpha) > 1)) {
-            stop("tidygate says: alpha numeric values outside of the range 0 to 1")
-          }
-        }
       } else {
         if (rlang::eval_tidy(alpha) < 0 | rlang::eval_tidy(alpha) > 1)
           stop("tidygate says: alpha numeric outside of the range 0 to 1") 
@@ -288,11 +283,6 @@ gate_interactive <-
             length()
           if (size_factor_length > 6) {
             stop("tidygate says: size factor level count exceeds the limit of 6") 
-          }
-        }
-        if (is.numeric(rlang::eval_tidy(size))) {
-          if (any(rlang::eval_tidy(size) < 0 | rlang::eval_tidy(size) > 20)) {
-            stop("tidygate says: size numeric values outside of the range 0 to 20")
           }
         }
       } else {
@@ -468,9 +458,9 @@ gate_programmatic <-
 #' @param shape A single ggplot2 shape numeric ranging from 0 to 127. Or, a vector representing the 
 #' point shape, coercible to a factor of 6 or less levels.
 #' @param alpha A single ggplot2 alpha numeric ranging from 0 to 1. Or, a vector representing the 
-#' point alpha, either a factor of 6 or less levels or a numeric with values ranging from 0 to 1.
+#' point alpha, either a numeric or factor of 6 or less levels.
 #' @param size A single ggplot2 size numeric ranging from 0 to 20. Or, a vector representing the 
-#' point size, either a factor of 6 or less levels or a numeric with values ranging from 0 to 20.
+#' point size, either a numeric or factor of 6 or less levels.
 #' @param programmatic_gates A `data.frame` of the gate brush data, as saved in 
 #' `tidygate_env$gates`. The column `x` records X coordinates, the column `y` records Y coordinates and the column `.gate` 
 #' records the gate number. When this argument is supplied, gates will be drawn programmatically.

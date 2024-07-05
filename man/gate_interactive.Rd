@@ -18,10 +18,10 @@ point colour.}
 point shape, coercible to a factor of 6 or less levels.}
 
 \item{alpha}{A single ggplot2 alpha numeric ranging from 0 to 1. Or, a vector representing the 
-point alpha, either a factor of 6 or less levels or a numeric with values ranging from 0 to 1.}
+point alpha, either a numeric or factor of 6 or less levels.}
 
 \item{size}{A single ggplot2 size numeric ranging from 0 to 20. Or, a vector representing the 
-point size, either a factor of 6 or less levels or a numeric with values ranging from 0 to 20.}
+point size, either a numeric or factor of 6 or less levels.}
 }
 \value{
 A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
