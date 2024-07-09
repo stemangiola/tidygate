@@ -1,7 +1,7 @@
 Package: tidygate
 Type: Package
 Title: Interactively Gate Points
-Version: 1.0.11
+Version: 1.0.12
 Authors@R: 
     c(person(given = "Stefano",
            family = "Mangiola",
@@ -12,7 +12,9 @@ Authors@R:
              role = "ctb"),
       person(given = "William",
              family = "Hutchison",
-             role = "aut")
+             role = "aut",
+             email = "hutchison.w@wehi.edu.au",
+             comment = c(ORCID = "0009-0001-6242-4269"))
              )
 Maintainer: Stefano Mangiola <mangiolastefano@gmail.com>
 Description: 
