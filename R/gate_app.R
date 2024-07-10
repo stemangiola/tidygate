@@ -63,10 +63,11 @@ ui <- shiny::fluidPage(
 #' @export
 server <- function(input, output, session) {
   
-  # Fix CRAN note
+  # Fix CRAN notes
   key <- NULL
   curveNumber <- NULL
   pointNumber <- NULL
+  .gate <- NULL
   
   select_data <- tibble()
   brush_data <- tibble()
