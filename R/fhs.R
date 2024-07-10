@@ -22,11 +22,11 @@
 ##' @importFrom lifecycle deprecate_warn
 ##' @export
 ##' @examples
-##' \dontrun{
-##' x <- cbind(1:10, 1:10)
-##' rownames(x) <- 1:10
-##' plot(x, pch = 16, col = "red")
-##' fhs(x)
+##' if(interactive()) {
+##'   x <- cbind(1:10, 1:10)
+##'   rownames(x) <- 1:10
+##'   plot(x, pch = 16, col = "red")
+##'   fhs(x)
 ##' }
 ##' @importFrom graphics locator lines points
 fhs <- function(data, mark = TRUE, names = TRUE, ...) {

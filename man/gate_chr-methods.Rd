@@ -68,16 +68,13 @@ This function allow the user to label data points in inside one or more 2D gates
 }
 \examples{
 
-\dontrun{
 # Standard use - interactive
 
-  if(interactive()){
+if(interactive()){
 
- tidygate::tidygate_data  \%>\%
- distinct(`ct 1` , `ct 2`, Dim1, Dim2) \%>\%
- mutate(gate = gate_chr( Dim1, Dim2)) 
-
-  }
+  tidygate::tidygate_data  \%>\%
+    distinct(`ct 1` , `ct 2`, Dim1, Dim2) \%>\%
+    mutate(gate = gate_chr( Dim1, Dim2)) 
 
 }
 

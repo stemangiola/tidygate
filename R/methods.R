@@ -11,7 +11,7 @@ utils::globalVariables(c(".key", ".rs.invokeShinyPaneViewer"))
 #' @importFrom rlang quo_is_null
 #' @importFrom magrittr "%>%"
 #' @importFrom lifecycle deprecate_warn
-#'
+#' 
 #' @name gate_chr
 #'
 #'
@@ -30,19 +30,15 @@ utils::globalVariables(c(".key", ".rs.invokeShinyPaneViewer"))
 #'
 #' @return An character vector, with "0" for elements outside gates and "1..N" for the elements inside the N gates. 
 #'
-#'
 #' @examples
 #'
-#' \dontrun{
 #' # Standard use - interactive
 #' 
-#'   if(interactive()){
+#' if(interactive()){
 #'
-#'  tidygate::tidygate_data  %>%
-#'  distinct(`ct 1` , `ct 2`, Dim1, Dim2) %>%
-#'  mutate(gate = gate_chr( Dim1, Dim2)) 
-#'
-#'   }
+#'   tidygate::tidygate_data  %>%
+#'     distinct(`ct 1` , `ct 2`, Dim1, Dim2) %>%
+#'     mutate(gate = gate_chr( Dim1, Dim2)) 
 #'
 #' }
 #'
@@ -227,11 +223,6 @@ gate_int.numeric = 	function(  .dim1,
 #' point size, either a numeric or factor of 6 or less levels.
 #' @return A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
 #' drawn interactively, they are temporarily saved to `tidygate_env$gates`
-#' @examples
-#' \dontrun{
-#' mtcars |>
-#'   mutate(selected = gate_interactive(x = mpg, y = wt, shape = am))
-#'}
 gate_interactive <-
   function(x, y, colour = NULL, shape = NULL, alpha = 1, size = 2) {
     
@@ -467,15 +458,18 @@ gate_programmatic <-
 #' @return A vector of strings, of the gates each X and Y coordinate pair is within. If gates are
 #' drawn interactively, they are temporarily saved to `tidygate_env$gates`.
 #' @examples 
-#' \dontrun{
+#' library(dplyr)
+#' data("demo_gate_data", package = "tidygate")
+#' 
 #' # Gate points interactively
-#' mtcars |>
-#'   mutate(gated = gate(x = mpg, y = wt, shape = am))
+#' if(interactive()) {
+#'   mtcars |>
+#'     mutate(gated = gate(x = mpg, y = wt, shape = am))
+#' }
 #' 
 #' # Gate points programmatically
 #' mtcars |>
-#'   mutate(gated = gate(x = mpg, y = wt, programmatic_gates = tidygate_env$programmatic_gates))
-#'}
+#'   mutate(gated = gate(x = mpg, y = wt, programmatic_gates = demo_gate_data))
 #' @export
 gate <-
   function(x, y, colour = NULL, shape = NULL, alpha = 1, size = 2, programmatic_gates = NULL) {

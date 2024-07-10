@@ -32,9 +32,3 @@ Create an interactive scatter plot based on user-defined X and Y coordinates. Co
 and alpha can be defined as constant values, or can be controlled by values in a specified 
 column.
 }
-\examples{
-\dontrun{
-mtcars |>
-  mutate(selected = gate_interactive(x = mpg, y = wt, shape = am))
-}
-}
