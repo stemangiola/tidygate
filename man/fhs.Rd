@@ -32,11 +32,11 @@ The function will return the rownames of the enclosed points by the rownames
 of th co-ordinates given in \code{data}.
 }
 \examples{
-\dontrun{
-x <- cbind(1:10, 1:10)
-rownames(x) <- 1:10
-plot(x, pch = 16, col = "red")
-fhs(x)
+if(interactive()) {
+  x <- cbind(1:10, 1:10)
+  rownames(x) <- 1:10
+  plot(x, pch = 16, col = "red")
+  fhs(x)
 }
 }
 \author{

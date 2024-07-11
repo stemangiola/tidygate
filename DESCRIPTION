@@ -1,7 +1,7 @@
 Package: tidygate
 Type: Package
 Title: Interactively Gate Points
-Version: 1.0.12
+Version: 1.0.13
 Authors@R: 
     c(person(given = "Stefano",
            family = "Mangiola",

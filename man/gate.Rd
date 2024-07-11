@@ -49,13 +49,16 @@ programmatically. This feature allows the reproduction of previously drawn inter
 Programmatic gating is based on the package gatepoints by Wajid Jawaid.
 }
 \examples{
-\dontrun{
+library(dplyr)
+data("demo_gate_data", package = "tidygate")
+
 # Gate points interactively
-mtcars |>
-  mutate(gated = gate(x = mpg, y = wt, shape = am))
+if(interactive()) {
+  mtcars |>
+    mutate(gated = gate(x = mpg, y = wt, shape = am))
+}
 
 # Gate points programmatically
 mtcars |>
-  mutate(gated = gate(x = mpg, y = wt, programmatic_gates = tidygate_env$programmatic_gates))
-}
+  mutate(gated = gate(x = mpg, y = wt, programmatic_gates = demo_gate_data))
 }
