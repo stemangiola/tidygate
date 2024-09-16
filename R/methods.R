@@ -302,7 +302,8 @@ gate_interactive <-
       if (rlang::quo_is_symbol(colour)) { 
         plot <- 
           plot + 
-          ggplot2::aes(colour = !!colour)
+          ggplot2::aes(colour = !!colour) +
+          ggplot2::scale_colour_distiller(palette="Spectral")
         
       # Set to equal constant if not a column symbol and remove legend
       } else { 
