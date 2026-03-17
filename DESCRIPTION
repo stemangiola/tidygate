@@ -1,30 +1,30 @@
 Package: tidygate
 Type: Package
 Title: Interactively Gate Points
-Version: 1.0.16
+Version: 1.0.19
 Authors@R: 
     c(person(given = "Stefano",
            family = "Mangiola",
-           role = c("aut", "cre"),
+           role = "aut",
            email = "mangiolastefano@gmail.com"),
       person(given = "Wajid",
              family = "Jawaid",
              role = "ctb"),
       person(given = "William",
              family = "Hutchison",
-             role = "aut",
+             role = c("cre", "aut"),
              email = "hutchison.w@wehi.edu.au",
              comment = c(ORCID = "0009-0001-6242-4269"))
              )
-Maintainer: Stefano Mangiola <mangiolastefano@gmail.com>
+Maintainer: William Hutchison <hutchison.w@wehi.edu.au>
 Description: 
   Interactively gate points on a scatter plot. Interactively drawn gates are 
   recorded and can be applied programmatically to reproduce results exactly. Programmatic gating is 
-  based on the package gatepoints by Wajid Jawaid (who is also an author of this package). 
+  based on the package gatepoints by Wajid Jawaid. 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Depends:
     R (>= 3.6.0)
 Imports: 
