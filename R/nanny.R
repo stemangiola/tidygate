@@ -58,7 +58,6 @@ get_specific_annotation_columns = function(.data, .col){
 #' @importFrom magrittr set_rownames
 #' @importFrom rlang quo_is_null
 #' @importFrom rlang quo_is_symbolic
-#' @importFrom purrr when
 .as_matrix = function(.data,
                       rownames = NULL,
                       do_check = TRUE,

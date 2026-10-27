@@ -455,7 +455,6 @@ gate_interactive <-
 #' by Wajid Jawaid. 
 #'
 #' @importFrom purrr map
-#' @importFrom purrr when
 #' @importFrom purrr pluck
 #' @param x A vector representing the X dimension. 
 #' @param y A vector representing the Y dimension.
