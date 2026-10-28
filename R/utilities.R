@@ -58,27 +58,24 @@ check_dimensions = function(.data, .dim1, .dim2) {
   .dim1 = enquo(.dim1)
   .dim2 = enquo(.dim2)
   
-  .data %>%
-    when(# If NAs in dimensions
-      (.) %>%
+  # If NAs in dimensions
+  if (.data %>%
         filter(!!.dim1 %>% is.na | !!.dim2 %>% is.na) %>%
         nrow() %>%
-        `>` (0) ~ {
-          warning(
-            "tidygate says: you have some elements with non-valid dimensions. Those elements points will be filtered out"
-          )
-          (.) %>%
-            filter(!!.dim1 %>% is.na | !!.dim2 %>% is.na) %>%
-            capture.output() %>%
-            paste0(collapse = "\n") %>%
-            message()
-          
-          # Return
-          (.) %>%	filter(!(!!.dim1 %>% is.na | !!.dim2 %>% is.na))
-        },
-      
-      # Otherwise
-      ~ (.))
+        `>` (0)) {
+    warning(
+      "tidygate says: you have some elements with non-valid dimensions. Those elements points will be filtered out"
+    )
+    .data %>%
+      filter(!!.dim1 %>% is.na | !!.dim2 %>% is.na) %>%
+      capture.output() %>%
+      paste0(collapse = "\n") %>%
+      message()
+    
+    .data = .data %>% filter(!(!!.dim1 %>% is.na | !!.dim2 %>% is.na))
+  }
+  
+  .data
 }
 
 format_gatepoints = function(.data, .element, name, .idx) {
@@ -97,8 +94,5 @@ format_gatepoints = function(.data, .element, name, .idx) {
     
     mutate(!!as.symbol(sprintf("%s%s", name, .idx)) := .idx)
 }
-
-
-
 
 
