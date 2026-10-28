@@ -61,80 +61,67 @@ pretty_plot_chr_int = function(.data,
   
   
   
-  .data_formatted =
-    .data %>%
-    
-    # Define COLOR
-    when(
-      
-      # If not defined
-      pull(., !!.color) %>% unique %>% is.na() %>% all() ~ (.) %>% mutate(.color = "grey25", color_hexadecimal = "#3B3B3B"),
-      
-      # If continuous
-      quo_is_symbol(.color) &&
-        (.) %>%
-        select(!!.color) %>%
-        sapply(class) %in% c("numeric", "integer", "double") ~ {
-          order_ = findInterval(pull(., !!.color), sort(pull(., !!.color)))
-          (.) %>% mutate(color_hexadecimal = grDevices::colorRampPalette(viridis(n = 5))(n())[order_])
-        },
-      
-      # If discrete
-      quo_is_symbol(.color) ~ {
-        how_many_colors = .data %>% distinct(!!.color) %>% nrow
-        (.) %>%
-          mutate(color_hexadecimal =
-                   grDevices::colorRampPalette(RColorBrewer::brewer.pal(min(
-                     9, how_many_colors
-                   ), "Set1"))(how_many_colors)[factor(!!.color)])
-      }
-    ) %>%
-    
-    # Define SIZE
-    when(
-      # If not defined
-      pull(., !!.size) %>% unique %>% is.na() %>% all() ~ (.)  %>% mutate(.size = 2),
-      
-      # If it is a number and not a column name
-      is_size_fixed ~ (.)  %>% mutate(.size := !!.size),
-      
-      # If continuous
-      quo_is_symbol(enquo(.size)) &&
-        (.) %>%
-        select(!!enquo(.size)) %>%
-        sapply(class) %in% c("numeric", "integer", "double") ~ 	(.) %>%	mutate(.size := !!enquo(.size) %>% rescale(to = my_size_range)),
-      
-      # If discrete
-      quo_is_symbol(enquo(.size)) ~ {
-        warning("tidygate says: .size has to be a continuous variable. .size has been ignored")
-        (.) %>% mutate(.size = 2)
-      },
-      
-      ~ stop(
-        "tidygate says: the parameter .size must be NULL, numeric or a symbolic column name"
-      )
-    ) %>%
-    
-    # Define SHAPE
-    when(
-      
-      # If not defined
-      pull(., !!.shape) %>% unique %>% is.na() %>% all() ~ (.)  %>% mutate(.shape = 19),
-      
-      # If continuous
-      quo_is_symbol(.shape) &
-        (.) %>%
-        select(!!.shape) %>%
-        sapply(class) %in% c("numeric", "integer", "double") ~ {
-          warning("tidygate says: .shape has to be a discrete variable. .shape has been ignored")
-          (.) %>% mutate(.shape = 19)
-        }	,
-      
-      # If discrete
-      quo_is_symbol(.shape) ~ (.) %>%	mutate(.shape := c(19, 17, 15, 18, 3, 4, 8, 10, 5)[factor(!!.shape)])
-      
-       
+  .data_formatted = .data
+  
+  # Define COLOR
+  if (pull(.data_formatted, !!.color) %>% unique %>% is.na() %>% all()) {
+    # If not defined
+    .data_formatted = .data_formatted %>% mutate(.color = "grey25", color_hexadecimal = "#3B3B3B")
+  } else if (quo_is_symbol(.color) &&
+             .data_formatted %>%
+             select(!!.color) %>%
+             sapply(class) %in% c("numeric", "integer", "double")) {
+    # If continuous
+    order_ = findInterval(pull(.data_formatted, !!.color), sort(pull(.data_formatted, !!.color)))
+    .data_formatted = .data_formatted %>% mutate(color_hexadecimal = grDevices::colorRampPalette(viridis(n = 5))(n())[order_])
+  } else if (quo_is_symbol(.color)) {
+    # If discrete
+    how_many_colors = .data %>% distinct(!!.color) %>% nrow
+    .data_formatted = .data_formatted %>%
+      mutate(color_hexadecimal =
+               grDevices::colorRampPalette(RColorBrewer::brewer.pal(min(
+                 9, how_many_colors
+               ), "Set1"))(how_many_colors)[factor(!!.color)])
+  }
+  
+  # Define SIZE
+  if (pull(.data_formatted, !!.size) %>% unique %>% is.na() %>% all()) {
+    # If not defined
+    .data_formatted = .data_formatted %>% mutate(.size = 2)
+  } else if (is_size_fixed) {
+    # If it is a number and not a column name
+    .data_formatted = .data_formatted %>% mutate(.size := !!.size)
+  } else if (quo_is_symbol(enquo(.size)) &&
+             .data_formatted %>%
+             select(!!enquo(.size)) %>%
+             sapply(class) %in% c("numeric", "integer", "double")) {
+    # If continuous
+    .data_formatted = .data_formatted %>% mutate(.size := !!enquo(.size) %>% rescale(to = my_size_range))
+  } else if (quo_is_symbol(enquo(.size))) {
+    # If discrete
+    warning("tidygate says: .size has to be a continuous variable. .size has been ignored")
+    .data_formatted = .data_formatted %>% mutate(.size = 2)
+  } else {
+    stop(
+      "tidygate says: the parameter .size must be NULL, numeric or a symbolic column name"
     )
+  }
+  
+  # Define SHAPE
+  if (pull(.data_formatted, !!.shape) %>% unique %>% is.na() %>% all()) {
+    # If not defined
+    .data_formatted = .data_formatted %>% mutate(.shape = 19)
+  } else if (quo_is_symbol(.shape) &
+             .data_formatted %>%
+             select(!!.shape) %>%
+             sapply(class) %in% c("numeric", "integer", "double")) {
+    # If continuous
+    warning("tidygate says: .shape has to be a discrete variable. .shape has been ignored")
+    .data_formatted = .data_formatted %>% mutate(.shape = 19)
+  } else if (quo_is_symbol(.shape)) {
+    # If discrete
+    .data_formatted = .data_formatted %>% mutate(.shape := c(19, 17, 15, 18, 3, 4, 8, 10, 5)[factor(!!.shape)])
+  }
   
   # Plot
   .data_formatted %>%
@@ -187,24 +174,21 @@ pretty_plot_chr_int = function(.data,
   # Add legend to top right, outside plot region
   inset_y = 0
   if (pull(.data, !!.color) %>% unique %>% is.na() %>% not() %>% all()) {
+    # If continuous vs discrete legend values
+    if (pull(.data_formatted, !!.color) %>% class %in% c("numeric", "integer", "double")) {
+      legend_labels = arrange(.data_formatted, !!.color) %>% slice(1, n()) %>% pull(!!.color) %>% round(digits = 4)
+      legend_cols = arrange(.data_formatted, !!.color) %>% slice(1, n()) %>% pull(color_hexadecimal)
+    } else {
+      legend_labels = arrange(.data_formatted, !!.color) %>% distinct(!!.color) %>% pull(!!.color)
+      legend_cols = arrange(.data_formatted, !!.color) %>% distinct(color_hexadecimal) %>% pull(color_hexadecimal)
+    }
+    
     legend(
       "topleft",
       inset = c(1.05, inset_y),
-      legend = .data_formatted %>% 
-        
-        # If continuous
-        when(
-          pull(., !!.color) %>% class %in% c("numeric", "integer", "double") ~ arrange(., !!.color) %>% slice(1, n()) %>% pull(!!.color) %>% round(digits = 4),
-          ~ arrange(., !!.color) %>% distinct(!!.color) %>% pull(!!.color) 
-        ),
+      legend = legend_labels,
       pch = 19,
-      col =  .data_formatted %>% 
-        
-        # If continuous
-        when(
-          pull(., !!.color) %>% class %in% c("numeric", "integer", "double") ~ arrange(., !!.color) %>% slice(1, n()) %>% pull(color_hexadecimal),
-          ~ arrange(., !!.color) %>% distinct(color_hexadecimal) %>% pull(color_hexadecimal)
-        ),
+      col = legend_cols,
       title = color_title,
       box.col = "white",
       xjust = 0
@@ -403,15 +387,23 @@ gate_programmatic_chr_int <-
       .as_matrix()
     
     # Loop over gates # Variable needed for recalling the attributes later
-    gate_list_result = map(gate_list,
-                           ~ .x %>%
-                             when("data.frame" %in% class(.) ~ .as_matrix(.), ~ (.)) %>%
-                             applyGate(my_matrix, .) %>%
-                             which() %>%
-                             as.character() %>%
-                             
-                             # Avoid error for empty gates
-                             when(!is.null(.) ~ (.) %>% add_attr(.x, "gate")))
+    gate_list_result = map(gate_list, ~ {
+      gate_coords = .x
+      if ("data.frame" %in% class(gate_coords)) {
+        gate_coords = .as_matrix(gate_coords)
+      }
+      
+      result = applyGate(my_matrix, gate_coords) %>%
+        which() %>%
+        as.character()
+      
+      # Avoid error for empty gates
+      if (!is.null(result)) {
+        result = result %>% add_attr(.x, "gate")
+      }
+      
+      result
+    })
     
     # Return
     gate_list_result %>%
@@ -440,15 +432,12 @@ gate_programmatic_chr_int <-
   point = NULL
   
   # If gouping is complex multicolumn
-  .group_by =
-    .group_by %>%
-    when(
-      !is.null(.group_by) ~ matrix(ncol = length(.group_by) / length(.dim1)) %>%
-        as.data.frame() %>%
-        unite(".group_by", everything(), sep = "___") %>%
-        pull(.group_by),
-      ~ (.)
-    )
+  if (!is.null(.group_by)) {
+    .group_by = matrix(ncol = length(.group_by) / length(.dim1)) %>%
+      as.data.frame() %>%
+      unite(".group_by", everything(), sep = "___") %>%
+      pull(.group_by)
+  }
   
     
   # Create tibble
@@ -465,14 +454,14 @@ gate_programmatic_chr_int <-
   if(!is.null(.group_by)) input_df = input_df |> mutate(., .group_by = !!.group_by)
   
   
-  unique_df = 
-    input_df  %>%
-    
-    # Nesting is the case
-    when(!is.null(.group_by) ~ nest(., data___ = .group_by),
-         (.)) %>%
-    
-    distinct()
+  unique_df = input_df
+  
+  # Nesting is the case
+  if (!is.null(.group_by)) {
+    unique_df = nest(unique_df, data___ = .group_by)
+  }
+  
+  unique_df = unique_df %>% distinct()
   
   # Interactive
   if(is.null(gate_list))

@@ -475,16 +475,23 @@ gate_programmatic <-
       programmatic_gates |>
       data.frame() |>
       split(programmatic_gates$.gate) |>
-      purrr::map(
-        ~ .x %>%
-          purrr::when("data.frame" %in% class(.) ~ .as_matrix(.), ~ (.)) %>%
-          applyGate(data, .) %>%
+      purrr::map(~ {
+        gate_coords = .x
+        if ("data.frame" %in% class(gate_coords)) {
+          gate_coords = .as_matrix(gate_coords)
+        }
+        
+        result = applyGate(data, gate_coords) %>%
           which() %>%
-          as.character() %>%
-          
-          # Avoid error for empty gates
-          purrr::when(!is.null(.) ~ (.) %>% add_attr(.x, "gate"))
-      ) |>
+          as.character()
+        
+        # Avoid error for empty gates
+        if (!is.null(result)) {
+          result = result %>% add_attr(.x, "gate")
+        }
+        
+        result
+      }) |>
       
       parse_gate_list(data)
       

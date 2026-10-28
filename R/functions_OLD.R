@@ -34,76 +34,66 @@ pretty_plot = function(.data,
   
   
   
-  .data_formatted = 
-    .data %>%
-    
-    # Define COLOR
-    when(
-      
-      # If continuous
-      quo_is_symbol(.color) && 
-        (.) %>% 
-        select(!!.color) %>% 
-        sapply(class) %in% c("numeric", "integer", "double") ~{
-          order_ = findInterval( pull(.,!!.color), sort(pull(.,!!.color)))
-          (.) %>% mutate(.color = grDevices::colorRampPalette(	viridis(n = 5) )(n())[order_] )
-        },
-      
-      # If discrete
-      quo_is_symbol(.color) ~ {
-        how_many_colors = .data %>% distinct(!!.color) %>% nrow
-        (.) %>%
-          mutate(.color = 
-                   grDevices::colorRampPalette(RColorBrewer::brewer.pal(min(9, how_many_colors), "Set1"))(how_many_colors)[factor(!!.color)]
-          )
-      },
-      
-      # If not defined
-      ~ (.) %>% mutate(.color = "grey25")
-    ) %>%
-    
-    # Define SIZE
-    when(
-      
-      # If not defined
-      is.null(.size) ~ (.)  %>% mutate(.size = 2 ),
-      
-      # If it is a number and not a column name
-      .size %>% is("numeric") ~ (.)  %>% mutate(.size := !!.size ),
-      
-      # If continuous
-      quo_is_symbol(enquo(.size)) && 
-        (.) %>% 
-        select(!!enquo(.size)) %>% 
-        sapply(class) %in% c("numeric", "integer", "double") ~ 	(.) %>%	mutate(.size := !!enquo(.size) %>% rescale( to = my_size_range) ),
-      
-      # If discrete
-      quo_is_symbol(enquo(.size)) ~ {
-        warning("tidygate says: .size has to be a continuous variable. .size has been ignored")
-        (.) %>% mutate(.size = 2 )
-      },
-      
-      ~ stop("tidygate says: the parameter .size must be NULL, numeric or a symbolic column name")
-    ) %>%
-    
-    # Define SHAPE
-    when(
-      
-      # If continuous
-      quo_is_symbol(.shape) & 
-        (.) %>% 
-        select(!!.shape) %>% 
-        sapply(class) %in% c("numeric", "integer", "double") ~ {
-          warning("tidygate says: .shape has to be a discrete variable. .shape has been ignored")
-          (.) %>% mutate(.shape = 19 )
-        }	,
-      
-      # If discrete
-      quo_is_symbol(.shape) ~ (.) %>%	mutate(.shape := c(19, 17, 15, 18, 3, 4, 8, 10, 5)[factor(!!.shape)] 	),
-      
-      # If not defined
-      ~ (.)  %>% mutate(.shape = 19 )
-    ) 
+  .data_formatted = .data
+  
+  # Define COLOR
+  if (quo_is_symbol(.color) &&
+      .data_formatted %>%
+      select(!!.color) %>%
+      sapply(class) %in% c("numeric", "integer", "double")) {
+    # If continuous
+    order_ = findInterval(pull(.data_formatted, !!.color), sort(pull(.data_formatted, !!.color)))
+    .data_formatted = .data_formatted %>% mutate(.color = grDevices::colorRampPalette(viridis(n = 5))(n())[order_])
+  } else if (quo_is_symbol(.color)) {
+    # If discrete
+    how_many_colors = .data %>% distinct(!!.color) %>% nrow
+    .data_formatted = .data_formatted %>%
+      mutate(.color =
+               grDevices::colorRampPalette(RColorBrewer::brewer.pal(min(9, how_many_colors), "Set1"))(how_many_colors)[factor(!!.color)]
+      )
+  } else {
+    # If not defined
+    .data_formatted = .data_formatted %>% mutate(.color = "grey25")
+  }
+  
+  # Define SIZE
+  if (is.null(.size)) {
+    # If not defined
+    .data_formatted = .data_formatted %>% mutate(.size = 2)
+  } else if (.size %>% is("numeric")) {
+    # If it is a number and not a column name
+    .data_formatted = .data_formatted %>% mutate(.size := !!.size)
+  } else if (quo_is_symbol(enquo(.size)) &&
+             .data_formatted %>%
+             select(!!enquo(.size)) %>%
+             sapply(class) %in% c("numeric", "integer", "double")) {
+    # If continuous
+    .data_formatted = .data_formatted %>% mutate(.size := !!enquo(.size) %>% rescale(to = my_size_range))
+  } else if (quo_is_symbol(enquo(.size))) {
+    # If discrete
+    warning("tidygate says: .size has to be a continuous variable. .size has been ignored")
+    .data_formatted = .data_formatted %>% mutate(.size = 2)
+  } else {
+    stop("tidygate says: the parameter .size must be NULL, numeric or a symbolic column name")
+  }
+  
+  # Define SHAPE
+  if (quo_is_symbol(.shape) &
+      .data_formatted %>%
+      select(!!.shape) %>%
+      sapply(class) %in% c("numeric", "integer", "double")) {
+    # If continuous
+    warning("tidygate says: .shape has to be a discrete variable. .shape has been ignored")
+    .data_formatted = .data_formatted %>% mutate(.shape = 19)
+  } else if (quo_is_symbol(.shape)) {
+    # If discrete
+    .data_formatted = .data_formatted %>% mutate(.shape := c(19, 17, 15, 18, 3, 4, 8, 10, 5)[factor(!!.shape)])
+  } else {
+    # If not defined
+    .data_formatted = .data_formatted %>% mutate(.shape = 19)
+  }
+  
+
   
   # Plot
   .data_formatted %>%
@@ -270,16 +260,19 @@ gate_interactive_old <-
     }
     
     
+    # size can be number or column
+    size_for_plot = .size
+    if (!(is.null(.size) | is(.size, "numeric"))) {
+      size_for_plot = enquo(.size)
+    }
+    
     # Plot
     my_df %>% pretty_plot(
       !!.dim1, 
       !!.dim2,
       .color = !!.color,
       .shape = !!.shape,
-      
-      # size can be number or column
-      .size = .size %>% when(is.null(.size) |  is(., "numeric")  ~ (.), ~ !!enquo(.)),
-      
+      .size = size_for_plot,
       opacity = opacity
     )
     
@@ -301,20 +294,23 @@ gate_interactive_old <-
       
       # Correct column types
       # Keep classes for compatibility
-      imap(
-        ~ .x %>%
-          when(
-            .y %in% colnames(my_df) &&
-              my_df %>% select(.y) %>% pull(1) %>% is("numeric") ~ as.numeric(.),
-            .y %in% colnames(my_df) &&
-              my_df %>% select(.y) %>% pull(1) %>% is( "integer") ~ as.integer(.),
-            .y %in% colnames(my_df) &&
-              my_df %>% select(.y) %>% pull(1) %>% is( "logical") ~ as.logical(.),
-            .y %in% colnames(my_df) &&
-              my_df %>% select(.y) %>% pull(1) %>% is( "factor") ~ as.factor(.),
-            ~ (.)
-          )
-      ) %>%
+      imap(~ {
+        out = .x
+        if (.y %in% colnames(my_df) &&
+            my_df %>% select(.y) %>% pull(1) %>% is("numeric")) {
+          out = as.numeric(out)
+        } else if (.y %in% colnames(my_df) &&
+                   my_df %>% select(.y) %>% pull(1) %>% is("integer")) {
+          out = as.integer(out)
+        } else if (.y %in% colnames(my_df) &&
+                   my_df %>% select(.y) %>% pull(1) %>% is("logical")) {
+          out = as.logical(out)
+        } else if (.y %in% colnames(my_df) &&
+                   my_df %>% select(.y) %>% pull(1) %>% is("factor")) {
+          out = as.factor(out)
+        }
+        out
+      }) %>%
       do.call(bind_cols, .) %>%
       
       # Join with the dataset
@@ -386,14 +382,17 @@ gate_programmatic_old <-
       .as_matrix(rownames = !!.element) 
     
     # Loop over gates # Variable needed for recalling the attributes later
-    gate_list_result = map(
-      gate_list,  
-      ~ my_matrix[applyGate(my_matrix,.x),] %>%
-        rownames() %>% 
-        
-        # Avoid error for empty gates
-        when(!is.null(.) ~ (.) %>% add_attr(.x, "gate") )
-    )
+    gate_list_result = map(gate_list, ~ {
+      result = my_matrix[applyGate(my_matrix, .x),] %>%
+        rownames()
+      
+      # Avoid error for empty gates
+      if (!is.null(result)) {
+        result = result %>% add_attr(.x, "gate")
+      }
+      
+      result
+    })
     
     # Return
     gate_list_result %>%
@@ -408,20 +407,23 @@ gate_programmatic_old <-
       
       # Correct column types
       # Keep classes for compatibility
-      imap(
-        ~ .x %>%
-          when(
-            .y %in% colnames(my_df) &&
-              my_df %>% select(.y) %>% pull(1) %>% is("numeric") ~ as.numeric(.),
-            .y %in% colnames(my_df) &&
-              my_df %>% select(.y) %>% pull(1) %>% is( "integer") ~ as.integer(.),
-            .y %in% colnames(my_df) &&
-              my_df %>% select(.y) %>% pull(1) %>% is( "logical") ~ as.logical(.),
-            .y %in% colnames(my_df) &&
-              my_df %>% select(.y) %>% pull(1) %>% is( "factor") ~ as.factor(.),
-            ~ (.)
-          )
-      ) %>%
+      imap(~ {
+        out = .x
+        if (.y %in% colnames(my_df) &&
+            my_df %>% select(.y) %>% pull(1) %>% is("numeric")) {
+          out = as.numeric(out)
+        } else if (.y %in% colnames(my_df) &&
+                   my_df %>% select(.y) %>% pull(1) %>% is("integer")) {
+          out = as.integer(out)
+        } else if (.y %in% colnames(my_df) &&
+                   my_df %>% select(.y) %>% pull(1) %>% is("logical")) {
+          out = as.logical(out)
+        } else if (.y %in% colnames(my_df) &&
+                   my_df %>% select(.y) %>% pull(1) %>% is("factor")) {
+          out = as.factor(out)
+        }
+        out
+      }) %>%
       do.call(bind_cols, .) %>%
       
       # Join with the dataset

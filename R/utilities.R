@@ -58,27 +58,24 @@ check_dimensions = function(.data, .dim1, .dim2) {
   .dim1 = enquo(.dim1)
   .dim2 = enquo(.dim2)
   
-  .data %>%
-    when(# If NAs in dimensions
-      (.) %>%
+  # If NAs in dimensions
+  if (.data %>%
         filter(!!.dim1 %>% is.na | !!.dim2 %>% is.na) %>%
         nrow() %>%
-        `>` (0) ~ {
-          warning(
-            "tidygate says: you have some elements with non-valid dimensions. Those elements points will be filtered out"
-          )
-          (.) %>%
-            filter(!!.dim1 %>% is.na | !!.dim2 %>% is.na) %>%
-            capture.output() %>%
-            paste0(collapse = "\n") %>%
-            message()
-          
-          # Return
-          (.) %>%	filter(!(!!.dim1 %>% is.na | !!.dim2 %>% is.na))
-        },
-      
-      # Otherwise
-      ~ (.))
+        `>` (0)) {
+    warning(
+      "tidygate says: you have some elements with non-valid dimensions. Those elements points will be filtered out"
+    )
+    .data %>%
+      filter(!!.dim1 %>% is.na | !!.dim2 %>% is.na) %>%
+      capture.output() %>%
+      paste0(collapse = "\n") %>%
+      message()
+    
+    .data = .data %>% filter(!(!!.dim1 %>% is.na | !!.dim2 %>% is.na))
+  }
+  
+  .data
 }
 
 format_gatepoints = function(.data, .element, name, .idx) {
@@ -99,31 +96,3 @@ format_gatepoints = function(.data, .element, name, .idx) {
 }
 
 
-
-
-
-
-# Internal replacement for purrr::when(), which is defunct in purrr 1.0.0+
-when = function(., ...) {
-  dots = list(...)
-  names = names(dots)
-  named = if (is.null(names)) rep(FALSE, length(dots)) else names != ""
-  if (sum(!named) == 0) stop("At least one matching condition is needed.")
-  is_formula = vapply(dots, function(dot) identical(class(dot), "formula"), logical(1L))
-  env = new.env(parent = parent.frame())
-  env[["."]] = .
-  for (i in which(named)) env[[names[i]]] = dots[[i]]
-  result = NULL
-  for (i in which(!named)) {
-    if (is_formula[i]) {
-      action = length(dots[[i]])
-      if (action == 2 || isTRUE(eval(dots[[i]][[2]], env, env))) {
-        result = eval(dots[[i]][[action]], env, env)
-        break
-      }
-    } else {
-      result = dots[[i]]
-    }
-  }
-  result
-}

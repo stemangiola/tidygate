@@ -32,23 +32,22 @@ get_specific_annotation_columns = function(.data, .col){
   n_x = .data %>% distinct_at(vars(!!.col)) %>% nrow
   
   # element wise columns
-  .data %>%
+  cols = .data %>%
     select(-!!.col) %>%
     colnames %>%
-    map(
-      ~
-        .x %>%
-        when(
-          .data %>%
+    map(~ {
+      if (.data %>%
             distinct_at(vars(!!.col, .x)) %>%
             nrow %>%
-            equals(n_x) ~ .x,
-          ~ NULL
-        )
-    ) %>%
-    
-    # Drop NULL
-    {	(.)[lengths((.)) != 0]	} %>%
+            equals(n_x)) {
+        .x
+      } else {
+        NULL
+      }
+    })
+  
+  # Drop NULL
+  cols[lengths(cols) != 0] %>%
     unlist
   
 }
@@ -69,40 +68,40 @@ get_specific_annotation_columns = function(.data, .col){
   rownames = enquo(rownames)
   
   
-  .data %>%
-    
-    # Through warning if data frame is not numerical beside the rownames column (if present)
-    when(
-      do_check &&
-        (.) %>%
-        # If rownames defined eliminate it from the data frame
-        when(!quo_is_null(rownames) ~ (.) %>% select(-!!rownames), ~ (.)) %>%
-        dplyr::summarise_all(class) %>%
-        tidyr::gather(variable, class) %>%
-        pull(class) %>%
-        unique() %>%
-        `%in%`(c("numeric", "integer")) %>% `!`() %>% any() ~ {
-          warning("tidygate says: there are NON-numerical columns, the matrix will NOT be numerical")
-          (.)
-        },
-      ~ (.)
-    ) %>%
-    
-    # If rownames multiple enquo (e.g., c(col1, col2)) merge them
-    when(!quo_is_null(rownames) ~ (.) %>% unite(col = "rn", !!rownames, sep = sep_rownames), ~ (.)) %>%
-    
-    as.data.frame() %>%
-    
-    # Deal with rownames column if present
-    when(
-      !quo_is_null(rownames) ~ (.) %>%
-        set_rownames((.) %>% pull(rn)) %>%
-        select(-rn), 
-      ~ (.)
-    ) %>%
-    
-    # Convert to matrix
-    as.matrix()
+  out = .data
+  
+  # Through warning if data frame is not numerical beside the rownames column (if present)
+  if (do_check) {
+    check_df = out
+    if (!quo_is_null(rownames)) {
+      check_df = check_df %>% select(-!!rownames)
+    }
+    if (check_df %>%
+          dplyr::summarise_all(class) %>%
+          tidyr::gather(variable, class) %>%
+          pull(class) %>%
+          unique() %>%
+          `%in%`(c("numeric", "integer")) %>% `!`() %>% any()) {
+      warning("tidygate says: there are NON-numerical columns, the matrix will NOT be numerical")
+    }
+  }
+  
+  # If rownames multiple enquo (e.g., c(col1, col2)) merge them
+  if (!quo_is_null(rownames)) {
+    out = out %>% unite(col = "rn", !!rownames, sep = sep_rownames)
+  }
+  
+  out = out %>% as.data.frame()
+  
+  # Deal with rownames column if present
+  if (!quo_is_null(rownames)) {
+    out = out %>%
+      set_rownames(out %>% pull(rn)) %>%
+      select(-rn)
+  }
+  
+  # Convert to matrix
+  as.matrix(out)
 }
 
 #' Convert array of quosure (e.g. c(col_a, col_b)) into character vector
